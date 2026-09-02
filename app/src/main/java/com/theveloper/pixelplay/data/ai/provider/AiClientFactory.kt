@@ -76,6 +76,12 @@ class AiClientFactory @Inject constructor() {
                 defaultModelId = "llama3",
                 providerName = "Ollama"
             )
+            AiProvider.VOLCANO -> GenericOpenAiClient(
+                apiKey = apiKey,
+                baseUrl = "https://ark.cn-beijing.volces.com/api/coding/v3",
+                defaultModelId = "",
+                providerName = "Volcano Engine"
+            )
             AiProvider.CUSTOM -> GenericOpenAiClient(
                 apiKey = apiKey,
                 baseUrl = "",

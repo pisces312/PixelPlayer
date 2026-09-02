@@ -964,6 +964,7 @@ fun SettingsCategoryScreen(
                                     com.theveloper.pixelplay.data.ai.provider.AiProvider.OPENAI -> stringResource(R.string.settings_ai_source_openai)
                                     com.theveloper.pixelplay.data.ai.provider.AiProvider.OPENROUTER -> "OpenRouter (openrouter.ai)"
                                     com.theveloper.pixelplay.data.ai.provider.AiProvider.OLLAMA -> "Ollama (cloud)"
+                                    com.theveloper.pixelplay.data.ai.provider.AiProvider.VOLCANO -> "Volcano Engine (ark.cn-beijing.volces.com)"
                                     com.theveloper.pixelplay.data.ai.provider.AiProvider.CUSTOM -> "Custom Provider"
                                 }
                                 
@@ -1023,6 +1024,13 @@ fun SettingsCategoryScreen(
                                             leadingIcon = { Icon(Icons.Rounded.Science, null, tint = MaterialTheme.colorScheme.secondary) }
                                         )
                                     }
+
+                                    AiModelNameItem(
+                                        modelName = currentAiModel,
+                                        onModelNameSave = { settingsViewModel.onAiModelChange(it) },
+                                        title = "Manual Model Entry",
+                                        subtitle = "Enter model name or endpoint ID directly"
+                                    )
                                 }
                             }
 

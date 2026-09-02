@@ -900,6 +900,75 @@ fun AiApiKeyItem(
 }
 
 @Composable
+fun AiModelNameItem(
+    modelName: String,
+    onModelNameSave: (String) -> Unit,
+    title: String,
+    subtitle: String
+) {
+    var localModelName by remember(modelName) { mutableStateOf(modelName) }
+    val hasChanges = localModelName != modelName
+    var showSaved by remember { mutableStateOf(false) }
+
+    LaunchedEffect(showSaved) {
+        if (showSaved) {
+            kotlinx.coroutines.delay(2000)
+            showSaved = false
+        }
+    }
+
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = localModelName,
+                onValueChange = { localModelName = it },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Enter model name / endpoint ID") },
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                FilledTonalButton(
+                    onClick = {
+                        onModelNameSave(localModelName)
+                        showSaved = true
+                    },
+                    enabled = hasChanges
+                ) {
+                    Text(stringResource(R.string.common_save), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+                if (showSaved) {
+                    Text(
+                        text = stringResource(R.string.common_saved),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun AiSystemPromptItem(
     systemPrompt: String,
     defaultPrompt: String,

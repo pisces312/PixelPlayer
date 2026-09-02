@@ -501,7 +501,8 @@ class PlayerViewModel @Inject constructor(
         aiPreferencesRepository.openaiApiKey,
         aiPreferencesRepository.ollamaApiKey,
         aiPreferencesRepository.customApiKey,
-        aiPreferencesRepository.openrouterApiKey
+        aiPreferencesRepository.openrouterApiKey,
+        aiPreferencesRepository.volcanoApiKey
     ) { values ->
         val provider = values[0]
         val gemini = values[1]
@@ -515,6 +516,7 @@ class PlayerViewModel @Inject constructor(
         val ollama = values[9]
         val custom = values[10]
         val openrouter = values[11]
+        val volcano = values[12]
         when (provider) {
             "GEMINI" -> gemini.isNotBlank()
             "DEEPSEEK" -> deepseek.isNotBlank()
@@ -526,6 +528,7 @@ class PlayerViewModel @Inject constructor(
             "OPENAI" -> openai.isNotBlank()
             "OPENROUTER" -> openrouter.isNotBlank()
             "OLLAMA" -> ollama.isNotBlank()
+            "VOLCANO" -> volcano.isNotBlank()
             "CUSTOM" -> custom.isNotBlank()
             else -> false
         }

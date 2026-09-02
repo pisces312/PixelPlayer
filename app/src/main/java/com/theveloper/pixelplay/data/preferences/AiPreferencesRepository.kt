@@ -32,6 +32,7 @@ class AiPreferencesRepository @Inject constructor(
         val DEFAULT_GLM_SYSTEM_PROMPT = DEFAULT_SYSTEM_PROMPT
         val DEFAULT_OPENAI_SYSTEM_PROMPT = DEFAULT_SYSTEM_PROMPT
         val DEFAULT_OPENROUTER_SYSTEM_PROMPT = DEFAULT_SYSTEM_PROMPT
+        val DEFAULT_VOLCANO_SYSTEM_PROMPT = DEFAULT_SYSTEM_PROMPT
     }
 
     private object Keys {
@@ -130,6 +131,10 @@ class AiPreferencesRepository @Inject constructor(
     val ollamaApiKey: Flow<String> = getApiKey(AiProvider.OLLAMA)
     val ollamaModel: Flow<String> = getModel(AiProvider.OLLAMA)
     val ollamaSystemPrompt: Flow<String> = getSystemPrompt(AiProvider.OLLAMA)
+
+    val volcanoApiKey: Flow<String> = getApiKey(AiProvider.VOLCANO)
+    val volcanoModel: Flow<String> = getModel(AiProvider.VOLCANO)
+    val volcanoSystemPrompt: Flow<String> = getSystemPrompt(AiProvider.VOLCANO)
 
     val customApiKey: Flow<String> = getApiKey(AiProvider.CUSTOM)
     val customModel: Flow<String> = getModel(AiProvider.CUSTOM)
