@@ -80,13 +80,6 @@
     <string name="jellyfin_dashboard_playlists_empty_hint">Tap sync to fetch your Jellyfin playlists</string>
     <string name="jellyfin_dashboard_quick_actions_subtitle">Manage your Jellyfin server connection.</string>
 
-    <!-- Google Drive dashboard -->
-    <string name="gdrive_dashboard_music_folders">Music folders</string>
-    <string name="gdrive_dashboard_add_folder_hint">Tap + to add a Drive folder</string>
-    <string name="gdrive_dashboard_no_folders_yet">No folders added yet</string>
-    <string name="gdrive_dashboard_folders_synced_count">%1$d folders synced</string>
-    <string name="gdrive_cd_add_folder">Add folder</string>
-
     <!-- QQ Music dashboard -->
     <string name="qqmusic_select_playlist_type_title">Select playlist type</string>
     <string name="qqmusic_choose_playlists_to_sync">Choose which playlists to sync:</string>
@@ -174,21 +167,6 @@
     <string name="auth_jellyfin_url_hint">Full URL of your Jellyfin server, including port.</string>
     <string name="auth_jellyfin_url_placeholder">http://192.168.1.100:8096</string>
     <string name="auth_jellyfin_username_hint">Your Jellyfin account username.</string>
-
-    <!-- Google Drive Auth -->
-    <string name="auth_gdrive_connect_subtitle">Stream music files directly from your Google Drive</string>
-    <string name="auth_gdrive_connect_title">Connect Google Drive</string>
-    <string name="auth_gdrive_connected_toast">Google Drive connected!</string>
-    <string name="auth_gdrive_create_action">Create \"PixelPlayer Music\"</string>
-    <string name="auth_gdrive_create_subtitle">Create a new folder here for your music</string>
-    <string name="auth_gdrive_empty_msg">No folders here</string>
-    <string name="auth_gdrive_open_cd">Open folder</string>
-    <string name="auth_gdrive_select_subtitle">Choose or create a folder to use as your music source</string>
-    <string name="auth_gdrive_select_title">Select a music folder</string>
-    <string name="auth_gdrive_setup_msg">Setting up Google Drive…</string>
-    <string name="auth_gdrive_signin_action">Sign in with Google</string>
-    <string name="auth_gdrive_title">Google Drive</string>
-    <string name="auth_gdrive_use_action">Use</string>
 
     <!-- Web Login Shared/Generic -->
     <string name="auth_cookies_unreadable_error">Could not read session cookies.</string>

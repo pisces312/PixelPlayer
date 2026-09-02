@@ -348,14 +348,11 @@ private fun ConnectedAccountCard(
     onLogout: () -> Unit,
     painter: androidx.compose.ui.graphics.painter.Painter? = null
 ) {
-    val statusSoon = stringResource(R.string.accounts_status_soon)
     val statusConnected = stringResource(R.string.accounts_status_connected)
     val openService = stringResource(R.string.accounts_action_open_service)
-    val comingSoonShort = stringResource(R.string.accounts_action_coming_soon)
     val loggingOut = stringResource(R.string.accounts_logging_out_status)
     val logOut = stringResource(R.string.cloud_cd_logout)
     val palette = servicePalette(account.service)
-    val isComingSoon = account.service == ExternalServiceAccount.GOOGLE_DRIVE
     val cardShape = AbsoluteSmoothCornerShape(28.dp, 60)
 
     Card(
@@ -428,20 +425,12 @@ private fun ConnectedAccountCard(
 
     Surface(
         shape = AbsoluteSmoothCornerShape(12.dp, 60),
-        color = if (isComingSoon) {
-            MaterialTheme.colorScheme.secondaryContainer
-        } else {
-            palette.statusContainer
-        }
+        color = palette.statusContainer
     ) {
         Text(
-            text = if (isComingSoon) statusSoon else statusConnected,
+            text = statusConnected,
             style = MaterialTheme.typography.labelMedium,
-            color = if (isComingSoon) {
-                MaterialTheme.colorScheme.onSecondaryContainer
-            } else {
-                palette.statusTint
-            },
+            color = palette.statusTint,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
         )
@@ -475,7 +464,7 @@ private fun ConnectedAccountCard(
 
             FilledTonalButton(
                 onClick = onManage,
-                enabled = !account.isLoggingOut && !isComingSoon,
+                enabled = !account.isLoggingOut,
                 shape = AbsoluteSmoothCornerShape(18.dp, 60),
                 colors = androidx.compose.material3.ButtonDefaults.filledTonalButtonColors(
                     containerColor = palette.primaryActionContainer,
@@ -486,12 +475,12 @@ private fun ConnectedAccountCard(
                 modifier = Modifier.fillMaxWidth().height(48.dp)
             ) {
                 Icon(
-                    imageVector = if (isComingSoon) Icons.Rounded.Link else Icons.AutoMirrored.Rounded.OpenInNew,
+                    imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
                     contentDescription = null
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
-                    text = if (isComingSoon) comingSoonShort else openService,
+                    text = openService,
                     fontWeight = FontWeight.SemiBold
                 )
             }
@@ -532,7 +521,6 @@ private fun EmptyAccountsCard(
     val noLinkedTitle = stringResource(R.string.accounts_no_linked_title)
     val noLinkedBody = stringResource(R.string.accounts_no_linked_subtitle)
     val connectTemplate = stringResource(R.string.accounts_connect_service)
-    val serviceSoonTemplate = stringResource(R.string.accounts_service_coming_soon)
     Card(
         shape = AbsoluteSmoothCornerShape(28.dp, 60),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
@@ -555,18 +543,15 @@ private fun EmptyAccountsCard(
             )
 
             disconnectedServices.forEach { service ->
-                val isComingSoon = service == ExternalServiceAccount.GOOGLE_DRIVE
                 val painter = when (service) {
                     ExternalServiceAccount.NETEASE -> painterResource(R.drawable.netease_cloud_music_logo_icon_206716__1_)
                     ExternalServiceAccount.QQ_MUSIC -> painterResource(R.drawable.qq_music)
                     ExternalServiceAccount.TELEGRAM -> painterResource(R.drawable.telegram)
-                    ExternalServiceAccount.GOOGLE_DRIVE -> painterResource(R.drawable.rounded_drive_export_24)
                     ExternalServiceAccount.JELLYFIN -> painterResource(R.drawable.ic_jellyfin)
                     ExternalServiceAccount.NAVIDROME -> painterResource(R.drawable.ic_navidrome_md3)
                 }
                 FilledTonalButton(
-                    onClick = { if (!isComingSoon) onConnect(service) },
-                    enabled = !isComingSoon,
+                    onClick = { onConnect(service) },
                     shape = AbsoluteSmoothCornerShape(18.dp, 60),
                     colors = androidx.compose.material3.ButtonDefaults.filledTonalButtonColors(
                         disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -581,11 +566,7 @@ private fun EmptyAccountsCard(
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     TightWrapText(
-                        text = if (isComingSoon) {
-                            serviceSoonTemplate.format(serviceDisplayName(service))
-                        } else {
-                            connectTemplate.format(serviceDisplayName(service))
-                        },
+                        text = connectTemplate.format(serviceDisplayName(service)),
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 2,
                     )
@@ -614,14 +595,6 @@ private fun servicePalette(service: ExternalServiceAccount): ServicePalette {
             statusTint = Color(0xFF035C43),
             primaryActionContainer = MaterialTheme.colorScheme.primaryContainer,
             primaryActionTint = MaterialTheme.colorScheme.onPrimaryContainer
-        )
-        ExternalServiceAccount.GOOGLE_DRIVE -> ServicePalette(
-            iconContainer = MaterialTheme.colorScheme.secondaryContainer,
-            iconTint = MaterialTheme.colorScheme.onSecondaryContainer,
-            statusContainer = Color(0xFFD7F4D0),
-            statusTint = Color(0xFF1E5E18),
-            primaryActionContainer = MaterialTheme.colorScheme.secondaryContainer,
-            primaryActionTint = MaterialTheme.colorScheme.onSecondaryContainer
         )
         ExternalServiceAccount.NETEASE -> ServicePalette(
             iconContainer = MaterialTheme.colorScheme.errorContainer,
@@ -661,7 +634,6 @@ private fun servicePalette(service: ExternalServiceAccount): ServicePalette {
 private fun accountIcon(service: ExternalServiceAccount): ImageVector {
     return when (service) {
         ExternalServiceAccount.TELEGRAM -> Icons.AutoMirrored.Rounded.Send
-        ExternalServiceAccount.GOOGLE_DRIVE -> Icons.Rounded.CloudQueue
         ExternalServiceAccount.NETEASE -> Icons.Rounded.MusicNote
         ExternalServiceAccount.QQ_MUSIC -> Icons.Rounded.MusicNote
         ExternalServiceAccount.NAVIDROME -> Icons.Rounded.CloudQueue
@@ -716,7 +688,6 @@ private fun ServiceIcon(service: ExternalServiceAccount, tint: Color, modifier: 
 private fun serviceDisplayName(service: ExternalServiceAccount): String {
     return when (service) {
         ExternalServiceAccount.TELEGRAM -> stringResource(R.string.auth_telegram_title)
-        ExternalServiceAccount.GOOGLE_DRIVE -> stringResource(R.string.auth_gdrive_title)
         ExternalServiceAccount.NETEASE -> stringResource(R.string.auth_netease_title)
         ExternalServiceAccount.QQ_MUSIC -> stringResource(R.string.auth_qq_title)
         ExternalServiceAccount.NAVIDROME -> stringResource(R.string.auth_subsonic_title)
@@ -739,9 +710,6 @@ private fun openService(
                 context = context,
                 intent = Intent(context, TelegramLoginActivity::class.java)
             )
-        }
-        ExternalServiceAccount.GOOGLE_DRIVE -> {
-            Toast.makeText(context, context.getString(R.string.accounts_google_drive_soon), Toast.LENGTH_SHORT).show()
         }
         ExternalServiceAccount.NETEASE -> {
             if (preferNeteaseDashboard) {

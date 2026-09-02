@@ -80,13 +80,6 @@
     <string name="jellyfin_dashboard_playlists_empty_hint">Tocca sincronizza per recuperare le tue playlist Jellyfin</string>
     <string name="jellyfin_dashboard_quick_actions_subtitle">Gestisci la tua connessione server Jellyfin.</string>
 
-    <!-- Google Drive dashboard -->
-    <string name="gdrive_dashboard_music_folders">Cartelle musicali</string>
-    <string name="gdrive_dashboard_add_folder_hint">Tocca + per aggiungere una cartella Drive</string>
-    <string name="gdrive_dashboard_no_folders_yet">Ancora nessuna cartella aggiunta</string>
-    <string name="gdrive_dashboard_folders_synced_count">%1$d cartelle sincronizzate</string>
-    <string name="gdrive_cd_add_folder">Aggiungi cartella</string>
-
     <!-- QQ Music dashboard -->
     <string name="qqmusic_select_playlist_type_title">Seleziona tipo playlist</string>
     <string name="qqmusic_choose_playlists_to_sync">Scegli quali playlist sincronizzare:</string>
@@ -174,21 +167,6 @@
     <string name="auth_jellyfin_url_hint">URL completo del tuo server Jellyfin, inclusa la porta.</string>
     <string name="auth_jellyfin_url_placeholder">http://192.168.1.100:8096</string>
     <string name="auth_jellyfin_username_hint">Il nome utente del tuo account Jellyfin.</string>
-
-    <!-- Google Drive Auth -->
-    <string name="auth_gdrive_connect_subtitle">Riproduci i file musicali direttamente dal tuo Google Drive</string>
-    <string name="auth_gdrive_connect_title">Connetti Google Drive</string>
-    <string name="auth_gdrive_connected_toast">Google Drive connesso!</string>
-    <string name="auth_gdrive_create_action">Crea \"PixelPlayer Music\"</string>
-    <string name="auth_gdrive_create_subtitle">Crea qui una nuova cartella per la tua musica</string>
-    <string name="auth_gdrive_empty_msg">Nessuna cartella qui</string>
-    <string name="auth_gdrive_open_cd">Apri cartella</string>
-    <string name="auth_gdrive_select_subtitle">Scegli o crea una cartella da usare come sorgente musicale</string>
-    <string name="auth_gdrive_select_title">Seleziona una cartella musicale</string>
-    <string name="auth_gdrive_setup_msg">Configurazione Google Drive…</string>
-    <string name="auth_gdrive_signin_action">Accedi con Google</string>
-    <string name="auth_gdrive_title">Google Drive</string>
-    <string name="auth_gdrive_use_action">Usa</string>
 
     <!-- Web Login Shared/Generic -->
     <string name="auth_cookies_unreadable_error">Impossibile leggere i cookie di sessione.</string>

@@ -85,13 +85,6 @@
     <string name="jellyfin_dashboard_playlists_empty_hint">Нажмите «Синхронизировать», чтобы получить плейлисты Jellyfin</string>
     <string name="jellyfin_dashboard_quick_actions_subtitle">Управление подключением к серверу Jellyfin.</string>
 
-    <!-- Google Drive dashboard -->
-    <string name="gdrive_dashboard_music_folders">Музыкальные папки</string>
-    <string name="gdrive_dashboard_add_folder_hint">Нажмите +, чтобы добавить папку Drive</string>
-    <string name="gdrive_dashboard_no_folders_yet">Папки ещё не добавлены</string>
-    <string name="gdrive_dashboard_folders_synced_count">%1$d папок синхронизировано</string>
-    <string name="gdrive_cd_add_folder">Добавить папку</string>
-
     <!-- QQ Music dashboard -->
     <string name="qqmusic_select_playlist_type_title">Выберите тип плейлистов</string>
     <string name="qqmusic_choose_playlists_to_sync">Выберите плейлисты для синхронизации:</string>
@@ -179,21 +172,6 @@
     <string name="auth_jellyfin_url_hint">Полный URL вашего сервера Jellyfin, включая порт.</string>
     <string name="auth_jellyfin_url_placeholder">http://192.168.1.100:8096</string>
     <string name="auth_jellyfin_username_hint">Имя пользователя вашей учётной записи Jellyfin.</string>
-
-    <!-- Google Drive Auth -->
-    <string name="auth_gdrive_connect_subtitle">Слушайте музыку напрямую из Google Drive</string>
-    <string name="auth_gdrive_connect_title">Подключить Google Drive</string>
-    <string name="auth_gdrive_connected_toast">Google Drive подключён!</string>
-    <string name="auth_gdrive_create_action">Создать «PixelPlayer Music»</string>
-    <string name="auth_gdrive_create_subtitle">Создать здесь новую папку для музыки</string>
-    <string name="auth_gdrive_empty_msg">Здесь нет папок</string>
-    <string name="auth_gdrive_open_cd">Открыть папку</string>
-    <string name="auth_gdrive_select_subtitle">Выберите или создайте папку для использования в качестве источника музыки</string>
-    <string name="auth_gdrive_select_title">Выберите музыкальную папку</string>
-    <string name="auth_gdrive_setup_msg">Настройка Google Drive…</string>
-    <string name="auth_gdrive_signin_action">Войти через Google</string>
-    <string name="auth_gdrive_title">Google Drive</string>
-    <string name="auth_gdrive_use_action">Использовать</string>
 
     <!-- Web Login Shared/Generic -->
     <string name="auth_cookies_unreadable_error">Не удалось прочитать cookies сессии.</string>

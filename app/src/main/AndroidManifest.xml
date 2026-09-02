@@ -93,13 +93,6 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".presentation.gdrive.auth.GDriveLoginActivity"
-            android:exported="false"
-            android:label="Google Drive Login"
-            android:theme="@style/Theme.PixelPlay"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
             android:name=".presentation.qqmusic.auth.QqMusicLoginActivity"
             android:exported="false"
             android:label="QQ Music Login"
@@ -159,10 +152,6 @@
                 <category android:name="android.intent.category.APP_MUSIC" />
             </intent-filter>
         </service>
-
-        <meta-data
-            android:name="com.google.android.gms.car.application"
-            android:resource="@xml/automotive_app_desc" />
 
         <receiver
             android:name=".ui.glancewidget.PixelPlayGlanceWidgetReceiver"
@@ -246,10 +235,6 @@
             android:name=".data.service.wear.WatchTransferForegroundService"
             android:foregroundServiceType="dataSync"
             android:exported="false" />
-        <meta-data
-            android:name="preloaded_fonts"
-            android:resource="@array/preloaded_fonts" />
-
         <meta-data
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
             android:value="com.theveloper.pixelplay.data.service.cast.CastOptionsProvider" />

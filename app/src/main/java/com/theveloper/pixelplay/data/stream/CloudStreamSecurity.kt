@@ -15,7 +15,6 @@ object CloudStreamSecurity {
     private const val MAX_RANGE_HEADER_LENGTH = 64
     private const val MAX_RANGE_VALUE_BYTES = 8L * 1024L * 1024L * 1024L
 
-    private val GDRIVE_FILE_ID_REGEX = Regex("^[A-Za-z0-9_-]{10,200}$")
     private val QQMUSIC_SONG_MID_REGEX = Regex("^[A-Za-z0-9_-]{6,50}$")
     private val NAVIDROME_SONG_ID_REGEX = Regex("^[A-Za-z0-9_-]{1,100}$")
     private val JELLYFIN_ITEM_ID_REGEX = Regex("^[A-Za-z0-9]{1,100}$")
@@ -43,8 +42,6 @@ object CloudStreamSecurity {
     fun validateTelegramFileId(fileId: Int): Boolean = fileId > 0
 
     fun validateNeteaseSongId(songId: Long): Boolean = songId > 0L
-
-    fun validateGDriveFileId(fileId: String): Boolean = GDRIVE_FILE_ID_REGEX.matches(fileId)
 
     fun validateQqMusicSongMid(songMid: String): Boolean = QQMUSIC_SONG_MID_REGEX.matches(songMid)
 

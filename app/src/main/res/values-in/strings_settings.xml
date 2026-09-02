@@ -20,7 +20,7 @@
     <string name="settings_category_device_capabilities_title">Kemampuan Perangkat</string>
     <string name="settings_category_device_capabilities_subtitle">Spek audio, codec, dan info dekoder</string>
     <string name="settings_category_accounts_title">Akun</string>
-    <string name="settings_category_accounts_subtitle">Kelola Telegram, Google Drive, NetEase, dan layanan lainnya</string>
+    <string name="settings_category_accounts_subtitle">Kelola Telegram, NetEase, dan layanan lainnya</string>
     <string name="settings_category_about_title">Tentang</string>
     <string name="settings_category_about_subtitle">Info aplikasi, versi, dan kredit</string>
 
@@ -610,7 +610,6 @@
     <string name="accounts_no_linked_subtitle">Hubungkan penyedia untuk mengelolanya dari layar ini.</string>
     <string name="accounts_connect_service">Hubungkan %1$s</string>
     <string name="accounts_service_coming_soon">%1$s (Segera hadir)</string>
-    <string name="accounts_google_drive_soon">Google Drive akan segera hadir.</string>
     <string name="accounts_unable_open_screen">Tidak dapat membuka layar ini sekarang.</string>
 
     <!-- About category -->

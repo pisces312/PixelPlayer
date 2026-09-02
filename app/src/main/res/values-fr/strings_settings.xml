@@ -20,7 +20,7 @@
     <string name="settings_category_device_capabilities_title">Capacités de l\'appareil</string>
     <string name="settings_category_device_capabilities_subtitle">Spécifications audio, codecs et infos sur le décodeur</string>
     <string name="settings_category_accounts_title">Comptes</string>
-    <string name="settings_category_accounts_subtitle">Gérer Telegram, Google Drive, NetEase Music et d\'autres services</string>
+    <string name="settings_category_accounts_subtitle">Gérer Telegram, NetEase Music et d\'autres services</string>
     <string name="settings_category_about_title">À propos</string>
     <string name="settings_category_about_subtitle">Infos sur l\'application, version et crédits</string>
 
@@ -610,7 +610,6 @@
     <string name="accounts_no_linked_subtitle">Connectez un fournisseur pour le gérer depuis cet écran.</string>
     <string name="accounts_connect_service">Connecter %1$s</string>
     <string name="accounts_service_coming_soon">%1$s (Bientôt disponible)</string>
-    <string name="accounts_google_drive_soon">Google Drive arrive bientôt.</string>
     <string name="accounts_unable_open_screen">Impossible d\'ouvrir cet écran pour le moment.</string>
 
     <!-- About category -->

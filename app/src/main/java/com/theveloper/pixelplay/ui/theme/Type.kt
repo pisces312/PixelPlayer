@@ -7,29 +7,75 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.googlefonts.Font
-import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.theveloper.pixelplay.R
 
+// Montserrat used to be fetched on demand through the Google Play services font
+// provider (com.google.android.gms.fonts). It is now backed by the bundled Google
+// Sans Flex variable font: no network access, no Play services dependency.
+// ROND = 0 keeps the geometric, non-rounded character of the original Montserrat.
+private const val MontserratLikeRond = 0f
 
-private val montserrat = GoogleFont("Montserrat")
-private val provider = GoogleFont.Provider(
-    providerAuthority = "com.google.android.gms.fonts",
-    providerPackage   = "com.google.android.gms",
-    certificates      = R.array.com_google_android_gms_fonts_certs
-)
-
+@OptIn(ExperimentalTextApi::class)
 val MontserratFamily = FontFamily(
-    Font(googleFont = montserrat, fontProvider = provider, weight = FontWeight.Black),
-    Font(googleFont = montserrat, fontProvider = provider, weight = FontWeight.ExtraBold),
-    Font(googleFont = montserrat, fontProvider = provider, weight = FontWeight.Bold),
-    Font(googleFont = montserrat, fontProvider = provider, weight = FontWeight.SemiBold),
-    Font(googleFont = montserrat, fontProvider = provider, weight = FontWeight.Medium),
-    Font(googleFont = montserrat, fontProvider = provider, weight = FontWeight.Normal),
-    Font(googleFont = montserrat, fontProvider = provider, weight = FontWeight.Light),
+    androidx.compose.ui.text.font.Font(
+        resId = R.font.gflex_variable,
+        weight = FontWeight.Light,
+        variationSettings = FontVariation.Settings(
+            FontVariation.weight(FontWeight.Light.weight),
+            FontVariation.Setting("ROND", MontserratLikeRond)
+        )
+    ),
+    androidx.compose.ui.text.font.Font(
+        resId = R.font.gflex_variable,
+        weight = FontWeight.Normal,
+        variationSettings = FontVariation.Settings(
+            FontVariation.weight(FontWeight.Normal.weight),
+            FontVariation.Setting("ROND", MontserratLikeRond)
+        )
+    ),
+    androidx.compose.ui.text.font.Font(
+        resId = R.font.gflex_variable,
+        weight = FontWeight.Medium,
+        variationSettings = FontVariation.Settings(
+            FontVariation.weight(FontWeight.Medium.weight),
+            FontVariation.Setting("ROND", MontserratLikeRond)
+        )
+    ),
+    androidx.compose.ui.text.font.Font(
+        resId = R.font.gflex_variable,
+        weight = FontWeight.SemiBold,
+        variationSettings = FontVariation.Settings(
+            FontVariation.weight(FontWeight.SemiBold.weight),
+            FontVariation.Setting("ROND", MontserratLikeRond)
+        )
+    ),
+    androidx.compose.ui.text.font.Font(
+        resId = R.font.gflex_variable,
+        weight = FontWeight.Bold,
+        variationSettings = FontVariation.Settings(
+            FontVariation.weight(FontWeight.Bold.weight),
+            FontVariation.Setting("ROND", MontserratLikeRond)
+        )
+    ),
+    androidx.compose.ui.text.font.Font(
+        resId = R.font.gflex_variable,
+        weight = FontWeight.ExtraBold,
+        variationSettings = FontVariation.Settings(
+            FontVariation.weight(FontWeight.ExtraBold.weight),
+            FontVariation.Setting("ROND", MontserratLikeRond)
+        )
+    ),
+    androidx.compose.ui.text.font.Font(
+        resId = R.font.gflex_variable,
+        weight = FontWeight.Black,
+        variationSettings = FontVariation.Settings(
+            FontVariation.weight(FontWeight.Black.weight),
+            FontVariation.Setting("ROND", MontserratLikeRond)
+        )
+    ),
 )
 
 val ExpTitleTypography = Typography(

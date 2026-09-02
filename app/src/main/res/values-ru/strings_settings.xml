@@ -20,7 +20,7 @@
     <string name="settings_category_device_capabilities_title">Возможности устройства</string>
     <string name="settings_category_device_capabilities_subtitle">Характеристики аудио, кодеки и декодеры</string>
     <string name="settings_category_accounts_title">Аккаунты</string>
-    <string name="settings_category_accounts_subtitle">Управление Telegram, Google Drive, NetEase и другими сервисами</string>
+    <string name="settings_category_accounts_subtitle">Управление Telegram, NetEase и другими сервисами</string>
     <string name="settings_category_about_title">О приложении</string>
     <string name="settings_category_about_subtitle">Информация, версия и благодарности</string>
 
@@ -614,7 +614,6 @@
     <string name="accounts_no_linked_subtitle">Подключите сервис, чтобы управлять им с этого экрана.</string>
     <string name="accounts_connect_service">Подключить %1$s</string>
     <string name="accounts_service_coming_soon">%1$s (скоро)</string>
-    <string name="accounts_google_drive_soon">Поддержка Google Drive скоро появится.</string>
     <string name="accounts_unable_open_screen">Сейчас невозможно открыть этот экран.</string>
 
     <!-- About category -->

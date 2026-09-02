@@ -80,13 +80,6 @@
     <string name="jellyfin_dashboard_playlists_empty_hint">Ketuk sinkronisasi untuk mengambil playlist Jellyfin Anda</string>
     <string name="jellyfin_dashboard_quick_actions_subtitle">Kelola koneksi server Jellyfin Anda.</string>
 
-    <!-- Google Drive dashboard -->
-    <string name="gdrive_dashboard_music_folders">Folder musik</string>
-    <string name="gdrive_dashboard_add_folder_hint">Ketuk + untuk menambahkan folder Drive</string>
-    <string name="gdrive_dashboard_no_folders_yet">Belum ada folder yang ditambahkan</string>
-    <string name="gdrive_dashboard_folders_synced_count">%1$d folder disinkronkan</string>
-    <string name="gdrive_cd_add_folder">Tambah folder</string>
-
     <!-- QQ Music dashboard -->
     <string name="qqmusic_select_playlist_type_title">Pilih tipe playlist</string>
     <string name="qqmusic_choose_playlists_to_sync">Pilih playlist yang ingin disinkronkan:</string>
@@ -174,21 +167,6 @@
     <string name="auth_jellyfin_url_hint">URL lengkap server Jellyfin Anda, termasuk port.</string>
     <string name="auth_jellyfin_url_placeholder">http://192.168.1.100:8096</string>
     <string name="auth_jellyfin_username_hint">Nama pengguna akun Jellyfin Anda.</string>
-
-    <!-- Google Drive Auth -->
-    <string name="auth_gdrive_connect_subtitle">Stream file musik langsung dari Google Drive Anda</string>
-    <string name="auth_gdrive_connect_title">Hubungkan Google Drive</string>
-    <string name="auth_gdrive_connected_toast">Google Drive terhubung!</string>
-    <string name="auth_gdrive_create_action">Buat \"PixelPlayer Music\"</string>
-    <string name="auth_gdrive_create_subtitle">Buat folder baru di sini untuk musik Anda</string>
-    <string name="auth_gdrive_empty_msg">Tidak ada folder di sini</string>
-    <string name="auth_gdrive_open_cd">Buka folder</string>
-    <string name="auth_gdrive_select_subtitle">Pilih atau buat folder untuk digunakan sebagai sumber musik Anda</string>
-    <string name="auth_gdrive_select_title">Pilih folder musik</string>
-    <string name="auth_gdrive_setup_msg">Menyiapkan Google Drive…</string>
-    <string name="auth_gdrive_signin_action">Masuk dengan Google</string>
-    <string name="auth_gdrive_title">Google Drive</string>
-    <string name="auth_gdrive_use_action">Gunakan</string>
 
     <!-- Web Login Shared/Generic -->
     <string name="auth_cookies_unreadable_error">Tidak dapat membaca cookie sesi.</string>

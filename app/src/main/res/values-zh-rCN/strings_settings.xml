@@ -20,7 +20,7 @@
     <string name="settings_category_device_capabilities_title">设备性能</string>
     <string name="settings_category_device_capabilities_subtitle">音频规格、编解码器和解码器信息</string>
     <string name="settings_category_accounts_title">账户</string>
-    <string name="settings_category_accounts_subtitle">管理 Telegram、Google Drive、网易云音乐等服务</string>
+    <string name="settings_category_accounts_subtitle">管理 Telegram、网易云音乐等服务</string>
     <string name="settings_category_about_title">关于</string>
     <string name="settings_category_about_subtitle">应用信息、版本和鸣谢</string>
 
@@ -614,7 +614,6 @@
     <string name="accounts_no_linked_subtitle">连接一个提供商即可在此界面对其进行管理。</string>
     <string name="accounts_connect_service">连接 %1$s</string>
     <string name="accounts_service_coming_soon">%1$s（敬请期待）</string>
-    <string name="accounts_google_drive_soon">Google Drive 功能即将推出。</string>
     <string name="accounts_unable_open_screen">目前无法打开此屏幕。</string>
 
     <!-- About category -->

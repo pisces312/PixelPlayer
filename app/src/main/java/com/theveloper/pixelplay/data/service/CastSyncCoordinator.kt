@@ -13,6 +13,7 @@ import com.google.android.gms.cast.framework.SessionManagerListener
 import com.google.android.gms.cast.framework.media.RemoteMediaClient
 import com.theveloper.pixelplay.data.service.cast.CastRemotePlaybackState
 import com.theveloper.pixelplay.presentation.viewmodel.ListeningStatsTracker
+import com.theveloper.pixelplay.utils.GmsAvailability
 import timber.log.Timber
 
 /**
@@ -71,6 +72,10 @@ internal class CastSyncCoordinator(
         observedSession?.remoteMediaClient ?: sessionManager?.currentCastSession?.remoteMediaClient
 
     fun start() {
+        if (!GmsAvailability.isAvailable(context)) {
+            Timber.tag(TAG).w("Google Play Services unavailable; skipping cast sync setup")
+            return
+        }
         val manager = runCatching {
             CastContext.getSharedInstance(context).sessionManager
         }.getOrElse { error ->

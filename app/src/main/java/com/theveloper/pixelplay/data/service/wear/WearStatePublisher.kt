@@ -19,6 +19,7 @@ import com.theveloper.pixelplay.shared.WearSyncedLyricLine
 import com.theveloper.pixelplay.shared.WearThemePalette
 import com.theveloper.pixelplay.utils.AlbumArtUtils
 import com.theveloper.pixelplay.utils.ArtworkTransportSanitizer
+import com.theveloper.pixelplay.utils.GmsAvailability
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -92,6 +93,7 @@ class WearStatePublisher @Inject constructor(
      */
     fun clearState() {
         clearCache()
+        if (!GmsAvailability.isAvailable(application)) return
         scope.launch {
             try {
                 val request = PutDataMapRequest.create(WearDataPaths.PLAYER_STATE).apply {

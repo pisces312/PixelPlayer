@@ -20,7 +20,7 @@
     <string name="settings_category_device_capabilities_title">Enhetsfunksjoner</string>
     <string name="settings_category_device_capabilities_subtitle">Lydspesifikasjoner, kodeker og dekoderinfo</string>
     <string name="settings_category_accounts_title">Kontoer</string>
-    <string name="settings_category_accounts_subtitle">Administrer Telegram, Google Drive, NetEase og andre tjenester</string>
+    <string name="settings_category_accounts_subtitle">Administrer Telegram, NetEase og andre tjenester</string>
     <string name="settings_category_about_title">Om</string>
     <string name="settings_category_about_subtitle">App-info, versjon og bidragsytere</string>
 
@@ -614,7 +614,6 @@
     <string name="accounts_no_linked_subtitle">Koble til en leverandør for å administrere den fra denne skjermen.</string>
     <string name="accounts_connect_service">Koble til %1$s</string>
     <string name="accounts_service_coming_soon">%1$s (Kommer snart)</string>
-    <string name="accounts_google_drive_soon">Google Drive kommer snart.</string>
     <string name="accounts_unable_open_screen">Kan ikke åpne denne skjermen akkurat nå.</string>
 
     <!-- About category -->

@@ -80,13 +80,6 @@
     <string name="jellyfin_dashboard_playlists_empty_hint">点击同步以获取您的 Jellyfin 播放列表</string>
     <string name="jellyfin_dashboard_quick_actions_subtitle">管理您的 Jellyfin 服务器连接。</string>
 
-    <!-- Google Drive dashboard -->
-    <string name="gdrive_dashboard_music_folders">音乐文件夹</string>
-    <string name="gdrive_dashboard_add_folder_hint">点击 + 添加 Drive 文件夹</string>
-    <string name="gdrive_dashboard_no_folders_yet">暂未添加文件夹</string>
-    <string name="gdrive_dashboard_folders_synced_count">已同步 %1$d 个文件夹</string>
-    <string name="gdrive_cd_add_folder">添加文件夹</string>
-
     <!-- QQ Music dashboard -->
     <string name="qqmusic_select_playlist_type_title">选择播放列表类型</string>
     <string name="qqmusic_choose_playlists_to_sync">选择要同步的播放列表：</string>
@@ -174,21 +167,6 @@
     <string name="auth_jellyfin_url_hint">您的 Jellyfin 服务器完整 URL，包含端口。</string>
     <string name="auth_jellyfin_url_placeholder">http://192.168.1.100:8096</string>
     <string name="auth_jellyfin_username_hint">您的 Jellyfin 账户用户名。</string>
-
-    <!-- Google Drive Auth -->
-    <string name="auth_gdrive_connect_subtitle">直接从您的 Google Drive 串流音乐文件</string>
-    <string name="auth_gdrive_connect_title">连接 Google Drive</string>
-    <string name="auth_gdrive_connected_toast">Google Drive 已连接！</string>
-    <string name="auth_gdrive_create_action">创建 \"PixelPlayer Music\"</string>
-    <string name="auth_gdrive_create_subtitle">在这里为您的音乐创建一个新文件夹</string>
-    <string name="auth_gdrive_empty_msg">这里没有文件夹</string>
-    <string name="auth_gdrive_open_cd">打开文件夹</string>
-    <string name="auth_gdrive_select_subtitle">选择或创建一个文件夹作为您的音乐源</string>
-    <string name="auth_gdrive_select_title">选择一个音乐文件夹</string>
-    <string name="auth_gdrive_setup_msg">正在设置 Google Drive…</string>
-    <string name="auth_gdrive_signin_action">使用 Google 账号登录</string>
-    <string name="auth_gdrive_title">Google Drive</string>
-    <string name="auth_gdrive_use_action">使用</string>
 
     <!-- Web Login Shared/Generic -->
     <string name="auth_cookies_unreadable_error">无法读取会话 Cookie。</string>

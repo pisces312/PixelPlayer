@@ -80,13 +80,6 @@
     <string name="jellyfin_dashboard_playlists_empty_hint">Trykk på synk for å hente Jellyfin-spillelister</string>
     <string name="jellyfin_dashboard_quick_actions_subtitle">Administrer din Jellyfin-tilkobling.</string>
 
-    <!-- Google Drive dashboard -->
-    <string name="gdrive_dashboard_music_folders">Musikkmapper</string>
-    <string name="gdrive_dashboard_add_folder_hint">Trykk + for å legge til en Drive-mappe</string>
-    <string name="gdrive_dashboard_no_folders_yet">Ingen mapper lagt til ennå</string>
-    <string name="gdrive_dashboard_folders_synced_count">%1$d mapper synkronisert</string>
-    <string name="gdrive_cd_add_folder">Legg til mappe</string>
-
     <!-- QQ Music dashboard -->
     <string name="qqmusic_select_playlist_type_title">Velg type spilleliste</string>
     <string name="qqmusic_choose_playlists_to_sync">Velg hvilke som skal synkroniseres:</string>
@@ -174,21 +167,6 @@
     <string name="auth_jellyfin_url_hint">Full URL til Jellyfin-serveren din, inkludert port.</string>
     <string name="auth_jellyfin_url_placeholder">http://192.168.1.100:8096</string>
     <string name="auth_jellyfin_username_hint">Brukernavnet til Jellyfin-kontoen din.</string>
-
-    <!-- Google Drive Auth -->
-    <string name="auth_gdrive_connect_subtitle">Strøm musikkfiler direkte fra din Google Drive</string>
-    <string name="auth_gdrive_connect_title">Koble til Google Drive</string>
-    <string name="auth_gdrive_connected_toast">Google Drive tilkoblet!</string>
-    <string name="auth_gdrive_create_action">Opprett \"PixelPlayer Music\"</string>
-    <string name="auth_gdrive_create_subtitle">Opprett en ny mappe for musikken din her</string>
-    <string name="auth_gdrive_empty_msg">Ingen mapper her</string>
-    <string name="auth_gdrive_open_cd">Åpne mappe</string>
-    <string name="auth_gdrive_select_subtitle">Velg eller opprett en mappe som skal brukes som musikkilde</string>
-    <string name="auth_gdrive_select_title">Velg en musikkmappe</string>
-    <string name="auth_gdrive_setup_msg">Setter opp Google Drive…</string>
-    <string name="auth_gdrive_signin_action">Logg inn med Google</string>
-    <string name="auth_gdrive_title">Google Drive</string>
-    <string name="auth_gdrive_use_action">Bruk</string>
 
     <!-- Web Login Shared/Generic -->
     <string name="auth_cookies_unreadable_error">Kunne ikke lese sesjonsinformasjonskapsler.</string>

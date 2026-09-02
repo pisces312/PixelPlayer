@@ -9,7 +9,6 @@ import android.os.Build
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.core.graphics.get
 import androidx.core.net.toUri
-import com.theveloper.pixelplay.data.gdrive.GDriveStreamProxy
 import com.google.android.gms.wearable.Wearable
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.data.navidrome.NavidromeStreamProxy
@@ -66,7 +65,6 @@ class PhoneDirectWatchTransferCoordinator @Inject constructor(
     private val qqMusicStreamProxy: QqMusicStreamProxy,
     private val navidromeStreamProxy: NavidromeStreamProxy,
     private val jellyfinStreamProxy: com.theveloper.pixelplay.data.jellyfin.JellyfinStreamProxy,
-    private val gDriveStreamProxy: GDriveStreamProxy,
     private val okHttpClient: OkHttpClient,
 ) {
     private val contentResolver by lazy { application.contentResolver }
@@ -284,8 +282,7 @@ class PhoneDirectWatchTransferCoordinator @Inject constructor(
         val contentUri = song.contentUriString
         if (
             contentUri.startsWith("telegram://") ||
-            contentUri.startsWith("netease://") ||
-            contentUri.startsWith("gdrive://")
+            contentUri.startsWith("netease://")
         ) {
             return false
         }
@@ -413,10 +410,6 @@ class PhoneDirectWatchTransferCoordinator @Inject constructor(
                 jellyfinStreamProxy.warmUpStreamUrl(rawUri)
                 jellyfinStreamProxy.resolveJellyfinUri(rawUri)
             }
-            "gdrive" -> {
-                ensureGDriveProxyReady() || return null
-                gDriveStreamProxy.resolveGDriveUri(rawUri)
-            }
             else -> null
         }
     }
@@ -455,17 +448,6 @@ class PhoneDirectWatchTransferCoordinator @Inject constructor(
             is com.theveloper.pixelplay.data.jellyfin.JellyfinStreamProxy -> proxy.ensureReady(5_000L)
             else -> false
         }
-    }
-
-    private suspend fun ensureGDriveProxyReady(): Boolean {
-        if (gDriveStreamProxy.isReady()) return true
-        gDriveStreamProxy.start()
-        repeat(50) {
-            if (gDriveStreamProxy.isReady()) return true
-            delay(100L)
-        }
-        Timber.tag(TAG).w("GDrive stream proxy not ready for watch handoff")
-        return false
     }
 
     private suspend fun openHttpSongSource(url: String): OpenedSongSource? {

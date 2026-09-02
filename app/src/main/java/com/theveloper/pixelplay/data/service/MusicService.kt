@@ -604,7 +604,6 @@ class MusicService : MediaLibraryService() {
                 // so the performance report can correlate lag with their artwork/queue demands.
                 if (!controllerPackage.startsWith(APP_PACKAGE_PREFIX)) {
                     val isAuto = controllerPackage.startsWith("com.google.android.projection.gearhead") ||
-                        controllerPackage.startsWith("com.google.android.gms.car") ||
                         controllerPackage.startsWith("com.google.android.apps.automotive") ||
                         controller.connectionHints.keySet().any { it.contains("automotive", ignoreCase = true) }
                     val isWear = BLOCKED_WEAR_CONTROLLER_PREFIXES.any { controllerPackage.startsWith(it) } ||

@@ -2,7 +2,6 @@ package com.theveloper.pixelplay.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.theveloper.pixelplay.data.gdrive.GDriveRepository
 import com.theveloper.pixelplay.data.jellyfin.JellyfinRepository
 import com.theveloper.pixelplay.data.navidrome.NavidromeRepository
 import com.theveloper.pixelplay.data.netease.NeteaseRepository
@@ -24,7 +23,6 @@ import org.drinkless.tdlib.TdApi
 
 enum class ExternalServiceAccount {
     TELEGRAM,
-    GOOGLE_DRIVE,
     NETEASE,
     QQ_MUSIC,
     NAVIDROME,
@@ -48,7 +46,6 @@ data class AccountsUiState(
 class AccountsViewModel @Inject constructor(
     private val telegramRepository: TelegramRepository,
     private val musicRepository: MusicRepository,
-    private val gDriveRepository: GDriveRepository,
     private val neteaseRepository: NeteaseRepository,
     private val qqMusicRepository: QqMusicRepository,
     private val navidromeRepository: NavidromeRepository,
@@ -64,13 +61,6 @@ class AccountsViewModel @Inject constructor(
         musicRepository.getAllTelegramChannels().map { it.size }
     ) { connected, channelCount ->
         connected to channelCount
-    }
-
-    private val gDriveStateFlow = combine(
-        gDriveRepository.isLoggedInFlow,
-        gDriveRepository.getFolders().map { it.size }
-    ) { connected, folderCount ->
-        connected to folderCount
     }
 
     private val neteaseStateFlow = combine(
@@ -105,7 +95,6 @@ class AccountsViewModel @Inject constructor(
         combine(
             listOf(
                 telegramStateFlow,
-                gDriveStateFlow,
                 neteaseStateFlow,
                 qqMusicStateFlow,
                 navidromeStateFlow,
@@ -115,11 +104,10 @@ class AccountsViewModel @Inject constructor(
         loggingOutServices
     ) { states, activeLogouts ->
         val (telegramConnected, telegramChannelCount) = states[0] as Pair<Boolean, Int>
-        val (gDriveConnected, gDriveFolderCount) = states[1] as Pair<Boolean, Int>
-        val (neteaseConnected, neteasePlaylistCount) = states[2] as Pair<Boolean, Int>
-        val (qqConnected, qqPlaylistCount) = states[3] as Pair<Boolean, Int>
-        val (navidromeConnected, navidromePlaylistCount) = states[4] as Pair<Boolean, Int>
-        val (jellyfinConnected, jellyfinPlaylistCount) = states[5] as Pair<Boolean, Int>
+        val (neteaseConnected, neteasePlaylistCount) = states[1] as Pair<Boolean, Int>
+        val (qqConnected, qqPlaylistCount) = states[2] as Pair<Boolean, Int>
+        val (navidromeConnected, navidromePlaylistCount) = states[3] as Pair<Boolean, Int>
+        val (jellyfinConnected, jellyfinPlaylistCount) = states[4] as Pair<Boolean, Int>
 
         val connectedAccounts = buildList {
             if (telegramConnected) {
@@ -134,25 +122,6 @@ class AccountsViewModel @Inject constructor(
                             plural = "synced channels"
                         ),
                         isLoggingOut = ExternalServiceAccount.TELEGRAM in activeLogouts
-                    )
-                )
-            }
-            if (gDriveConnected) {
-                add(
-                    ExternalAccountUiModel(
-                        service = ExternalServiceAccount.GOOGLE_DRIVE,
-                        title = "Google Drive",
-                        accountLabel = gDriveRepository.userDisplayName
-                            ?.takeIf { it.isNotBlank() }
-                            ?: gDriveRepository.userEmail
-                                ?.takeIf { it.isNotBlank() }
-                            ?: "Google account connected",
-                        syncedContentLabel = formatCount(
-                            count = gDriveFolderCount,
-                            singular = "synced folder",
-                            plural = "synced folders"
-                        ),
-                        isLoggingOut = ExternalServiceAccount.GOOGLE_DRIVE in activeLogouts
                     )
                 )
             }
@@ -228,7 +197,6 @@ class AccountsViewModel @Inject constructor(
 
         val disconnectedServices = buildList {
             if (!telegramConnected) add(ExternalServiceAccount.TELEGRAM)
-            if (!gDriveConnected) add(ExternalServiceAccount.GOOGLE_DRIVE)
             if (!neteaseConnected) add(ExternalServiceAccount.NETEASE)
             if (!qqConnected) add(ExternalServiceAccount.QQ_MUSIC)
             if (!navidromeConnected) add(ExternalServiceAccount.NAVIDROME)
@@ -254,7 +222,6 @@ class AccountsViewModel @Inject constructor(
                             telegramRepository.clearMemoryCache()
                             musicRepository.clearTelegramData()
                         }
-                        ExternalServiceAccount.GOOGLE_DRIVE -> gDriveRepository.logout()
                         ExternalServiceAccount.NETEASE -> neteaseRepository.logout()
                         ExternalServiceAccount.QQ_MUSIC -> qqMusicRepository.logout()
                         ExternalServiceAccount.NAVIDROME -> navidromeRepository.logout()

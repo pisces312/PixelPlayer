@@ -42,10 +42,6 @@
     <string name="auth_jellyfin_footer">يتصل بخوادم Jellyfin لبث مكتبتك الموسيقية</string>
     <string name="cd_jellyfin_logo">شعار Jellyfin</string>
 
-    <!-- Google Drive -->
-    <string name="auth_gdrive_toast_connected">تم توصيل Google Drive بنجاح!</string>
-    <string name="auth_gdrive_title">Google Drive</string>
-
     <!-- Web login (NetEase / QQ Music) — shared -->
     <string name="auth_web_exit_confirm_title_netease">الخروج من تسجيل دخول NetEase؟</string>
     <string name="auth_web_exit_confirm_title_qq">الخروج من تسجيل دخول QQ Music؟</string>

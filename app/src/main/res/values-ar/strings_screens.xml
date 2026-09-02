@@ -37,7 +37,6 @@
     <string name="cd_add_path_delimiter">إضافة محدد</string>
 
     <!-- Accounts -->
-    <string name="accounts_google_drive_soon">خدمة Google Drive قادمة قريباً.</string>
     <string name="accounts_unable_open_screen">تعذر فتح هذه الشاشة في الوقت الحالي.</string>
 
     <!-- Setup (subset; more keys follow in same file) -->
