@@ -16,7 +16,7 @@ class AiClientFactory @Inject constructor() {
      * @return AiClient instance
      */
     fun createClient(provider: AiProvider, apiKey: String): AiClient {
-        if (apiKey.isBlank()) {
+        if (apiKey.isBlank() && !provider.hasConfigurableUrl) {
             throw IllegalArgumentException("API Key cannot be blank for ${provider.displayName}")
         }
         

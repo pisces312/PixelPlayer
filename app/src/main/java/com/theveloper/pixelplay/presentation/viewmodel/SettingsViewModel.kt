@@ -83,6 +83,8 @@ data class SettingsUiState(
     val availableModels: List<GeminiModel> = emptyList(),
     val isLoadingModels: Boolean = false,
     val modelsFetchError: String? = null,
+    val isTestingConnection: Boolean = false,
+    val connectionTestResult: String? = null,
     val appRebrandDialogShown: Boolean = false,
     val beta05CleanInstallDisclaimerDismissed: Boolean? = null,
     val fullPlayerLoadingTweaks: FullPlayerLoadingTweaks = FullPlayerLoadingTweaks(),
@@ -1294,6 +1296,45 @@ class SettingsViewModel @Inject constructor(
                         isLoadingModels = false,
                         modelsFetchError = e.message ?: context.getString(R.string.settings_models_fetch_failed),
                     )
+                }
+            }
+        }
+    }
+
+    fun testAiConnection() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isTestingConnection = true, connectionTestResult = null) }
+            try {
+                val provider = AiProvider.fromString(aiProvider.value)
+                val apiKey = currentAiApiKey.value
+                val baseUrl = if (provider.hasConfigurableUrl) {
+                    aiPreferencesRepository.getBaseUrl(provider).first()
+                } else {
+                    ""
+                }
+
+                if (provider.hasConfigurableUrl && baseUrl.isBlank()) {
+                    _uiState.update {
+                        it.copy(isTestingConnection = false, connectionTestResult = "Base URL is required")
+                    }
+                    return@launch
+                }
+
+                val client = if (provider.hasConfigurableUrl) {
+                    aiClientFactory.createClientWithUrl(provider, apiKey, baseUrl)
+                } else {
+                    aiClientFactory.createClient(provider, apiKey)
+                }
+                val success = client.validateApiKey(apiKey)
+                _uiState.update {
+                    it.copy(
+                        isTestingConnection = false,
+                        connectionTestResult = if (success) "Connection successful" else "Connection failed"
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(isTestingConnection = false, connectionTestResult = "Connection failed: ${e.message}")
                 }
             }
         }

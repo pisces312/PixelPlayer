@@ -88,6 +88,7 @@ class AiHandler @Inject constructor(
     private suspend fun generateWithRecovery(
         provider: AiProvider,
         apiKey: String,
+        baseUrl: String = "",
         systemPrompt: String,
         prompt: String,
         temperature: Float,
@@ -97,7 +98,11 @@ class AiHandler @Inject constructor(
         presencePenalty: Float,
         frequencyPenalty: Float,
     ): GenerationResult {
-        val client = clientFactory.createClient(provider, apiKey)
+        val client = if (provider.hasConfigurableUrl) {
+            clientFactory.createClientWithUrl(provider, apiKey, baseUrl)
+        } else {
+            clientFactory.createClient(provider, apiKey)
+        }
         val requestedModel = getModel(provider).ifBlank { client.getDefaultModel() }
 
         suspend fun callWithModel(model: String): String {
@@ -204,7 +209,19 @@ class AiHandler @Inject constructor(
 
             try {
                 val apiKey = getApiKey(provider)
-                if (apiKey.isBlank()) {
+                val baseUrl = if (provider.hasConfigurableUrl) {
+                    preferencesRepo.getBaseUrl(provider).first()
+                } else {
+                    ""
+                }
+
+                // Configurable-URL providers (e.g. Custom) require a Base URL, but may
+                // use an empty API key for local/self-hosted OpenAI-compatible servers.
+                if (provider.hasConfigurableUrl && baseUrl.isBlank()) {
+                    failedProviders.add("${provider.name}: no Base URL configured")
+                    continue
+                }
+                if (!provider.hasConfigurableUrl && apiKey.isBlank()) {
                     failedProviders.add("${provider.name}: no API key configured")
                     continue
                 }
@@ -215,6 +232,7 @@ class AiHandler @Inject constructor(
                 val result = generateWithRecovery(
                     provider = provider,
                     apiKey = apiKey,
+                    baseUrl = baseUrl,
                     systemPrompt = finalSystemPrompt,
                     prompt = prompt,
                     temperature = effectiveTemperature,

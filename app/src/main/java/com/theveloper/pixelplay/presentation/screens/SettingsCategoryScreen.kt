@@ -91,6 +91,7 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -975,7 +976,7 @@ fun SettingsCategoryScreen(
                             }
 
                             // Model Selection Section
-                            if (currentAiApiKey.isNotBlank()) {
+                            if (currentAiApiKey.isNotBlank() || provider.hasConfigurableUrl) {
                                 SettingsSubsection(title = stringResource(R.string.settings_model_selection_section)) {
                                     if (uiState.isLoadingModels) {
                                         Surface(
@@ -1034,6 +1035,45 @@ fun SettingsCategoryScreen(
                                         title = "Base URL",
                                         subtitle = "e.g. https://api.example.com/v1"
                                     )
+                                }
+                            }
+
+                            // Connection Test Section
+                            SettingsSubsection(title = "Connection Test") {
+                                Surface(
+                                    color = MaterialTheme.colorScheme.surfaceContainer,
+                                    shape = RoundedCornerShape(10.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Column(modifier = Modifier.padding(16.dp)) {
+                                        FilledTonalButton(
+                                            onClick = { settingsViewModel.testAiConnection() },
+                                            enabled = !uiState.isTestingConnection,
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            if (uiState.isTestingConnection) {
+                                                CircularProgressIndicator(
+                                                    modifier = Modifier.size(18.dp),
+                                                    strokeWidth = 2.dp
+                                                )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                            }
+                                            Text(
+                                                text = if (uiState.isTestingConnection) "Testing..." else "Test Connection"
+                                            )
+                                        }
+                                        if (uiState.connectionTestResult != null) {
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Text(
+                                                text = uiState.connectionTestResult.orEmpty(),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = if (uiState.connectionTestResult.orEmpty().startsWith("Connection successful"))
+                                                    MaterialTheme.colorScheme.primary
+                                                else
+                                                    MaterialTheme.colorScheme.error
+                                            )
+                                        }
+                                    }
                                 }
                             }
 

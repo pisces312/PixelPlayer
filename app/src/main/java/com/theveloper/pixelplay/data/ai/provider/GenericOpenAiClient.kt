@@ -92,8 +92,11 @@ class GenericOpenAiClient(
             
             val requestBuilder = Request.Builder()
                 .url("${baseUrl.trimEnd('/')}/chat/completions")
-                .addHeader("Authorization", "Bearer $apiKey")
                 .addHeader("Content-Type", "application/json")
+
+            if (apiKey.isNotBlank()) {
+                requestBuilder.addHeader("Authorization", "Bearer $apiKey")
+            }
             
             if (providerName.equals("OpenRouter", ignoreCase = true)) {
                 requestBuilder.addHeader("HTTP-Referer", "https://github.com/theovilardo/PixelPlayer")
@@ -140,11 +143,12 @@ class GenericOpenAiClient(
     override suspend fun getAvailableModels(apiKey: String): List<String> {
         return withContext(Dispatchers.IO) {
             try {
-                val request = Request.Builder()
+                val requestBuilder = Request.Builder()
                     .url("${baseUrl.trimEnd('/')}/models")
-                    .addHeader("Authorization", "Bearer $apiKey")
-                    .get()
-                    .build()
+                if (apiKey.isNotBlank()) {
+                    requestBuilder.addHeader("Authorization", "Bearer $apiKey")
+                }
+                val request = requestBuilder.get().build()
                 
                 val response = client.newCall(request).execute()
                 
@@ -165,11 +169,12 @@ class GenericOpenAiClient(
         return withContext(Dispatchers.IO) {
             try {
                 // Try a simple models list check as validation
-                val request = Request.Builder()
+                val requestBuilder = Request.Builder()
                     .url("${baseUrl.trimEnd('/')}/models")
-                    .addHeader("Authorization", "Bearer $apiKey")
-                    .get()
-                    .build()
+                if (apiKey.isNotBlank()) {
+                    requestBuilder.addHeader("Authorization", "Bearer $apiKey")
+                }
+                val request = requestBuilder.get().build()
                 
                 val response = client.newCall(request).execute()
                 response.isSuccessful

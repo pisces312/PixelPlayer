@@ -14,7 +14,7 @@ enum class AiProvider(val displayName: String, val requiresApiKey: Boolean, val 
     OPENAI("OpenAI", requiresApiKey = true),
     OPENROUTER("OpenRouter", requiresApiKey = true),
     OLLAMA("Ollama", requiresApiKey = true),
-    CUSTOM("Custom Provider", requiresApiKey = true, hasConfigurableUrl = true);
+    CUSTOM("Custom Provider", requiresApiKey = false, hasConfigurableUrl = true);
     
     companion object {
         fun fromString(value: String): AiProvider {
