@@ -48,6 +48,10 @@ interface FavoritesDao {
     @Query("SELECT rating FROM favorites WHERE songId = :songId")
     suspend fun getRating(songId: Long): Int?
 
+    /** 响应式观察单曲评分；无记录时流不发射（调用方按 0 处理）。 */
+    @Query("SELECT rating FROM favorites WHERE songId = :songId")
+    fun observeRating(songId: Long): Flow<Int?>
+
     /** 全量评分快照（rating > 0），供导入校验与推荐算法接入。 */
     @Query("SELECT songId, rating FROM favorites WHERE rating > 0")
     suspend fun getAllRatingsOnce(): List<SongRatingProjection>

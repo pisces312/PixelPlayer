@@ -1222,6 +1222,29 @@ class PlayerViewModel @Inject constructor(
     }.distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    /**
+     * 当前歌曲的五星评分（0 = 未评分，1..5 = 星级）。
+     * 响应式来自 Room favorites 表；评分与收藏状态相互独立。
+     */
+    val currentSongRating: StateFlow<Int> = stablePlayerState
+        .map { it.currentSong }
+        .distinctUntilChanged { old, new ->
+            old?.id == new?.id &&
+                old?.contentUriString == new?.contentUriString &&
+                old?.path == new?.path
+        }
+        .flatMapLatest { song ->
+            kotlinx.coroutines.flow.flow {
+                emit(resolveFavoriteSongId(song))
+            }
+        }
+        .flatMapLatest { favoriteSongId ->
+            if (favoriteSongId == null) flowOf(0)
+            else musicRepository.observeSongRating(favoriteSongId)
+        }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
     // ---------------------------------------------------------------------------
     // FullPlayerSlice — consolidates 11 independent flows into ONE subscription.
     // Previously FullPlayerContent had ~13 separate collectAsStateWithLifecycle()
@@ -2268,6 +2291,15 @@ class PlayerViewModel @Inject constructor(
             val favoriteSongId = resolveFavoriteSongId(currentSong) ?: return@launch
             val currentlyFavorite = favoriteSongIds.value.contains(favoriteSongId)
             setFavoriteStatusEverywhere(favoriteSongId, !currentlyFavorite)
+        }
+    }
+
+    /** 设置当前歌曲评分（1..5）；传 0 清除评分。评分与收藏状态相互独立。 */
+    fun setCurrentSongRating(rating: Int) {
+        val currentSong = playbackStateHolder.stablePlayerState.value.currentSong ?: return
+        viewModelScope.launch {
+            val favoriteSongId = resolveFavoriteSongId(currentSong) ?: return@launch
+            musicRepository.setSongRating(favoriteSongId, rating)
         }
     }
 

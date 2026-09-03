@@ -9,6 +9,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -105,7 +106,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Cloud
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.StarBorder
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.derivedStateOf
@@ -543,6 +547,8 @@ fun FullPlayerContent(
         )
     }
 
+    val currentSongRating by playerViewModel.currentSongRating.collectAsStateWithLifecycle()
+
     val controlsSection: @Composable () -> Unit = {
         FullPlayerControlsSection(
             loadingTweaks = loadingTweaks,
@@ -561,9 +567,11 @@ fun FullPlayerContent(
             shuffleTransitionInProgress = shuffleTransitionInProgress,
             repeatModeProvider = repeatModeProvider,
             isFavoriteProvider = isFavoriteProvider,
+            songRatingProvider = { currentSongRating },
             onShuffleToggle = onShuffleToggle,
             onRepeatToggle = onRepeatToggle,
-            onFavoriteToggle = onFavoriteToggle
+            onFavoriteToggle = onFavoriteToggle,
+            onRatingSelected = { playerViewModel.setCurrentSongRating(it) }
         )
     }
 
@@ -1124,9 +1132,11 @@ private fun FullPlayerControlsSection(
     shuffleTransitionInProgress: Boolean,
     repeatModeProvider: () -> Int,
     isFavoriteProvider: () -> Boolean,
+    songRatingProvider: () -> Int,
     onShuffleToggle: () -> Unit,
     onRepeatToggle: () -> Unit,
-    onFavoriteToggle: () -> Unit
+    onFavoriteToggle: () -> Unit,
+    onRatingSelected: (Int) -> Unit
 ) {
     val motionScheme = remember { MotionScheme.expressive() }
     val controlSpatialSpec = remember { motionScheme.fastSpatialSpec<Float>() }
@@ -1187,9 +1197,11 @@ private fun FullPlayerControlsSection(
                 isShuffleTransitionInProgress = shuffleTransitionInProgress,
                 repeatMode = repeatModeProvider(),
                 isFavoriteProvider = isFavoriteProvider,
+                songRatingProvider = songRatingProvider,
                 onShuffleToggle = onShuffleToggle,
                 onRepeatToggle = onRepeatToggle,
-                onFavoriteToggle = onFavoriteToggle
+                onFavoriteToggle = onFavoriteToggle,
+                onRatingSelected = onRatingSelected
             )
         }
     }
@@ -2548,14 +2560,31 @@ private fun BottomToggleRow(
     isShuffleTransitionInProgress: Boolean,
     repeatMode: Int,
     isFavoriteProvider: () -> Boolean,
+    songRatingProvider: () -> Int,
     onShuffleToggle: () -> Unit,
     onRepeatToggle: () -> Unit,
-    onFavoriteToggle: () -> Unit
+    onFavoriteToggle: () -> Unit,
+    onRatingSelected: (Int) -> Unit
 ) {
     val isFavorite = isFavoriteProvider()
+    val rating = songRatingProvider()
     val rowCorners = 60.dp
     val inactiveBg = LocalMaterialTheme.current.onSurface.copy(alpha = 0.07f)
     val inactiveContentColor = LocalMaterialTheme.current.onSurface
+
+    // 五星评分展开态：第三格原地展宽，其余两格收窄
+    var ratingExpanded by remember { mutableStateOf(false) }
+    val collapseRating: () -> Unit = { ratingExpanded = false }
+    val sideWeight by animateFloatAsState(
+        targetValue = if (ratingExpanded) 0.7f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        label = "sideSegmentWeight"
+    )
+    val ratingWeight by animateFloatAsState(
+        targetValue = if (ratingExpanded) 2.6f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        label = "ratingSegmentWeight"
+    )
 
 
     Box(
@@ -2593,10 +2622,8 @@ private fun BottomToggleRow(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val commonModifier = Modifier.weight(1f)
-
             ToggleSegmentButton(
-                modifier = commonModifier,
+                modifier = Modifier.weight(sideWeight),
                 active = isShuffleEnabled,
                 enabled = !isShuffleTransitionInProgress,
                 activeColor = LocalMaterialTheme.current.primaryFixed,
@@ -2604,7 +2631,7 @@ private fun BottomToggleRow(
                 activeContentColor = LocalMaterialTheme.current.onPrimaryFixed,
                 inactiveColor = inactiveBg,
                 inactiveContentColor = inactiveContentColor,
-                onClick = onShuffleToggle,
+                onClick = { collapseRating(); onShuffleToggle() },
                 iconId = R.drawable.rounded_shuffle_24,
                 contentDesc = "Aleatorio"
             )
@@ -2615,29 +2642,160 @@ private fun BottomToggleRow(
                 else -> R.drawable.rounded_repeat_24
             }
             ToggleSegmentButton(
-                modifier = commonModifier,
+                modifier = Modifier.weight(sideWeight),
                 active = repeatActive,
                 activeColor = LocalMaterialTheme.current.secondaryFixed,
                 activeCornerRadius = rowCorners,
                 activeContentColor = LocalMaterialTheme.current.onSecondaryFixed,
                 inactiveColor = inactiveBg,
                 inactiveContentColor = inactiveContentColor,
-                onClick = onRepeatToggle,
+                onClick = { collapseRating(); onRepeatToggle() },
                 iconId = repeatIcon,
                 contentDesc = "Repetir"
             )
-            ToggleSegmentButton(
-                modifier = commonModifier,
-                active = isFavorite,
-                activeColor = LocalMaterialTheme.current.tertiaryFixed,
-                activeCornerRadius = rowCorners,
-                activeContentColor = LocalMaterialTheme.current.onTertiaryFixed,
+            // 双态格：单击切收藏，长按原地展开五星
+            FavoriteRatingSegment(
+                modifier = Modifier.weight(ratingWeight),
+                isFavorite = isFavorite,
+                rating = rating,
+                expanded = ratingExpanded,
+                rowCorners = rowCorners,
                 inactiveColor = inactiveBg,
                 inactiveContentColor = inactiveContentColor,
-                onClick = onFavoriteToggle,
-                iconId = if (isFavorite) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24,
-                contentDesc = "Favorito"
+                onToggleFavorite = onFavoriteToggle,
+                onExpand = { ratingExpanded = true },
+                onCollapse = collapseRating,
+                onRatingSelected = onRatingSelected
             )
+        }
+    }
+}
+
+/**
+ * 收藏 + 五星评分双态分段格。
+ * 收起态：单击切换收藏，长按展开五星条；
+ * 展开态：点星设置评分（点当前星级清除评分）并收起，点格内空白收起。
+ */
+@Composable
+private fun FavoriteRatingSegment(
+    modifier: Modifier,
+    isFavorite: Boolean,
+    rating: Int,
+    expanded: Boolean,
+    rowCorners: Dp,
+    inactiveColor: Color,
+    inactiveContentColor: Color,
+    onToggleFavorite: () -> Unit,
+    onExpand: () -> Unit,
+    onCollapse: () -> Unit,
+    onRatingSelected: (Int) -> Unit
+) {
+    val haptics = LocalHapticFeedback.current
+    val colorScheme = LocalMaterialTheme.current
+
+    val active = isFavorite || rating > 0 || expanded
+    val targetBgColor = when {
+        expanded || isFavorite -> colorScheme.tertiaryFixed
+        rating > 0 -> colorScheme.tertiaryContainer
+        else -> inactiveColor
+    }
+    val activeContentColor =
+        if (isFavorite || expanded) colorScheme.onTertiaryFixed else colorScheme.onTertiaryContainer
+    val bgColor by animateColorAsState(
+        targetValue = targetBgColor,
+        animationSpec = tween(durationMillis = 250),
+        label = "ratingSegmentBg"
+    )
+    val cornerRadius by animateDpAsState(
+        targetValue = if (active) rowCorners else 8.dp,
+        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        label = "ratingSegmentCorner"
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .clip(RoundedCornerShape(cornerRadius))
+            .background(bgColor)
+            .combinedClickable(
+                onClick = {
+                    if (expanded) onCollapse() else onToggleFavorite()
+                },
+                onLongClick = {
+                    if (!expanded) {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onExpand()
+                    }
+                }
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        if (expanded) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 6.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                for (star in 1..5) {
+                    val selected = star <= rating
+                    Icon(
+                        imageVector = if (selected) Icons.Rounded.Star else Icons.Rounded.StarBorder,
+                        contentDescription = "Calificar con $star estrellas",
+                        tint = colorScheme.onTertiaryFixed.copy(alpha = if (selected) 1f else 0.45f),
+                        modifier = Modifier
+                            .size(26.dp)
+                            .clickable {
+                                haptics.performHapticFeedback(
+                                    if (star == rating) HapticFeedbackType.ToggleOff
+                                    else HapticFeedbackType.ToggleOn
+                                )
+                                onRatingSelected(if (star == rating) 0 else star)
+                                onCollapse()
+                            }
+                    )
+                }
+            }
+        } else {
+            val contentTint = if (active) activeContentColor else inactiveContentColor
+            val contentDesc = buildString {
+                append(if (isFavorite) "Favorito" else "Marcar como favorito")
+                if (rating > 0) append(", calificado con $rating estrellas")
+                append(", mantén pulsado para calificar")
+            }
+            Box(contentAlignment = Alignment.Center) {
+                if (isFavorite || rating == 0) {
+                    Icon(
+                        painter = painterResource(
+                            if (isFavorite) R.drawable.round_favorite_24
+                            else R.drawable.rounded_favorite_24
+                        ),
+                        contentDescription = contentDesc,
+                        tint = contentTint,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    // 仅评分、未收藏
+                    Icon(
+                        imageVector = Icons.Rounded.Star,
+                        contentDescription = contentDesc,
+                        tint = contentTint,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                if (isFavorite && rating > 0) {
+                    Text(
+                        text = rating.toString(),
+                        color = contentTint,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .graphicsLayer { translationX = 6.dp.toPx(); translationY = 3.dp.toPx() }
+                    )
+                }
+            }
         }
     }
 }

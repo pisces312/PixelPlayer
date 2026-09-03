@@ -291,6 +291,11 @@ interface MusicRepository {
     suspend fun getSongRating(songId: String): Int
 
     /**
+     * Stream reactivo de la calificación de una canción (0..5). 0 = sin calificar.
+     */
+    fun observeSongRating(songId: String): Flow<Int>
+
+    /**
      * Obtiene una canción específica por su ID.
      * @param songId El ID de la canción.
      * @return Flow que emite el objeto Song o null si no se encuentra.
