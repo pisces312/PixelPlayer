@@ -500,7 +500,7 @@ fun LibraryScreen(
     var aiGenerationRequestedFromDialog by remember { mutableStateOf(false) }
 
     val m3uImportLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
+        contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri?.let { playlistViewModel.importM3u(it) }
     }
@@ -1270,7 +1270,7 @@ fun LibraryScreen(
                                     onLocateClick = { locateAction?.invoke() },
                                     isPlaylistTab = currentTabId == LibraryTabId.PLAYLISTS,
                                     isFoldersTab = currentTabId == LibraryTabId.FOLDERS && (!playerUiState.isFoldersPlaylistView || playerUiState.currentFolder != null),
-                                    onImportM3uClick = { m3uImportLauncher.launch("audio/x-mpegurl") },
+                                    onImportM3uClick = { m3uImportLauncher.launch(arrayOf("audio/x-mpegurl", "audio/mpegurl", "application/x-mpegURL", "application/vnd.apple.mpegurl")) },
                                     currentFolder = playerUiState.currentFolder,
                                     folderRootPath = playerUiState.folderSourceRootPath.ifBlank {
                                         Environment.getExternalStorageDirectory().path
