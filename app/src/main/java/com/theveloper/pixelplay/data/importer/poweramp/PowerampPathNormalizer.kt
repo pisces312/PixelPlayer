@@ -18,29 +18,12 @@ import javax.inject.Singleton
  * 由 SongMatcher 降级到文件名 / 元数据匹配。
  */
 @Singleton
-class PowerampPathNormalizer @Inject constructor(
-    @ApplicationContext private val context: Context
+class PowerampPathNormalizer internal constructor(
+    private val volumeRoots: Map<String, String>
 ) {
-    /** 卷名（小写）→ 存储根绝对路径。惰性初始化。 */
-    private val volumeRoots: Map<String, String> by lazy { buildVolumeRoots() }
 
-    private fun buildVolumeRoots(): Map<String, String> {
-        val roots = mutableMapOf<String, String>()
-        // 主存储
-        roots[VOLUME_PRIMARY] = Environment.getExternalStorageDirectory().absolutePath
-        // 枚举全部可用卷：getExternalFilesDirs 每个元素对应一个卷，
-        // 形如 /storage/9C33-6BBD/Android/data/<pkg>/files → 根为 /storage/9C33-6BBD。
-        // SD 卡挂载点名即 FAT32 卷序列号，与 Poweramp 卷前缀一致。
-        context.getExternalFilesDirs(null).forEachIndexed { index, dir ->
-            val root = dir?.absolutePath?.substringBefore("/Android") ?: return@forEachIndexed
-            if (index == 0) {
-                roots[VOLUME_PRIMARY] = root
-            } else {
-                roots[root.substringAfterLast('/').lowercase()] = root
-            }
-        }
-        return roots
-    }
+    @Inject
+    constructor(@ApplicationContext context: Context) : this(buildVolumeRoots(context))
 
     /**
      * 规范化为绝对路径（与 `songs.file_path` 同一坐标系）。
@@ -72,5 +55,25 @@ class PowerampPathNormalizer @Inject constructor(
 
     companion object {
         private const val VOLUME_PRIMARY = "primary"
+
+        /**
+         * 枚举本机可用存储卷：getExternalFilesDirs 每个元素对应一个卷，
+         * 形如 /storage/9C33-6BBD/Android/data/<pkg>/files → 根为 /storage/9C33-6BBD。
+         * SD 卡挂载点名即 FAT32 卷序列号，与 Poweramp 卷前缀一致。
+         */
+        internal fun buildVolumeRoots(context: Context): Map<String, String> {
+            val roots = mutableMapOf<String, String>()
+            // 主存储（兜底，防止 getExternalFilesDirs 为空）
+            roots[VOLUME_PRIMARY] = Environment.getExternalStorageDirectory().absolutePath
+            context.getExternalFilesDirs(null).forEachIndexed { index, dir ->
+                val root = dir?.absolutePath?.substringBefore("/Android") ?: return@forEachIndexed
+                if (index == 0) {
+                    roots[VOLUME_PRIMARY] = root
+                } else {
+                    roots[root.substringAfterLast('/').lowercase()] = root
+                }
+            }
+            return roots
+        }
     }
 }

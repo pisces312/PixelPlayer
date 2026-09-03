@@ -180,11 +180,8 @@ class PlaybackStatsRepository @Inject constructor(
             endTimestamp = coercedTimestamp
         )
         val writeSucceeded = updateEventsAtomically { events ->
-            val cutoff = sanitizedEvent.endMillis() - MAX_HISTORY_AGE_MS
-            if (cutoff > 0) {
-                events.removeAll { it.endMillis() < cutoff }
-            }
             events += sanitizedEvent
+            enforceHistoryCountCap(events)
             events
         }
         if (writeSucceeded) {
@@ -495,6 +492,7 @@ class PlaybackStatsRepository @Inject constructor(
                 }
                 .sortedBy { event -> event.timestamp }
                 .toMutableList()
+            enforceHistoryCountCap(merged)
             merged
         }
         if (writeSucceeded) {
@@ -504,6 +502,14 @@ class PlaybackStatsRepository @Inject constructor(
 
     fun requestRefresh() {
         notifyStatsChanged()
+    }
+
+    /** D13：条数上限裁剪——超出 [MAX_HISTORY_EVENT_COUNT] 时丢弃最旧事件（替代原 730 天时间裁剪）。 */
+    private fun enforceHistoryCountCap(events: MutableList<PlaybackEvent>) {
+        if (events.size <= MAX_HISTORY_EVENT_COUNT) return
+        val kept = events.sortedBy { it.endMillis() }.takeLast(MAX_HISTORY_EVENT_COUNT)
+        events.clear()
+        events.addAll(kept)
     }
 
     private fun readEvents(): List<PlaybackEvent> {
@@ -1097,7 +1103,9 @@ class PlaybackStatsRepository @Inject constructor(
         private const val MAX_PLAYBACK_HISTORY_LIMIT = 5_000
         private const val MAX_FILE_UPDATE_RETRIES = 3
         private const val UNKNOWN_ARTIST = "Unknown Artist"
-        private val MAX_HISTORY_AGE_MS = TimeUnit.DAYS.toMillis(730) // Keep roughly two years of history
+        // D13：不再按时间（730 天）裁剪历史——导入的老数据（如 Poweramp played_at）会被误删。
+        // 改为条数上限：超出时丢弃最旧事件。
+        private const val MAX_HISTORY_EVENT_COUNT = 20_000
         private const val SEGMENT_JOIN_TOLERANCE_MS = 0L
         private const val MAX_SONG_STATS_COUNT = 100
     }

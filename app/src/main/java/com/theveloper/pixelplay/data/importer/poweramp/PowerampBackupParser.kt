@@ -97,18 +97,8 @@ class PowerampBackupParser @Inject constructor(
             val playlists = readPlaylists(db)
             val tracks = readTracks(db, trackColumns)
 
-            // N4/N5：去重键 = path（CUE 场景 path#cueOffset）；重复行优先取曲库行
-            // （export_type = 3，回退判定 playlist_id IS NULL，见 N6）。
-            // 实测重复组评分冲突为 0，仅需确定性规则。
-            val dedupRows = linkedMapOf<String, TrackRow>()
-            for (row in tracks) {
-                val key = row.dedupKey()
-                val existing = dedupRows[key]
-                if (existing == null || (row.isLibraryRow && !existing.isLibraryRow)) {
-                    dedupRows[key] = row
-                }
-            }
-            val dedup = dedupRows.mapValues { it.value.toRecord() }
+            // N4/N5：去重键 = path（CUE 场景 path#cueOffset）；重复行优先取曲库行（见 N6）。
+            val dedup = dedupeTracks(tracks).mapValues { it.value.toRecord() }
 
             // 列表引用行（playlist_id 非空）按 _id 递增即列表内顺序（§4.1 顺序保证）
             val importPlaylists = playlists.mapNotNull { (id, name) ->
@@ -190,42 +180,13 @@ class PowerampBackupParser @Inject constructor(
                     rating = rating,
                     playedAt = playedAt,
                     playedFullyAt = playedFullyAt,
-                    // N3：played_at > 0 且 played_times == 0 → 至少播过 1 次（实测 424 行矛盾）
-                    playCount = if (playedAt > 0 && playedTimes == 0) 1 else playedTimes,
+                    playCount = normalizePlayedTimes(playedAt, playedTimes),
                     cueOffsetMs = cueOffsetMs,
-                    // N6：export_type = 3 为曲库行；旧版无此列时回退 playlist_id IS NULL
-                    isLibraryRow = if (exportType >= 0) exportType == EXPORT_TYPE_LIBRARY else playlistId == null
+                    isLibraryRow = isLibraryRow(exportType, playlistId)
                 )
             }
         }
         return rows
-    }
-
-    private data class TrackRow(
-        val path: String,
-        val playlistId: Long?,
-        val readableName: String?,
-        val rating: Int,
-        val playedAt: Long,
-        val playedFullyAt: Long,
-        val playCount: Int,
-        val cueOffsetMs: Int,
-        val isLibraryRow: Boolean
-    ) {
-        fun toRecord() = ImportSongRecord(
-            path = path,
-            titleHint = readableName,
-            artistHint = null,          // 由 SongMatcher 从文件名解析（§3.2）
-            albumHint = null,           // 由 SongMatcher 从目录名提取（加分项）
-            rating = rating.coerceIn(0, 5),
-            playCount = playCount,
-            lastPlayedAt = playedAt.takeIf { it > 0 },
-            playedFullyAt = playedFullyAt.takeIf { it > 0 },
-            totalPlayDurationMs = null  // N2：Poweramp 无时长数据，不捏造
-        )
-
-        /** 去重键（N5：CUE 分割场景下同 path 对应多首曲子）。 */
-        fun dedupKey(): String = if (cueOffsetMs > 0) "$path#$cueOffsetMs" else path
     }
 
     companion object {
@@ -237,6 +198,59 @@ class PowerampBackupParser @Inject constructor(
         private const val COL_RATING = "rating"
         private const val COL_PLAYED_AT = "played_at"
         private const val COL_PLAYED_TIMES = "played_times"
-        private const val EXPORT_TYPE_LIBRARY = 3
     }
 }
+
+/** tracks 表一行的中间表示（internal 供单测构造样本）。 */
+internal data class TrackRow(
+    val path: String,
+    val playlistId: Long?,
+    val readableName: String?,
+    val rating: Int,
+    val playedAt: Long,
+    val playedFullyAt: Long,
+    val playCount: Int,
+    val cueOffsetMs: Int,
+    val isLibraryRow: Boolean
+) {
+    fun toRecord() = ImportSongRecord(
+        path = path,
+        titleHint = readableName,
+        artistHint = null,          // 由 SongMatcher 从文件名解析（§3.2）
+        albumHint = null,           // 由 SongMatcher 从目录名提取（加分项）
+        rating = rating.coerceIn(0, 5),
+        playCount = playCount,
+        lastPlayedAt = playedAt.takeIf { it > 0 },
+        playedFullyAt = playedFullyAt.takeIf { it > 0 },
+        totalPlayDurationMs = null  // N2：Poweramp 无时长数据，不捏造
+    )
+
+    /** 去重键（N5：CUE 分割场景下同 path 对应多首曲子）。 */
+    fun dedupKey(): String = if (cueOffsetMs > 0) "$path#$cueOffsetMs" else path
+}
+
+/** N3：played_at > 0 且 played_times == 0 → 至少播过 1 次（实测 424 行矛盾）。 */
+internal fun normalizePlayedTimes(playedAt: Long, playedTimes: Int): Int =
+    if (playedAt > 0 && playedTimes == 0) 1 else playedTimes
+
+/** N6：export_type = 3 为曲库行；旧版无此列（-1）时回退 playlist_id IS NULL。 */
+internal fun isLibraryRow(exportType: Int, playlistId: Long?): Boolean =
+    if (exportType >= 0) exportType == EXPORT_TYPE_LIBRARY else playlistId == null
+
+/**
+ * N4/N5：按 dedupKey 去重；重复行优先取曲库行。
+ * 实测重复组评分冲突为 0，仅需确定性规则；同类行保持先读到的。
+ */
+internal fun dedupeTracks(rows: List<TrackRow>): LinkedHashMap<String, TrackRow> {
+    val dedup = LinkedHashMap<String, TrackRow>()
+    for (row in rows) {
+        val key = row.dedupKey()
+        val existing = dedup[key]
+        if (existing == null || (row.isLibraryRow && !existing.isLibraryRow)) {
+            dedup[key] = row
+        }
+    }
+    return dedup
+}
+
+private const val EXPORT_TYPE_LIBRARY = 3
