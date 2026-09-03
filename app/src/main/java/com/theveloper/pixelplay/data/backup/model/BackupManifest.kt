@@ -9,7 +9,8 @@ data class BackupManifest(
     val modules: Map<String, BackupModuleInfo> = emptyMap()
 ) {
     companion object {
-        const val CURRENT_SCHEMA_VERSION = 3
+        // v4: favorites 表新增 rating 列（五星评分），随 FavoritesEntity 序列化自动导出。
+        const val CURRENT_SCHEMA_VERSION = 4
         const val MIN_SUPPORTED_VERSION = 1
         const val MANIFEST_FILENAME = "manifest.json"
     }
