@@ -53,6 +53,15 @@ class ListeningStatsTracker @Inject constructor(
                 limit = MAX_INTERNAL_PLAYBACK_HISTORY_ITEMS
             )
         }
+        // 导入/备份恢复等绕过 finalizeCurrentSession 的仓库写入需主动刷新内存列表，
+        // 否则要等下次重启才能在「最近播放」看到导入的历史。
+        coroutineScope.launch(Dispatchers.IO) {
+            playbackStatsRepository.refreshFlow.collect {
+                _playbackHistory.value = playbackStatsRepository.loadPlaybackHistory(
+                    limit = MAX_INTERNAL_PLAYBACK_HISTORY_ITEMS
+                )
+            }
+        }
     }
 
     @Synchronized
@@ -314,7 +323,9 @@ class ListeningStatsTracker @Inject constructor(
 
     companion object {
         private val MIN_SESSION_LISTEN_MS = TimeUnit.SECONDS.toMillis(5)
-        private const val MAX_INTERNAL_PLAYBACK_HISTORY_ITEMS = 500
+        // 内存「最近播放」列表上限：对齐 PlaybackStatsRepository.MAX_PLAYBACK_HISTORY_LIMIT(5000)。
+        // 原先 500 会把导入的大批量老历史挤出窗口，导致导入备份后「最近播放」只剩少量近期事件。
+        private const val MAX_INTERNAL_PLAYBACK_HISTORY_ITEMS = 5_000
     }
 }
 
