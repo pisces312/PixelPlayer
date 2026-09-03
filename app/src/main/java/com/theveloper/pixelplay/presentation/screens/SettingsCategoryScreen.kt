@@ -80,6 +80,7 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.Input
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.Science
@@ -1379,6 +1380,32 @@ fun SettingsCategoryScreen(
                                     primaryActionLabel = stringResource(R.string.settings_action_select_restore),
                                     onPrimaryAction = { showImportFlow = true },
                                     enabled = !uiState.isDataTransferInProgress
+                                )
+                            }
+
+                            // 第三方导入（Poweramp 备份一键导入，见 poweramp-import-feature-plan §1.1）
+                            SettingsSubsection(
+                                title = stringResource(R.string.import_entry_title),
+                                addBottomSpace = false
+                            ) {
+                                SettingsItem(
+                                    title = stringResource(R.string.import_entry_title),
+                                    subtitle = stringResource(R.string.import_entry_subtitle),
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Input,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.secondary
+                                        )
+                                    },
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Rounded.ChevronRight,
+                                            contentDescription = stringResource(R.string.settings_cd_open),
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    },
+                                    onClick = { navController.navigateSafely(Screen.ThirdPartyImport.route) }
                                 )
                             }
                         }

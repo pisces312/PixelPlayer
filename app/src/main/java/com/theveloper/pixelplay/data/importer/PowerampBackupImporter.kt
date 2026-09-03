@@ -46,6 +46,28 @@ class PowerampBackupImporter @Inject constructor(
         internal val unresolvedKeys: List<String>
     )
 
+    /** 预览页「导入规模冲击对比」（方案 §5.1 D11）的现状侧数据。 */
+    data class ImportImpact(
+        val currentEngagement: Int,
+        val currentFavorites: Int,
+        val currentPlaylists: Int
+    )
+
+    /** 读取本地现状统计（参与度条目数 / 收藏数 / 歌单数），供冲击对比表。 */
+    suspend fun currentImpact(): ImportImpact = withContext(Dispatchers.IO) {
+        ImportImpact(
+            currentEngagement = engagementDao.getAllEngagements().size,
+            currentFavorites = favoritesDao.getFavoriteSongIdsOnce().size,
+            currentPlaylists = playlistPreferencesRepository.getPlaylistsOnce().size
+        )
+    }
+
+    /** 指定评分阈值下，匹配成功歌曲中将成为收藏的数量（选项页实时预览）。 */
+    fun favoritesCountForThreshold(prepared: PreparedImport, threshold: Int): Int =
+        prepared.data.songRecords.entries.count { (key, r) ->
+            r.rating >= threshold && prepared.matchMap.containsKey(key)
+        }
+
     /** 解析 + 匹配，生成预览（不写库）。 */
     suspend fun prepare(uri: Uri): PreparedImport = withContext(Dispatchers.IO) {
         val data = parser.parse(uri)

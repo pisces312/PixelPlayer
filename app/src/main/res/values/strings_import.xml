@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 第三方导入（Poweramp） -->
+    <string name="import_entry_title">Third-party import</string>
+    <string name="import_entry_subtitle">Import playlists, ratings and play stats from other players</string>
+    <string name="import_screen_title">Third-party import</string>
+    <string name="import_source_section">Choose a source</string>
+    <string name="import_source_poweramp_subtitle">Import from a .poweramp-backup file</string>
+    <string name="import_source_more_coming">More sources coming soon</string>
+
+    <string name="import_parsing_title">Parsing backup…</string>
+
+    <string name="import_preview_title">Import preview</string>
+    <string name="import_preview_playlists">Playlists</string>
+    <string name="import_preview_songs">Songs (deduped)</string>
+    <string name="import_preview_rated">Rated</string>
+    <string name="import_preview_played">With play history</string>
+    <string name="import_preview_matched">Estimated match: %1$d songs (%2$d%%)</string>
+    <string name="import_preview_rating_distribution">Ratings: 5★ %1$d · 4★ %2$d · 3★ %3$d · 2★ %4$d · 1★ %5$d</string>
+    <string name="import_preview_impact_title">Impact (current → after import)</string>
+    <string name="import_preview_impact_engagement">Engagement stats: %1$d → %2$d</string>
+    <string name="import_preview_impact_favorites">Favorites: %1$d → ~%2$d</string>
+    <string name="import_preview_impact_playlists">Playlists: %1$d → %2$d</string>
+
+    <string name="import_options_title">Import options</string>
+    <string name="import_options_mode_label">Mode</string>
+    <string name="import_options_mode_merge">Merge (recommended)</string>
+    <string name="import_options_mode_replace">Replace</string>
+    <string name="import_options_mode_hint">Replace mode only affects play history and engagement stats</string>
+    <string name="import_options_threshold_label">Favorite threshold: ≥ %1$d stars</string>
+    <string name="import_options_threshold_count">~%1$d songs will become favorites</string>
+    <string name="import_options_playlists">Playlists</string>
+    <string name="import_options_history">Play history</string>
+    <string name="import_options_engagement">Engagement stats</string>
+    <string name="import_options_favorites">Favorites &amp; ratings</string>
+    <string name="import_options_merge_hint">Playlists are always merged: same-name lists are appended in original order</string>
+
+    <string name="import_importing_title">Importing…</string>
+    <string name="import_step_parsing">Parsing</string>
+    <string name="import_step_matching">Matching songs</string>
+    <string name="import_step_playlists">Writing playlists</string>
+    <string name="import_step_history">Writing play history</string>
+    <string name="import_step_engagement">Writing engagement stats</string>
+    <string name="import_step_favorites">Writing favorites &amp; ratings</string>
+
+    <string name="import_result_title">Import complete</string>
+    <string name="import_result_matched">Matched songs: %1$d</string>
+    <string name="import_result_unresolved">Unmatched: %1$d</string>
+    <string name="import_result_playlists">Playlists: %1$d created, %2$d merged</string>
+    <string name="import_result_history">Play history events: %1$d</string>
+    <string name="import_result_engagement">Engagement entries: %1$d</string>
+    <string name="import_result_favorites">Favorites: %1$d (with ratings: %2$d)</string>
+    <string name="import_result_skipped_empty">Skipped empty playlists: %1$d</string>
+    <string name="import_result_unresolved_examples">Examples: %1$s</string>
+
+    <string name="import_error_title">Import failed</string>
+
+    <string name="import_action_next">Next</string>
+    <string name="import_action_start">Start import</string>
+    <string name="import_action_done">Done</string>
+</resources>
