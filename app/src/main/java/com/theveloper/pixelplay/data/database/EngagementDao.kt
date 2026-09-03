@@ -67,6 +67,21 @@ interface EngagementDao {
     @Query("SELECT * FROM song_engagements WHERE last_played_timestamp > 0 ORDER BY last_played_timestamp DESC LIMIT :limit")
     suspend fun getRecentlyPlayedSongs(limit: Int): List<SongEngagementEntity>
 
+    /**
+     * 合并式 upsert（供 Poweramp 导入使用）：
+     * play_count / total_play_duration_ms 累加，last_played_timestamp 取最大值。
+     * ⚠️ 非幂等——重跑导入会重复累加 play_count（详见 poweramp-import-feature-plan §9 D6）。
+     */
+    @Query("""
+        INSERT INTO song_engagements (song_id, play_count, total_play_duration_ms, last_played_timestamp)
+        VALUES (:songId, :playCount, :durationMs, :lastPlayedAt)
+        ON CONFLICT(song_id) DO UPDATE SET
+            play_count = play_count + :playCount,
+            total_play_duration_ms = total_play_duration_ms + :durationMs,
+            last_played_timestamp = MAX(last_played_timestamp, :lastPlayedAt)
+    """)
+    suspend fun mergeEngagement(songId: String, playCount: Int, durationMs: Long, lastPlayedAt: Long)
+
     @Transaction
     suspend fun replaceAll(engagements: List<SongEngagementEntity>) {
         clearAllEngagements()
