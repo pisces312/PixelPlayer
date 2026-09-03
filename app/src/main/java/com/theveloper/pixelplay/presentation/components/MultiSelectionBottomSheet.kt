@@ -7,6 +7,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import androidx.compose.material.icons.rounded.FolderZip
 import androidx.compose.material.icons.rounded.HeartBroken
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material.icons.rounded.StarBorder
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -50,6 +52,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumExtendedFloatingActionButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -106,7 +109,8 @@ fun MultiSelectionBottomSheet(
     onToggleLikeAll: (shouldLike: Boolean) -> Unit,
     onShareAll: () -> Unit,
     onDeleteAll: (activity: Activity, onResult: (Boolean) -> Unit) -> Unit,
-    onBatchEdit: () -> Unit
+    onBatchEdit: () -> Unit,
+    onRateAll: (stars: Int) -> Unit = {}
 ) {
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -334,6 +338,45 @@ fun MultiSelectionBottomSheet(
                         }
                     }
                     
+                    // Row 1.5: 批量五星评分（对全部选中歌曲设分）
+                    item {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                text = stringResource(R.string.song_info_rating_label),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                for (star in 1..5) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.StarBorder,
+                                        contentDescription = stringResource(R.string.song_info_cd_rate_stars, star),
+                                        tint = MaterialTheme.colorScheme.tertiary,
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clickable {
+                                                onRateAll(star)
+                                                onDismiss()
+                                            }
+                                            .padding(6.dp)
+                                    )
+                                }
+                                Spacer(Modifier.weight(1f))
+                                TextButton(
+                                    onClick = {
+                                        onRateAll(0)
+                                        onDismiss()
+                                    }
+                                ) {
+                                    Text(stringResource(R.string.song_info_rating_clear))
+                                }
+                            }
+                        }
+                    }
+
                     // Row 2: Add to Queue, Play Next
                     item {
                         Row(

@@ -253,6 +253,8 @@ fun LyricsSheet(
     onShuffleToggle: () -> Unit,
     onRepeatToggle: () -> Unit,
     onFavoriteToggle: () -> Unit,
+    songRatingProvider: () -> Int = { 0 },
+    onRatingSelected: (Int) -> Unit = {},
     modifier: Modifier = Modifier,
     swipeThreshold: Dp = 100.dp,
     highlightZoneFraction: Float = 0.08f, // Reduced from 0.22 for less padding
@@ -1085,6 +1087,11 @@ fun LyricsSheet(
                     onFavoriteToggle = {
                         resetImmersiveTimer()
                         onFavoriteToggle()
+                    },
+                    songRatingProvider = songRatingProvider,
+                    onRatingSelected = { stars ->
+                        resetImmersiveTimer()
+                        onRatingSelected(stars)
                     },
                 )
             }

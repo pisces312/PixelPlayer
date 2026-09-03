@@ -344,6 +344,20 @@ class MultiSelectionStateHolder @Inject constructor(
     fun unlikeSelectedSongs(songs: List<Song>, callbacks: SelectionActionCallbacks) =
         updateFavoritesForSelection(songs, callbacks, makeFavorite = false)
 
+    /**
+     * 对全部选中歌曲批量设置五星评分（1..5；0 = 清除评分）。
+     * Clears selection after rating.
+     */
+    fun rateSelectedSongs(songs: List<Song>, stars: Int, callbacks: SelectionActionCallbacks) {
+        callbacks.scope.launch {
+            val normalized = stars.coerceIn(0, 5)
+            songs.forEach { song ->
+                musicRepository.setSongRating(song.id, normalized)
+            }
+            clearSelection()
+        }
+    }
+
     private fun updateFavoritesForSelection(
         songs: List<Song>,
         callbacks: SelectionActionCallbacks,

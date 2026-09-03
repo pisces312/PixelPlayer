@@ -2397,6 +2397,10 @@ class PlayerViewModel @Inject constructor(
     fun unlikeSelectedSongs(songs: List<Song>) =
         multiSelectionStateHolder.unlikeSelectedSongs(songs, selectionActionCallbacks())
 
+    /** 批量设置选中歌曲的五星评分（1..5；0 = 清除）。 */
+    fun rateSelectedSongs(songs: List<Song>, stars: Int) =
+        multiSelectionStateHolder.rateSelectedSongs(songs, stars, selectionActionCallbacks())
+
     fun shareSelectedAsZip(songs: List<Song>) =
         multiSelectionStateHolder.shareSelectedAsZip(songs, selectionActionCallbacks())
 

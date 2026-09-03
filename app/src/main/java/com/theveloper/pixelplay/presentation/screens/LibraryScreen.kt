@@ -1975,6 +1975,10 @@ fun LibraryScreen(
             onBatchEdit = {
                 showMultiSelectionSheet = false
                 showBatchEditSheet = true
+            },
+            onRateAll = { stars ->
+                playerViewModel.rateSelectedSongs(selectedSongs, stars)
+                showMultiSelectionSheet = false
             }
         )
     }

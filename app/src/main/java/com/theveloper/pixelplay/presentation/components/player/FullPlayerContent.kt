@@ -9,7 +9,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -106,10 +105,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Cloud
-import androidx.compose.material.icons.rounded.Star
-import androidx.compose.material.icons.rounded.StarBorder
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.derivedStateOf
@@ -149,6 +145,7 @@ import java.util.Locale
 import kotlin.math.roundToLong
 import com.theveloper.pixelplay.presentation.components.WavySliderExpressive
 import com.theveloper.pixelplay.presentation.components.ToggleSegmentButton
+import com.theveloper.pixelplay.presentation.components.FavoriteRatingSegment
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
@@ -987,7 +984,9 @@ fun FullPlayerContent(
             isFavoriteProvider = isFavoriteProvider,
             onShuffleToggle = onShuffleToggle,
             onRepeatToggle = onRepeatToggle,
-            onFavoriteToggle = onFavoriteToggle
+            onFavoriteToggle = onFavoriteToggle,
+            songRatingProvider = { currentSongRating },
+            onRatingSelected = { playerViewModel.setCurrentSongRating(it) }
         )
     }
 
@@ -2660,6 +2659,10 @@ private fun BottomToggleRow(
                 rating = rating,
                 expanded = ratingExpanded,
                 rowCorners = rowCorners,
+                activeColor = LocalMaterialTheme.current.tertiaryFixed,
+                activeContentColor = LocalMaterialTheme.current.onTertiaryFixed,
+                ratingOnlyColor = LocalMaterialTheme.current.tertiaryContainer,
+                ratingOnlyContentColor = LocalMaterialTheme.current.onTertiaryContainer,
                 inactiveColor = inactiveBg,
                 inactiveContentColor = inactiveContentColor,
                 onToggleFavorite = onFavoriteToggle,
@@ -2667,135 +2670,6 @@ private fun BottomToggleRow(
                 onCollapse = collapseRating,
                 onRatingSelected = onRatingSelected
             )
-        }
-    }
-}
-
-/**
- * 收藏 + 五星评分双态分段格。
- * 收起态：单击切换收藏，长按展开五星条；
- * 展开态：点星设置评分（点当前星级清除评分）并收起，点格内空白收起。
- */
-@Composable
-private fun FavoriteRatingSegment(
-    modifier: Modifier,
-    isFavorite: Boolean,
-    rating: Int,
-    expanded: Boolean,
-    rowCorners: Dp,
-    inactiveColor: Color,
-    inactiveContentColor: Color,
-    onToggleFavorite: () -> Unit,
-    onExpand: () -> Unit,
-    onCollapse: () -> Unit,
-    onRatingSelected: (Int) -> Unit
-) {
-    val haptics = LocalHapticFeedback.current
-    val colorScheme = LocalMaterialTheme.current
-
-    val active = isFavorite || rating > 0 || expanded
-    val targetBgColor = when {
-        expanded || isFavorite -> colorScheme.tertiaryFixed
-        rating > 0 -> colorScheme.tertiaryContainer
-        else -> inactiveColor
-    }
-    val activeContentColor =
-        if (isFavorite || expanded) colorScheme.onTertiaryFixed else colorScheme.onTertiaryContainer
-    val bgColor by animateColorAsState(
-        targetValue = targetBgColor,
-        animationSpec = tween(durationMillis = 250),
-        label = "ratingSegmentBg"
-    )
-    val cornerRadius by animateDpAsState(
-        targetValue = if (active) rowCorners else 8.dp,
-        animationSpec = spring(stiffness = Spring.StiffnessLow),
-        label = "ratingSegmentCorner"
-    )
-
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .clip(RoundedCornerShape(cornerRadius))
-            .background(bgColor)
-            .combinedClickable(
-                onClick = {
-                    if (expanded) onCollapse() else onToggleFavorite()
-                },
-                onLongClick = {
-                    if (!expanded) {
-                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onExpand()
-                    }
-                }
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        if (expanded) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 6.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                for (star in 1..5) {
-                    val selected = star <= rating
-                    Icon(
-                        imageVector = if (selected) Icons.Rounded.Star else Icons.Rounded.StarBorder,
-                        contentDescription = "Calificar con $star estrellas",
-                        tint = colorScheme.onTertiaryFixed.copy(alpha = if (selected) 1f else 0.45f),
-                        modifier = Modifier
-                            .size(26.dp)
-                            .clickable {
-                                haptics.performHapticFeedback(
-                                    if (star == rating) HapticFeedbackType.ToggleOff
-                                    else HapticFeedbackType.ToggleOn
-                                )
-                                onRatingSelected(if (star == rating) 0 else star)
-                                onCollapse()
-                            }
-                    )
-                }
-            }
-        } else {
-            val contentTint = if (active) activeContentColor else inactiveContentColor
-            val contentDesc = buildString {
-                append(if (isFavorite) "Favorito" else "Marcar como favorito")
-                if (rating > 0) append(", calificado con $rating estrellas")
-                append(", mantén pulsado para calificar")
-            }
-            Box(contentAlignment = Alignment.Center) {
-                if (isFavorite || rating == 0) {
-                    Icon(
-                        painter = painterResource(
-                            if (isFavorite) R.drawable.round_favorite_24
-                            else R.drawable.rounded_favorite_24
-                        ),
-                        contentDescription = contentDesc,
-                        tint = contentTint,
-                        modifier = Modifier.size(24.dp)
-                    )
-                } else {
-                    // 仅评分、未收藏
-                    Icon(
-                        imageVector = Icons.Rounded.Star,
-                        contentDescription = contentDesc,
-                        tint = contentTint,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-                if (isFavorite && rating > 0) {
-                    Text(
-                        text = rating.toString(),
-                        color = contentTint,
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .graphicsLayer { translationX = 6.dp.toPx(); translationY = 3.dp.toPx() }
-                    )
-                }
-            }
         }
     }
 }
