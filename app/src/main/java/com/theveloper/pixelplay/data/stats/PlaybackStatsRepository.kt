@@ -475,10 +475,14 @@ class PlaybackStatsRepository @Inject constructor(
             .toList()
     }
 
+    /**
+     * @return 写入是否成功。返回 false 表示 AtomicFile 写入失败，调用方不应把 events.size
+     *         当作「已导入」上报（此前无返回值，导致导入结果页可能显示假成功数）。
+     */
     suspend fun importEventsFromBackup(
         events: List<PlaybackEvent>,
         clearExisting: Boolean = true
-    ) = withContext(Dispatchers.IO) {
+    ): Boolean = withContext(Dispatchers.IO) {
         val writeSucceeded = updateEventsAtomically { existingEvents ->
             val base = if (clearExisting) {
                 emptyList()
@@ -498,6 +502,7 @@ class PlaybackStatsRepository @Inject constructor(
         if (writeSucceeded) {
             notifyStatsChanged()
         }
+        writeSucceeded
     }
 
     fun requestRefresh() {

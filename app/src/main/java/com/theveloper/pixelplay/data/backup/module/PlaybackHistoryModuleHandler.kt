@@ -6,6 +6,7 @@ import com.theveloper.pixelplay.data.backup.model.BackupSection
 import com.theveloper.pixelplay.data.backup.model.PlaybackHistoryBackupEntry
 import com.theveloper.pixelplay.data.stats.PlaybackStatsRepository
 import com.theveloper.pixelplay.di.BackupGson
+import com.theveloper.pixelplay.utils.LogUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -38,22 +39,27 @@ class PlaybackHistoryModuleHandler @Inject constructor(
 
     override suspend fun snapshot(): String = export()
 
-    override suspend fun restore(payload: String) = withContext(Dispatchers.IO) {
+    override suspend fun restore(payload: String): Unit = withContext(Dispatchers.IO) {
         val type = TypeToken.getParameterized(List::class.java, PlaybackHistoryBackupEntry::class.java).type
         val entries: List<PlaybackHistoryBackupEntry> = gson.fromJson(payload, type)
-        playbackStatsRepository.importEventsFromBackup(
-            events = entries.map { entry ->
-                PlaybackStatsRepository.PlaybackEvent(
-                    songId = entry.songId,
-                    timestamp = entry.timestamp,
-                    durationMs = entry.durationMs,
-                    startTimestamp = entry.startTimestamp,
-                    endTimestamp = entry.endTimestamp
-                )
-            },
+        val events = entries.map { entry ->
+            PlaybackStatsRepository.PlaybackEvent(
+                songId = entry.songId,
+                timestamp = entry.timestamp,
+                durationMs = entry.durationMs,
+                startTimestamp = entry.startTimestamp,
+                endTimestamp = entry.endTimestamp
+            )
+        }
+        val writeSucceeded = playbackStatsRepository.importEventsFromBackup(
+            events = events,
             clearExisting = true
+        )
+        LogUtils.i(
+            this@PlaybackHistoryModuleHandler,
+            "恢复播放历史 %d 条，写入成功=%b", events.size, writeSucceeded
         )
     }
 
-    override suspend fun rollback(snapshot: String) = restore(snapshot)
+    override suspend fun rollback(snapshot: String): Unit = restore(snapshot)
 }

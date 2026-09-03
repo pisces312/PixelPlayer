@@ -463,6 +463,8 @@
     <string name="settings_dialog_palette_regenerated">Paleta regenerada para %1$s</string>
     <string name="settings_dialog_palette_regenerate_failed">No se pudo regenerar la paleta para %1$s</string>
     <string name="settings_diagnostics_section">Diagnóstico</string>
+    <string name="settings_export_logs_title">Exportar registro de diagnóstico</string>
+    <string name="settings_export_logs_subtitle">Recopilar registros recientes de la app (incluido el detalle de importaciones) y compartirlos como archivo de texto.</string>
     <string name="settings_trigger_crash_title">Provocar cierre forzado de prueba</string>
     <string name="settings_trigger_crash_subtitle">Simular un fallo para probar el sistema de informe de errores.</string>
     <string name="settings_dev_test_crash_message">Cierre forzado de prueba provocado desde las Opciones de Desarrollador - Esto es intencionado para probar el sistema de informe de errores.</string>

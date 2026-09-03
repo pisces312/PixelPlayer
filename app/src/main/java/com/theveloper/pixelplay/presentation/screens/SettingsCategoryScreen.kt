@@ -65,6 +65,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ClearAll
+import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Language
@@ -1463,6 +1464,12 @@ fun SettingsCategoryScreen(
                                 title = stringResource(R.string.settings_diagnostics_section),
                                 addBottomSpace = false
                             ) {
+                                SettingsItem(
+                                    title = stringResource(R.string.settings_export_logs_title),
+                                    subtitle = stringResource(R.string.settings_export_logs_subtitle),
+                                    leadingIcon = { Icon(Icons.Outlined.Description, null, tint = MaterialTheme.colorScheme.secondary) },
+                                    onClick = { settingsViewModel.exportDiagnosticLogs() }
+                                )
                                 SettingsItem(
                                     title = stringResource(R.string.settings_trigger_crash_title),
                                     subtitle = stringResource(R.string.settings_trigger_crash_subtitle),

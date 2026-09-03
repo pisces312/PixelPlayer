@@ -463,6 +463,8 @@
     <string name="settings_dialog_palette_regenerated">已为 %1$s 重新生成调色板</string>
     <string name="settings_dialog_palette_regenerate_failed">无法为 %1$s 重新生成调色板</string>
     <string name="settings_diagnostics_section">诊断</string>
+    <string name="settings_export_logs_title">导出诊断日志</string>
+    <string name="settings_export_logs_subtitle">收集近期应用日志（含导入等详细过程记录），以文本文件分享。</string>
     <string name="settings_trigger_crash_title">触发测试崩溃</string>
     <string name="settings_trigger_crash_subtitle">模拟一次崩溃以测试崩溃报告系统。</string>
     <string name="settings_dev_test_crash_message">测试崩溃是从开发者选项触发的 - 这是为了测试崩溃报告系统的有意行为</string>

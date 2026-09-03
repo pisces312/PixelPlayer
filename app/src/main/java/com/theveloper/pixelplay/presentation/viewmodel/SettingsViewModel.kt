@@ -39,9 +39,13 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 import com.theveloper.pixelplay.R
+import com.theveloper.pixelplay.utils.AppLogCollector
+import com.theveloper.pixelplay.utils.LogUtils
 import com.theveloper.pixelplay.data.preferences.NavBarStyle
 import com.theveloper.pixelplay.data.ai.GeminiModel
 import com.theveloper.pixelplay.data.ai.provider.AiClientFactory
@@ -1366,6 +1370,21 @@ class SettingsViewModel @Inject constructor(
     fun resetSetupFlow() {
         viewModelScope.launch {
             userPreferencesRepository.setInitialSetupDone(false)
+        }
+    }
+
+    /**
+     * 导出应用诊断日志（含 release 包里 logcat 看不到的 DEBUG/INFO）并调起系统分享面板。
+     * 日志可能包含歌曲标题与文件路径，由用户自行确认后分享。
+     */
+    fun exportDiagnosticLogs() {
+        viewModelScope.launch {
+            runCatching {
+                val file = withContext(Dispatchers.IO) { AppLogCollector.exportLogs() }
+                AppLogCollector.shareLogFile(file)
+            }.onFailure { e ->
+                LogUtils.e(this@SettingsViewModel, e, "导出诊断日志失败")
+            }
         }
     }
 

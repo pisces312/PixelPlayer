@@ -8,10 +8,13 @@ import com.theveloper.pixelplay.data.importer.ImportPlaylist
 import com.theveloper.pixelplay.data.importer.ImportSongRecord
 import com.theveloper.pixelplay.data.importer.ImportSource
 import com.theveloper.pixelplay.data.importer.ImportSourceData
+import com.theveloper.pixelplay.utils.LogUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Locale
 import java.util.zip.ZipInputStream
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,9 +38,19 @@ class PowerampBackupParser @Inject constructor(
     override val supportedFileExtensions: List<String> = listOf(".poweramp-backup")
 
     override suspend fun parse(uri: Uri): ImportSourceData = withContext(Dispatchers.IO) {
+        LogUtils.i(this@PowerampBackupParser, "开始解析备份 uri=%s", uri.toString().take(160))
+        val startedAt = System.currentTimeMillis()
         val dbFile = extractListsExport(uri)
         try {
-            parseDatabase(dbFile)
+            parseDatabase(dbFile).also { data ->
+                LogUtils.i(
+                    this@PowerampBackupParser,
+                    "解析完成：耗时 %d ms，歌曲 %d 首，歌单 %d 个",
+                    System.currentTimeMillis() - startedAt,
+                    data.songRecords.size,
+                    data.playlists.size
+                )
+            }
         } finally {
             dbFile.delete()
         }
@@ -47,15 +60,22 @@ class PowerampBackupParser @Inject constructor(
     private fun extractListsExport(uri: Uri): File {
         val outFile = File.createTempFile("poweramp_lists_export_", ".db", context.cacheDir)
         var found = false
+        val seenEntries = mutableListOf<String>()
         try {
             context.contentResolver.openInputStream(uri)?.use { input ->
                 ZipInputStream(input.buffered()).use { zip ->
                     while (true) {
                         val entry = zip.nextEntry ?: break
                         val entryName = entry.name.substringAfterLast('/')
+                        seenEntries += entry.name
                         if (!entry.isDirectory && entryName == LISTS_EXPORT_ENTRY) {
                             outFile.outputStream().use { out -> zip.copyTo(out) }
                             found = true
+                            LogUtils.i(
+                                this@PowerampBackupParser,
+                                "zip 命中 %s，解压 %d bytes",
+                                LISTS_EXPORT_ENTRY, outFile.length()
+                            )
                             break
                         }
                         zip.closeEntry()
@@ -64,13 +84,16 @@ class PowerampBackupParser @Inject constructor(
             } ?: throw ImportParseException("无法读取所选文件")
         } catch (e: ImportParseException) {
             outFile.delete()
+            LogUtils.w(this@PowerampBackupParser, "解析失败，zip 条目=%s", seenEntries.joinToString())
             throw e
         } catch (e: Exception) {
             outFile.delete()
+            LogUtils.e(this@PowerampBackupParser, e, "zip 读取失败，条目=%s", seenEntries.joinToString())
             throw ImportParseException("不是有效的 Poweramp 备份（zip 读取失败）", e)
         }
         if (!found) {
             outFile.delete()
+            LogUtils.w(this@PowerampBackupParser, "缺少 %s，zip 条目=%s", LISTS_EXPORT_ENTRY, seenEntries.joinToString())
             throw ImportParseException("不是有效的 Poweramp 备份（缺少 $LISTS_EXPORT_ENTRY）")
         }
         return outFile
@@ -94,11 +117,22 @@ class PowerampBackupParser @Inject constructor(
                 throw ImportParseException("不是有效的 Poweramp 备份（tracks 表缺少必需列）")
             }
 
+            LogUtils.d(this@PowerampBackupParser, "tracks 列=%s", trackColumns.sorted().joinToString())
+            LogUtils.d(this@PowerampBackupParser, "playlists 列=%s", playlistColumns.sorted().joinToString())
+
             val playlists = readPlaylists(db)
             val tracks = readTracks(db, trackColumns)
+            LogUtils.i(
+                this@PowerampBackupParser,
+                "读取到 tracks 行 %d 条，playlists %d 个", tracks.size, playlists.size
+            )
 
             // N4/N5：去重键 = path（CUE 场景 path#cueOffset）；重复行优先取曲库行（见 N6）。
             val dedup = dedupeTracks(tracks).mapValues { it.value.toRecord() }
+            if (dedup.size != tracks.size) {
+                LogUtils.i(this@PowerampBackupParser, "去重：%d → %d 首", tracks.size, dedup.size)
+            }
+            logPlayedAtRange(dedup.values)
 
             // 列表引用行（playlist_id 非空）按 _id 递增即列表内顺序（§4.1 顺序保证）
             val importPlaylists = playlists.mapNotNull { (id, name) ->
@@ -108,10 +142,36 @@ class PowerampBackupParser @Inject constructor(
                 if (keys.isEmpty()) null else ImportPlaylist(name = name, songKeys = keys)
             }
 
+            LogUtils.i(
+                this@PowerampBackupParser,
+                "组装歌单：原始 %d → 有效 %d（空歌单已丢弃）", playlists.size, importPlaylists.size
+            )
             return ImportSourceData(playlists = importPlaylists, songRecords = dedup)
         } finally {
             db.close()
         }
+    }
+
+    /**
+     * 打印播放时间分布，用于诊断「导入后播放历史不可见」。
+     * UI 侧会丢弃未来时间戳（RecentlyPlayedSongUi endBound = now），这里提前暴露。
+     */
+    private fun logPlayedAtRange(records: Collection<ImportSongRecord>) {
+        val stamps = records.mapNotNull { it.lastPlayedAt?.takeIf { v -> v > 0 } }
+        if (stamps.isEmpty()) {
+            LogUtils.w(this@PowerampBackupParser, "备份中没有任何 played_at > 0 的行，将不产生播放历史")
+            return
+        }
+        val now = System.currentTimeMillis()
+        val fmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+        val min = stamps.min()
+        val max = stamps.max()
+        val future = stamps.count { it > now }
+        LogUtils.i(
+            this@PowerampBackupParser,
+            "播放时间：有记录 %d/%d 首，范围 %s ~ %s，未来时间戳 %d 条（会被 UI 丢弃）",
+            stamps.size, records.size, fmt.format(min), fmt.format(max), future
+        )
     }
 
     private fun tableColumns(db: SQLiteDatabase, table: String): Set<String> {

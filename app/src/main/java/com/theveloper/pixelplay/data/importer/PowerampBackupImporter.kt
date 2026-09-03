@@ -10,6 +10,7 @@ import com.theveloper.pixelplay.data.importer.poweramp.PowerampBackupParser
 import com.theveloper.pixelplay.data.importer.poweramp.PowerampPathNormalizer
 import com.theveloper.pixelplay.data.preferences.PlaylistPreferencesRepository
 import com.theveloper.pixelplay.data.stats.PlaybackStatsRepository
+import com.theveloper.pixelplay.utils.LogUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -71,7 +72,9 @@ class PowerampBackupImporter @Inject constructor(
     /** 解析 + 匹配，生成预览（不写库）。 */
     suspend fun prepare(uri: Uri): PreparedImport = withContext(Dispatchers.IO) {
         val data = parser.parse(uri)
-        val matcher = SongMatcher(normalizer, musicDao.getAllLocalSongsForImport())
+        val localSongs = musicDao.getAllLocalSongsForImport()
+        LogUtils.i(this@PowerampBackupImporter, "本地曲库 %d 首，开始匹配 %d 条导入记录", localSongs.size, data.songRecords.size)
+        val matcher = SongMatcher(normalizer, localSongs)
 
         val matchMap = mutableMapOf<String, String>()
         val unresolved = mutableListOf<String>()
@@ -79,6 +82,16 @@ class PowerampBackupImporter @Inject constructor(
             coroutineContext.ensureActive()
             val hit = matcher.match(record)
             if (hit != null) matchMap[key] = hit.id.toString() else unresolved += key
+        }
+        LogUtils.i(this@PowerampBackupImporter, "匹配完成：%s", matcher.summary())
+        if (unresolved.isNotEmpty()) {
+            LogUtils.w(
+                this@PowerampBackupImporter,
+                "未匹配 %d 首，前 %d 个示例：%s",
+                unresolved.size,
+                UNRESOLVED_EXAMPLE_LIMIT,
+                unresolved.take(UNRESOLVED_EXAMPLE_LIMIT).joinToString { normalizer.fileName(it) }
+            )
         }
 
         val records = data.songRecords.values
@@ -101,6 +114,12 @@ class PowerampBackupImporter @Inject constructor(
         options: ImportOptions,
         onProgress: suspend (ImportProgress) -> Unit = {}
     ): ImportResult = withContext(Dispatchers.IO) {
+        LogUtils.i(
+            this@PowerampBackupImporter,
+            "开始导入：playlists=%b history=%b engagement=%b favorites=%b replaceMode=%b threshold=%d",
+            options.importPlaylists, options.importHistory, options.importEngagement,
+            options.importFavorites, options.replaceMode, options.favoriteRatingThreshold
+        )
         val data = prepared.data
         val matchMap = prepared.matchMap
 
@@ -139,6 +158,11 @@ class PowerampBackupImporter @Inject constructor(
         // 匹配成功的记录（后续三类写入共用）
         val matchedRecords = data.songRecords.entries
             .mapNotNull { (key, record) -> matchMap[key]?.let { songId -> songId to record } }
+        LogUtils.i(
+            this@PowerampBackupImporter,
+            "可写入记录 %d 条（匹配表 %d，未匹配 %d）",
+            matchedRecords.size, matchMap.size, prepared.unresolvedKeys.size
+        )
 
         // ---- 2. 播放历史（每首最多 1 条合成事件；N2：durationMs 恒 0）----
         if (options.importHistory) {
@@ -154,10 +178,22 @@ class PowerampBackupImporter @Inject constructor(
                 }
             }
             if (events.isNotEmpty()) {
-                playbackStatsRepository.importEventsFromBackup(
+                val writeSucceeded = playbackStatsRepository.importEventsFromBackup(
                     events = events,
                     clearExisting = options.replaceMode // 合并模式必须显式传 false
                 )
+                // 回读校验：确认事件真的落进了仓库（此前只按 events.size 上报，写入失败也会显示成功）
+                val persisted = playbackStatsRepository.loadPlaybackHistory(limit = Int.MAX_VALUE).size
+                LogUtils.i(
+                    this@PowerampBackupImporter,
+                    "播放历史：构建 %d 条事件，写入成功=%b，回读仓库共 %d 条",
+                    events.size, writeSucceeded, persisted
+                )
+                if (!writeSucceeded) {
+                    LogUtils.e(this@PowerampBackupImporter, null, "播放历史写入失败！结果页计数不可信")
+                }
+            } else {
+                LogUtils.w(this@PowerampBackupImporter, "播放历史：无可导入事件（无 lastPlayedAt 或无匹配歌曲）")
             }
             historyEventsImported = events.size
         }
@@ -220,6 +256,12 @@ class PowerampBackupImporter @Inject constructor(
             ratingsSaved = entities.count { it.rating > 0 }
         }
 
+        LogUtils.i(
+            this@PowerampBackupImporter,
+            "导入完成：歌单新建%d/合并%d/空跳过%d，历史%d，参与度%d，收藏%d，评分%d",
+            playlistsCreated, playlistsMerged, skippedEmptyPlaylists,
+            historyEventsImported, engagementImported, favoritesImported, ratingsSaved
+        )
         ImportResult(
             matchedSongs = matchMap.size,
             unresolvedSongs = prepared.unresolvedKeys.size,

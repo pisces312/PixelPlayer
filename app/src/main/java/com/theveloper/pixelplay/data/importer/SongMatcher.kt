@@ -32,6 +32,16 @@ class SongMatcher(
     private val titleIndex: Map<String, List<ImportSongProjection>> =
         songs.groupBy { normalizeText(it.title) }
 
+    // 各级命中计数（prepare 单协程内调用，无需同步；用于诊断「为什么没匹配上」）
+    var matchedByPath = 0
+        private set
+    var matchedByFileName = 0
+        private set
+    var matchedByMetadata = 0
+        private set
+    var unresolvedCount = 0
+        private set
+
     /**
      * 匹配单条导入记录。
      * @return 命中的本地歌曲；无法确定（无候选或歧义）时返回 null。
@@ -39,7 +49,10 @@ class SongMatcher(
     fun match(record: ImportSongRecord): ImportSongProjection? {
         // 第 1 级：绝对路径精确匹配
         normalizer.normalize(record.path)?.let { absolute ->
-            pathIndex[absolute]?.let { return it }
+            pathIndex[absolute]?.let {
+                matchedByPath++
+                return it
+            }
         }
 
         val fileName = normalizer.fileName(record.path)
@@ -50,13 +63,24 @@ class SongMatcher(
 
         // 第 2 级：文件名匹配（含扩展名）
         fileNameIndex[fileName]?.let { candidates ->
-            if (candidates.size == 1) return candidates[0]
-            disambiguate(candidates, albumHint, artistDirHint)?.let { return it }
+            if (candidates.size == 1) {
+                matchedByFileName++
+                return candidates[0]
+            }
+            disambiguate(candidates, albumHint, artistDirHint)?.let {
+                matchedByFileName++
+                return it
+            }
         }
 
         // 第 3 级：元数据匹配（双向试探 artist/title 顺序）
-        return matchByMetadata(record, fileName, albumHint, artistDirHint)
+        val hit = matchByMetadata(record, fileName, albumHint, artistDirHint)
+        if (hit != null) matchedByMetadata++ else unresolvedCount++
+        return hit
     }
+
+    /** 各级命中情况汇总，供导入日志输出。 */
+    fun summary(): String = "路径=$matchedByPath 文件名=$matchedByFileName 元数据=$matchedByMetadata 未匹配=$unresolvedCount"
 
     private fun matchByMetadata(
         record: ImportSongRecord,
