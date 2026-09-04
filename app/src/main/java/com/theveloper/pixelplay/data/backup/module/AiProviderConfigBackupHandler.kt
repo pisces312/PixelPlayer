@@ -31,12 +31,9 @@ class AiProviderConfigBackupHandler @Inject constructor(
     override suspend fun restore(payload: String) = withContext(Dispatchers.IO) {
         val type = TypeToken.getParameterized(List::class.java, PreferenceBackupEntry::class.java).type
         val entries: List<PreferenceBackupEntry> = gson.fromJson(payload, type) ?: emptyList()
-        // Provider config is a self-contained DataStore: clear then restore (matches
-        // BackupModuleHandler "clear existing data and restore" contract).
-        aiPreferencesRepository.clearAllAiPreferences()
-        if (entries.isNotEmpty()) {
-            aiPreferencesRepository.importAiPreferencesFromBackup(entries)
-        }
+        // AI preferences live in the shared settings DataStore; clear only AI keys and
+        // import within a single edit transaction to avoid leaving a partially empty state.
+        aiPreferencesRepository.importAiPreferencesFromBackup(entries, clearExisting = true)
     }
 
     override suspend fun rollback(snapshot: String) = restore(snapshot)

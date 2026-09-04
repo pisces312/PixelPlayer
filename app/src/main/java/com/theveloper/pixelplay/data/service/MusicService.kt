@@ -21,6 +21,7 @@ import android.os.Looper
 import android.os.SystemClock
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.media3.common.C
@@ -419,8 +420,10 @@ class MusicService : MediaLibraryService() {
         // immediately on cold start before super.onCreate(): Hilt injection and MediaLibraryService
         // startup can otherwise consume Android's 5-second FGS deadline before onStartCommand()
         // receives the media-button intent.
-        temporaryForegroundStartedInOnCreate =
-            consumePendingMediaButtonForegroundStart() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+        // NOTE: only genuine foreground-service starts need this. Every other start path
+        // (launcher, bind) previously hit a blanket "SDK >= O" condition here, which posted
+        // the placeholder notification on every service creation and let it linger.
+        temporaryForegroundStartedInOnCreate = consumePendingMediaButtonForegroundStart()
         if (temporaryForegroundStartedInOnCreate) {
             startTemporaryForegroundForCommand()
         }
@@ -900,7 +903,11 @@ class MusicService : MediaLibraryService() {
         if (temporaryForegroundStartedInOnCreate) {
             serviceScope.launch {
                 delay(2_000L)
-                if (mediaSession?.player?.hasForegroundPlaybackIntent() != true) {
+                // hasForegroundPlaybackIntent() only checks playWhenReady + item count, so a
+                // restored-but-idle queue keeps it true and the placeholder notification would
+                // stick forever even though no media notification was ever posted. Require
+                // actual playback (isPlaying == READY && playWhenReady) before keeping it.
+                if (mediaSession?.player?.isPlaying != true) {
                     stopForeground(STOP_FOREGROUND_REMOVE)
                 }
             }
@@ -1267,6 +1274,10 @@ class MusicService : MediaLibraryService() {
             syncLocalListeningStatsFromPlayer(player)
 
             if (isPlaying) {
+                // Real playback started: Media3's own media notification now represents
+                // this service. Drop the placeholder "processing playback action"
+                // notification if a temporary foreground start posted one.
+                NotificationManagerCompat.from(this@MusicService).cancel(NOTIFICATION_ID)
                 reportNavidromePlayback("playing")
                 startNavidromePlaybackReporting()
             } else {

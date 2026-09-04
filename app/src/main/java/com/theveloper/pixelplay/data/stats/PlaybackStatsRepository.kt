@@ -216,22 +216,24 @@ class PlaybackStatsRepository @Inject constructor(
         val (startBound, endBound) = range.resolveBounds(allEvents, nowMillis, zoneId)
         val filteredEvents = allEvents.mapNotNull { event ->
             val start = event.startMillis()
+            val rawEnd = event.endMillis()
             // 导入的历史事件（如 Poweramp 备份）只带 last_played 时间戳，durationMs 恒为 0，
             // endMillis() 也就退化成 start 本身。此前这里会把它们整条丢弃，导致听歌统计
             // 看不到导入历史；改为用曲库歌曲时长兜底，让「听过」这件事能被统计到。
-            val rawEnd = event.endMillis()
-            val end = if (rawEnd <= start) {
-                start + (songMap[event.songId]?.duration?.takeIf { it > 0L } ?: 0L)
+            // 真实播放区间应为 [t - duration, t]（t 即 last_played 时间戳），而不是向未来延伸。
+            val songDuration = songMap[event.songId]?.duration?.takeIf { it > 0L } ?: 0L
+            val (eventStart, eventEnd) = if (rawEnd <= start && songDuration > 0L) {
+                (rawEnd - songDuration).coerceAtLeast(0L) to rawEnd
             } else {
-                rawEnd
+                start to rawEnd
             }
             val lowerBound = startBound ?: Long.MIN_VALUE
-            if (end < lowerBound || start > endBound) {
+            if (eventEnd < lowerBound || eventStart > endBound) {
                 return@mapNotNull null
             }
 
-            val clippedStart = max(start, lowerBound)
-            val clippedEnd = min(end, endBound)
+            val clippedStart = max(eventStart, lowerBound)
+            val clippedEnd = min(eventEnd, endBound)
             val clippedDuration = (clippedEnd - clippedStart).coerceAtLeast(0L)
             if (clippedDuration <= 0L) {
                 return@mapNotNull null

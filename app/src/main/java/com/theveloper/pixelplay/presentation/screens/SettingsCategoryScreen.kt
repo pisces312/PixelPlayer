@@ -1399,11 +1399,12 @@ fun SettingsCategoryScreen(
                                     title = stringResource(R.string.import_entry_title),
                                     subtitle = stringResource(R.string.import_entry_subtitle),
                                     leadingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Rounded.Input,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.secondary
-                                        )
+                                @Suppress("DEPRECATION") // AutoMirrored.Rounded.Input 在当前 Material Icons 版本未提供，保留原图标
+                                Icon(
+                                    imageVector = Icons.Rounded.Input,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.secondary
+                                )
                                     },
                                     trailingIcon = {
                                         Icon(

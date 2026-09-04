@@ -55,6 +55,7 @@ PixelPlayer 是 Android 音乐播放器（100% Kotlin，Jetpack Compose + Materi
 ## 关键约束 / 易踩坑
 
 - **签名**：release signingConfig 从环境变量 `KEY_STORE / KEY_STORE_PASSWORD / KEY_ALIAS / KEY_PASSWORD` 读取；`keystore.properties`、`local.properties` 均被 gitignore，勿提交真实密钥。
+- **签名校验**：`apksigner` 不在系统 `PATH`，位于 `ANDROID_HOME/build-tools/<version>/apksigner`（本机 `ANDROID_HOME=D:/dev/android_sdk`，release 对应 `37.0.0`）。Git Bash 校验示例：`$ANDROID_HOME/build-tools/37.0.0/apksigner verify --print-certs app/build/outputs/apk/release/app-arm64-v8a-release.apk`；PowerShell 下路径换成反斜杠并加 `.bat` 后缀。
 - **Telegram 凭据**：`TELEGRAM_API_ID / TELEGRAM_API_HASH` 从 `local.properties` 读取（`app/build.gradle.kts` 内含回退默认值）；勿把真实凭据写进代码或提交。
 - **ABI 拆分**：默认 `pixelplay.enableAbiSplits=true` 时仅构建 `arm64-v8a`（本 fork 定制，区别于上游 arm64+armeabi-v7a），不产出 universal APK。
 - **R8 混淆**：release 开启 minify + shrinkResources + `r8.strictFullModeForKeepRules`；keep 规则集中在 `app/proguard-rules.pro`（TagLib、JAudioTagger、FFmpeg 解码、数据模型、Netty、Ktor CIO、TDLib、Kuromoji/Pinyin4J、Glance ActionCallback 等）。改动序列化/反射类时需同步补 keep 规则。

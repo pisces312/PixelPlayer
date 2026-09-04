@@ -22,11 +22,21 @@ SRC_FG = r"D:\3rd-party-projects\PixelPlayer\app\src\main\res\mipmap-xxxhdpi\ic_
 
 DEBUG_DIR = r"D:\3rd-party-projects\PixelPlayer\app\src\debug\res"
 
+def tint_red(base_img):
+    """Tint the image red while preserving alpha. Used for debug icon background."""
+    r, g, b, a = base_img.split()
+    # Boost red channel, suppress green/blue to create a strong red tint
+    r = r.point(lambda i: min(255, int(i * 1.2) + 40))
+    g = g.point(lambda i: int(i * 0.3))
+    b = b.point(lambda i: int(i * 0.3))
+    return Image.merge("RGBA", (r, g, b, a))
+
+
 def add_dbg_badge(base_img, size):
     """Add a red DBG badge in bottom-right corner."""
-    badge_radius = size // 4
-    badge_x = size - badge_radius - 2
-    badge_y = size - badge_radius - 2
+    badge_radius = size // 5
+    badge_x = size - badge_radius * 2 - 2
+    badge_y = size - badge_radius * 2 - 2
     draw = ImageDraw.Draw(base_img)
     draw.ellipse(
         [badge_x, badge_y, badge_x + badge_radius * 2, badge_y + badge_radius * 2],
@@ -48,12 +58,31 @@ def add_dbg_badge(base_img, size):
     return base_img
 
 for density, size in MAIN_ICONS.items():
-    src = Image.open(SRC_ICON).convert("RGBA").resize((size, size), Image.LANCZOS)
-    add_dbg_badge(src, size)
+    # Re-compose launcher icon from red-tinted background + foreground so the
+    # whole debug icon is visually distinct from release.
+    bg = Image.open(
+        os.path.join(
+            r"D:\3rd-party-projects\PixelPlayer\app\src\main\res",
+            f"mipmap-{density}",
+            "ic_launcher_background.webp",
+        )
+    ).resize((size, size), Image.LANCZOS).convert("RGBA")
+    bg = tint_red(bg)
+
+    fg_size = FG_ICONS[density]
+    fg = Image.open(SRC_FG).convert("RGBA").resize((fg_size, fg_size), Image.LANCZOS)
+    # Center foreground on background (adaptive icon safe zone is centered).
+    fg_x = (size - fg_size) // 2
+    fg_y = (size - fg_size) // 2
+    composed = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    composed.paste(bg, (0, 0), bg)
+    composed.paste(fg, (fg_x, fg_y), fg)
+
+    add_dbg_badge(composed, size)
     out_dir = os.path.join(DEBUG_DIR, f"mipmap-{density}")
     os.makedirs(out_dir, exist_ok=True)
-    src.save(os.path.join(out_dir, "ic_launcher.webp"), "WEBP", quality=90)
-    src.save(os.path.join(out_dir, "ic_launcher_round.webp"), "WEBP", quality=90)
+    composed.save(os.path.join(out_dir, "ic_launcher.webp"), "WEBP", quality=90)
+    composed.save(os.path.join(out_dir, "ic_launcher_round.webp"), "WEBP", quality=90)
     print(f"icon {density}: {size}x{size}")
 
 for density, size in FG_ICONS.items():
@@ -64,7 +93,16 @@ for density, size in FG_ICONS.items():
     src.save(os.path.join(out_dir, "ic_launcher_foreground.webp"), "WEBP", quality=90)
     print(f"foreground {density}: {size}x{size}")
 
-# Copy background as-is (no badge)
+def tint_red(base_img):
+    """Tint the image red while preserving alpha. Used for debug icon background."""
+    r, g, b, a = base_img.split()
+    # Boost red channel, suppress green/blue to create a strong red tint
+    r = r.point(lambda i: min(255, int(i * 1.2) + 40))
+    g = g.point(lambda i: int(i * 0.3))
+    b = b.point(lambda i: int(i * 0.3))
+    return Image.merge("RGBA", (r, g, b, a))
+
+# Tint background red for debug so the icon is clearly distinct from release.
 for density, size in MAIN_ICONS.items():
     bg_src = Image.open(
         os.path.join(
@@ -72,7 +110,8 @@ for density, size in MAIN_ICONS.items():
             f"mipmap-{density}",
             "ic_launcher_background.webp",
         )
-    ).resize((size, size), Image.LANCZOS)
+    ).resize((size, size), Image.LANCZOS).convert("RGBA")
+    bg_src = tint_red(bg_src)
     out_dir = os.path.join(DEBUG_DIR, f"mipmap-{density}")
     bg_src.save(os.path.join(out_dir, "ic_launcher_background.webp"), "WEBP", quality=90)
 

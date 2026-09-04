@@ -11,6 +11,7 @@ import com.google.android.gms.cast.framework.CastSession
 import com.google.android.gms.cast.framework.SessionManager
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.data.service.player.CastPlayer
+import com.theveloper.pixelplay.utils.GmsAvailability
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,7 +35,17 @@ class CastStateHolder @Inject constructor(
     private val CAST_STATE_TAG = "CastStateHolder"
 
     // Cast session manager
+    //
+    // CastContext.getSharedInstance() touches Google Play services. On devices
+    // without GMS (Huawei, Amazon Fire, many China-market ROMs) that call alone
+    // triggers the system's "Update Google Play services" notification, even when
+    // the user never intends to cast. Short-circuit on GMS availability so those
+    // devices never reach the Cast API at all.
     val sessionManager: SessionManager? by lazy {
+        if (!GmsAvailability.isAvailable(context)) {
+            Timber.tag(CAST_STATE_TAG).d("Cast disabled: Google Play services unavailable")
+            return@lazy null
+        }
         try {
             CastContext.getSharedInstance(context).sessionManager
         } catch (e: Exception) {
