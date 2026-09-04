@@ -212,10 +212,19 @@ class PlaybackStatsRepository @Inject constructor(
         allEvents: List<PlaybackEvent>,
         zoneId: ZoneId = ZoneId.systemDefault()
     ): PlaybackStatsSummary {
+        val songMap = songs.associateBy { it.id }
         val (startBound, endBound) = range.resolveBounds(allEvents, nowMillis, zoneId)
         val filteredEvents = allEvents.mapNotNull { event ->
             val start = event.startMillis()
-            val end = event.endMillis()
+            // 导入的历史事件（如 Poweramp 备份）只带 last_played 时间戳，durationMs 恒为 0，
+            // endMillis() 也就退化成 start 本身。此前这里会把它们整条丢弃，导致听歌统计
+            // 看不到导入历史；改为用曲库歌曲时长兜底，让「听过」这件事能被统计到。
+            val rawEnd = event.endMillis()
+            val end = if (rawEnd <= start) {
+                start + (songMap[event.songId]?.duration?.takeIf { it > 0L } ?: 0L)
+            } else {
+                rawEnd
+            }
             val lowerBound = startBound ?: Long.MIN_VALUE
             if (end < lowerBound || start > endBound) {
                 return@mapNotNull null
@@ -236,7 +245,6 @@ class PlaybackStatsRepository @Inject constructor(
             )
         }
 
-        val songMap = songs.associateBy { it.id }
         val normalizedEvents = filteredEvents
 
         val segmentsBySong = normalizedEvents
