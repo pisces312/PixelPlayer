@@ -24,6 +24,7 @@ import com.theveloper.pixelplay.data.service.http.MediaFileHttpServerService
 import com.theveloper.pixelplay.data.service.player.CastPlayer
 import com.theveloper.pixelplay.data.service.player.DualPlayerEngine
 
+import com.theveloper.pixelplay.utils.GmsAvailability
 import com.theveloper.pixelplay.utils.MediaItemBuilder
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableList
@@ -81,7 +82,13 @@ class CastTransferStateHolder @Inject constructor(
     private var onSongChanged: ((String?) -> Unit)? = null
 
     // Session Management
+    // CastContext.getSharedInstance() touches Google Play services. On GMS-less
+    // devices that posts a system "enable Google Play services" notification, so
+    // short-circuit before any Cast API call.
     private val sessionManager: SessionManager? by lazy {
+        if (!GmsAvailability.isAvailable(context)) {
+            return@lazy null
+        }
         try {
             CastContext.getSharedInstance(context).sessionManager
         } catch (e: Exception) {

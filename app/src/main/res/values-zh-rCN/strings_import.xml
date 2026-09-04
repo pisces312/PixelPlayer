@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 第三方导入（Poweramp） -->
+    <string name="import_entry_title">第三方导入</string>
+    <string name="import_entry_subtitle">从其他播放器导入歌单、评分与播放统计</string>
+    <string name="import_screen_title">第三方导入</string>
+    <string name="import_source_section">选择来源</string>
+    <string name="import_source_poweramp_subtitle">从 .poweramp-backup 备份导入</string>
+    <string name="import_source_more_coming">更多来源敬请期待</string>
+
+    <string name="import_parsing_title">正在解析备份…</string>
+
+    <string name="import_preview_title">导入预览</string>
+    <string name="import_preview_playlists">歌单</string>
+    <string name="import_preview_songs">去重歌曲</string>
+    <string name="import_preview_rated">已评分</string>
+    <string name="import_preview_played">有播放记录</string>
+    <string name="import_preview_matched">预计可匹配 %1$d 首（%2$d%%）</string>
+    <string name="import_preview_rating_distribution">评分分布：5★ %1$d · 4★ %2$d · 3★ %3$d · 2★ %4$d · 1★ %5$d</string>
+    <string name="import_preview_impact_title">导入规模（现状 → 导入后）</string>
+    <string name="import_preview_impact_engagement">参与度统计：%1$d → %2$d</string>
+    <string name="import_preview_impact_favorites">收藏：%1$d → 约 %2$d</string>
+    <string name="import_preview_impact_playlists">歌单：%1$d → %2$d</string>
+
+    <string name="import_options_title">导入选项</string>
+    <string name="import_options_mode_label">模式</string>
+    <string name="import_options_mode_merge">合并（推荐）</string>
+    <string name="import_options_mode_replace">替换</string>
+    <string name="import_options_mode_hint">替换模式仅影响播放历史与参与度统计</string>
+    <string name="import_options_threshold_label">收藏阈值：≥ %1$d 星</string>
+    <string name="import_options_threshold_count">将新增收藏约 %1$d 首</string>
+    <string name="import_options_playlists">播放列表</string>
+    <string name="import_options_history">播放历史</string>
+    <string name="import_options_engagement">参与度统计</string>
+    <string name="import_options_favorites">收藏与评分</string>
+    <string name="import_options_merge_hint">歌单默认合并：同名追加并保持原有顺序</string>
+
+    <string name="import_importing_title">正在导入…</string>
+    <string name="import_step_parsing">解析</string>
+    <string name="import_step_matching">匹配歌曲</string>
+    <string name="import_step_playlists">写入歌单</string>
+    <string name="import_step_history">写入播放历史</string>
+    <string name="import_step_engagement">写入参与度统计</string>
+    <string name="import_step_favorites">写入收藏与评分</string>
+
+    <string name="import_result_title">导入完成</string>
+    <string name="import_result_matched">匹配歌曲：%1$d</string>
+    <string name="import_result_unresolved">未匹配：%1$d</string>
+    <string name="import_result_playlists">歌单：新建 %1$d，合并 %2$d</string>
+    <string name="import_result_history">播放历史事件：%1$d</string>
+    <string name="import_result_engagement">参与度条目：%1$d</string>
+    <string name="import_result_favorites">收藏：%1$d（含评分 %2$d）</string>
+    <string name="import_result_skipped_empty">跳过空歌单：%1$d</string>
+    <string name="import_result_unresolved_examples">示例：%1$s</string>
+
+    <string name="import_error_title">导入失败</string>
+
+    <string name="import_action_next">下一步</string>
+    <string name="import_action_start">开始导入</string>
+    <string name="import_action_done">完成</string>
+</resources>

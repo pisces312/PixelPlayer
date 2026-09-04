@@ -78,6 +78,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -140,6 +141,7 @@ private const val PULL_TO_REFRESH_MIN_DURATION_MS = 3500L
 @Composable
 fun StatsScreen(
     navController: NavController,
+    onSongClick: (String) -> Unit,
     statsViewModel: StatsViewModel = hiltViewModel()
 ) {
     val uiState by statsViewModel.uiState.collectAsStateWithLifecycle()
@@ -216,9 +218,7 @@ fun StatsScreen(
     val isRefreshingFromViewModel by rememberUpdatedState(uiState.isRefreshing)
 
     val onPullRefresh: () -> Unit = {
-        if (hasPendingPullRefresh || uiState.isLoading) {
-            Unit
-        } else {
+        if (!(hasPendingPullRefresh || uiState.isLoading)) {
             hasPendingPullRefresh = true
             isPullRefreshAnimating = true
             isPullRefreshMinDelayActive = true
@@ -301,6 +301,7 @@ fun StatsScreen(
                             summary = summary,
                             selectedDimension = selectedCategoryDimension,
                             onDimensionSelected = { selectedCategoryDimension = it },
+                            onSongClick = onSongClick,
                             modifier = Modifier.padding(horizontal = 20.dp)
                         )
                     }
@@ -332,6 +333,7 @@ fun StatsScreen(
                     item {
                         SongStatsCard(
                             summary = summary,
+                            onSongClick = onSongClick,
                             modifier = Modifier.padding(horizontal = 20.dp)
                         )
                     }
@@ -929,7 +931,8 @@ private enum class CategoryDimension(
 private data class CategoryMetricEntry(
     val label: String,
     val durationMs: Long,
-    val supporting: String
+    val supporting: String,
+    val songId: String? = null
 )
 
 private enum class TimelineChartLayout {
@@ -1191,6 +1194,7 @@ private fun CategoryMetricsSection(
     summary: PlaybackStatsRepository.PlaybackStatsSummary?,
     selectedDimension: CategoryDimension,
     onDimensionSelected: (CategoryDimension) -> Unit,
+    onSongClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val palette = categoryPaletteFor(selectedDimension)
@@ -1296,7 +1300,8 @@ private fun CategoryMetricsSection(
                 CategoryMetricEntry(
                     label = it.title,
                     durationMs = it.totalDurationMs,
-                    supporting = supportingParts.joinToString(separator = " • ")
+                    supporting = supportingParts.joinToString(separator = " • "),
+                    songId = it.songId
                 )
             }
         }.filter { it.durationMs > 0L }
@@ -1321,7 +1326,11 @@ private fun CategoryMetricsSection(
                         style = MaterialTheme.typography.titleLargeEmphasized,
                         color = palette.contentColor
                     )
-                    CategoryHorizontalBarChart(entries = entries, palette = palette)
+                    CategoryHorizontalBarChart(
+                        entries = entries,
+                        palette = palette,
+                        onSongClick = onSongClick
+                    )
                 }
             }
         }
@@ -1332,6 +1341,7 @@ private fun CategoryMetricsSection(
 private fun CategoryHorizontalBarChart(
     entries: List<CategoryMetricEntry>,
     palette: CategoryChartPalette,
+    onSongClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (entries.isEmpty()) return
@@ -1352,7 +1362,16 @@ private fun CategoryHorizontalBarChart(
             }
             Surface(
                 shape = RoundedCornerShape(22.dp),
-                color = rowColor
+                color = rowColor,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (entry.songId != null) {
+                            Modifier.clickable { onSongClick(entry.songId) }
+                        } else {
+                            Modifier
+                        }
+                    )
             ) {
                 Column(
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
@@ -2094,6 +2113,7 @@ private fun TopAlbumsCard(
 @Composable
 private fun SongStatsCard(
     summary: PlaybackStatsRepository.PlaybackStatsSummary?,
+    onSongClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
@@ -2163,7 +2183,10 @@ private fun SongStatsCard(
 
                         Surface(
                             shape = RoundedCornerShape(20.dp),
-                            color = rowContainerColor
+                            color = rowContainerColor,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onSongClick(songSummary.songId) }
                         ) {
                             Column(
                                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),

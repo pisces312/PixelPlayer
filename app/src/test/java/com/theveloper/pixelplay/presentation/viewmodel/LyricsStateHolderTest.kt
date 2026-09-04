@@ -10,10 +10,10 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeout
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -46,7 +46,7 @@ class LyricsStateHolderTest {
     }
 
     @Test
-    fun fetchLyricsForSong_usesStoredLyricsWithoutRemoteFetch() {
+    fun fetchLyricsForSong_usesStoredLyricsWithoutRemoteFetch() = runTest {
         val musicRepository = mockk<MusicRepository>(relaxed = true)
         val userPreferencesRepository = mockk<UserPreferencesRepository>(relaxed = true)
         val songMetadataEditor = mockk<SongMetadataEditor>(relaxed = true)
@@ -55,7 +55,6 @@ class LyricsStateHolderTest {
             userPreferencesRepository = userPreferencesRepository,
             songMetadataEditor = songMetadataEditor
         )
-        val scope = TestScope(StandardTestDispatcher())
         val callback = RecordingLyricsLoadCallback()
         val state = MutableStateFlow(StablePlayerState())
         val song = testSong(albumArtUriString = "content://art/song_art_1.jpg").copy(
@@ -63,7 +62,7 @@ class LyricsStateHolderTest {
         )
         val storedLyrics = Lyrics(plain = listOf("Stored lyrics"), areFromRemote = false)
 
-        holder.initialize(scope, callback, state)
+        holder.initialize(backgroundScope, callback, state)
         coEvery { musicRepository.getStoredLyrics(song) } returns (storedLyrics to "Stored lyrics")
 
         holder.fetchLyricsForSong(
@@ -71,9 +70,16 @@ class LyricsStateHolderTest {
             forcePickResults = false,
             sourcePreference = com.theveloper.pixelplay.data.model.LyricsSourcePreference.API_FIRST
         ) { "Lyrics already available" }
-        scope.advanceUntilIdle()
 
-        assertThat(holder.searchUiState.value).isEqualTo(LyricsSearchUiState.Success(storedLyrics))
+        // fetchLyricsForSong reads stored lyrics on Dispatchers.IO; the state value is written on the
+        // IO thread, so wait for it to reach Success rather than racing the virtual scheduler.
+        val result = withTimeout(5_000) {
+            while (holder.searchUiState.value !is LyricsSearchUiState.Success) {
+                delay(10)
+            }
+            holder.searchUiState.value
+        }
+        assertThat(result).isEqualTo(LyricsSearchUiState.Success(storedLyrics))
         coVerify(exactly = 1) { musicRepository.getStoredLyrics(song) }
         coVerify(exactly = 0) { musicRepository.getLyricsFromRemote(any()) }
         coVerify(exactly = 0) { musicRepository.searchRemoteLyrics(any()) }

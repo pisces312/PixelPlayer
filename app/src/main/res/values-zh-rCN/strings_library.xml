@@ -132,6 +132,10 @@
     <string name="song_info_cd_add_to_favorites_all">全部添加到收藏</string>
     <string name="song_info_cd_remove_from_favorites">取消收藏</string>
     <string name="song_info_cd_remove_from_favorites_all">全部取消收藏</string>
+    <string name="song_info_rating_label">评分</string>
+    <string name="song_info_cd_rate_stars">评 %1$d 星</string>
+    <string name="song_info_rating_stars_value">%1$d 星</string>
+    <string name="song_info_rating_clear">清除</string>
     <string name="song_info_share_chooser_title">分享歌曲文件</string>
     <string name="song_info_cd_share_song_file">分享歌曲文件</string>
     <string name="song_info_cd_share_all_as_zip">作为 ZIP 全部打包分享</string>

@@ -135,21 +135,21 @@ internal fun ImmutableList<Song>.asPersistentPlaybackQueue(): PersistentList<Son
 internal fun ImmutableList<Song>.replaceSong(updatedSong: Song): ImmutableList<Song> {
     val index = indexOfFirst { it.id == updatedSong.id }
     if (index == -1) return this
-    return asPersistentPlaybackQueue().set(index, updatedSong)
+    return asPersistentPlaybackQueue().replacingAt(index, updatedSong)
 }
 
 private fun ImmutableList<Song>.removeSongById(songId: String): ImmutableList<Song> {
     val index = indexOfFirst { it.id == songId }
     if (index == -1) return this
-    return asPersistentPlaybackQueue().removeAt(index)
+    return asPersistentPlaybackQueue().removingAt(index)
 }
 
 private fun ImmutableList<Song>.moveSong(fromIndex: Int, toIndex: Int): ImmutableList<Song> {
     if (fromIndex == toIndex || fromIndex !in indices || toIndex !in indices) return this
     val movedSong = this[fromIndex]
     return asPersistentPlaybackQueue()
-        .removeAt(fromIndex)
-        .add(toIndex, movedSong)
+        .removingAt(fromIndex)
+        .addingAt(toIndex, movedSong)
 }
 
 private fun moveQueueIndex(index: Int, fromIndex: Int, toIndex: Int): Int {
@@ -1222,6 +1222,29 @@ class PlayerViewModel @Inject constructor(
     }.distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    /**
+     * 当前歌曲的五星评分（0 = 未评分，1..5 = 星级）。
+     * 响应式来自 Room favorites 表；评分与收藏状态相互独立。
+     */
+    val currentSongRating: StateFlow<Int> = stablePlayerState
+        .map { it.currentSong }
+        .distinctUntilChanged { old, new ->
+            old?.id == new?.id &&
+                old?.contentUriString == new?.contentUriString &&
+                old?.path == new?.path
+        }
+        .flatMapLatest { song ->
+            kotlinx.coroutines.flow.flow {
+                emit(resolveFavoriteSongId(song))
+            }
+        }
+        .flatMapLatest { favoriteSongId ->
+            if (favoriteSongId == null) flowOf(0)
+            else musicRepository.observeSongRating(favoriteSongId)
+        }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
     // ---------------------------------------------------------------------------
     // FullPlayerSlice — consolidates 11 independent flows into ONE subscription.
     // Previously FullPlayerContent had ~13 separate collectAsStateWithLifecycle()
@@ -2271,6 +2294,15 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
+    /** 设置当前歌曲评分（1..5）；传 0 清除评分。评分与收藏状态相互独立。 */
+    fun setCurrentSongRating(rating: Int) {
+        val currentSong = playbackStateHolder.stablePlayerState.value.currentSong ?: return
+        viewModelScope.launch {
+            val favoriteSongId = resolveFavoriteSongId(currentSong) ?: return@launch
+            musicRepository.setSongRating(favoriteSongId, rating)
+        }
+    }
+
     fun toggleFavoriteSpecificSong(song: Song, removing: Boolean = false) {
         viewModelScope.launch {
             val favoriteSongId = resolveFavoriteSongId(song) ?: return@launch
@@ -2364,6 +2396,10 @@ class PlayerViewModel @Inject constructor(
 
     fun unlikeSelectedSongs(songs: List<Song>) =
         multiSelectionStateHolder.unlikeSelectedSongs(songs, selectionActionCallbacks())
+
+    /** 批量设置选中歌曲的五星评分（1..5；0 = 清除）。 */
+    fun rateSelectedSongs(songs: List<Song>, stars: Int) =
+        multiSelectionStateHolder.rateSelectedSongs(songs, stars, selectionActionCallbacks())
 
     fun shareSelectedAsZip(songs: List<Song>) =
         multiSelectionStateHolder.shareSelectedAsZip(songs, selectionActionCallbacks())
@@ -3001,6 +3037,13 @@ class PlayerViewModel @Inject constructor(
 
             _isSheetVisible.value = true
             _sheetState.value = PlayerSheetState.EXPANDED
+        }
+    }
+
+    fun playSongById(songId: String) {
+        viewModelScope.launch {
+            val song = musicRepository.getSong(songId).first() ?: return@launch
+            playSong(song)
         }
     }
 

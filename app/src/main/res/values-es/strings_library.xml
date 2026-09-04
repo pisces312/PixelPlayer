@@ -132,6 +132,10 @@
     <string name="song_info_cd_add_to_favorites_all">Añadir todo a favoritos</string>
     <string name="song_info_cd_remove_from_favorites">Quitar de favoritos</string>
     <string name="song_info_cd_remove_from_favorites_all">Quitar todo de favoritos</string>
+    <string name="song_info_rating_label">Calificación</string>
+    <string name="song_info_cd_rate_stars">Calificar con %1$d estrellas</string>
+    <string name="song_info_rating_stars_value">%1$d estrellas</string>
+    <string name="song_info_rating_clear">Borrar</string>
     <string name="song_info_share_chooser_title">Compartir archivo de canción por</string>
     <string name="song_info_cd_share_song_file">Compartir archivo de canción</string>
     <string name="song_info_cd_share_all_as_zip">Compartir todo como ZIP</string>

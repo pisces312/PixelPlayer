@@ -132,6 +132,10 @@
     <string name="song_info_cd_add_to_favorites_all">Add all to favorites</string>
     <string name="song_info_cd_remove_from_favorites">Remove from favorites</string>
     <string name="song_info_cd_remove_from_favorites_all">Remove all from favorites</string>
+    <string name="song_info_rating_label">Rating</string>
+    <string name="song_info_cd_rate_stars">Rate %1$d stars</string>
+    <string name="song_info_rating_stars_value">%1$d stars</string>
+    <string name="song_info_rating_clear">Clear</string>
     <string name="song_info_share_chooser_title">Share song file via</string>
     <string name="song_info_cd_share_song_file">Share song file</string>
     <string name="song_info_cd_share_all_as_zip">Share all as ZIP</string>

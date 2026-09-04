@@ -8,6 +8,7 @@ import com.theveloper.pixelplay.shared.WearCapabilities
 import com.theveloper.pixelplay.shared.WearDataPaths
 import com.theveloper.pixelplay.shared.WearTransferProgress
 import com.theveloper.pixelplay.shared.WearTransferRequest
+import com.theveloper.pixelplay.utils.GmsAvailability
 import kotlinx.coroutines.tasks.await
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -28,6 +29,10 @@ class WearPhoneTransferSender @Inject constructor(
     private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun isPixelPlayWatchAvailable(): Boolean {
+        if (!GmsAvailability.isAvailable(application)) {
+            transferStateStore.retainReachableWatchNodes(emptySet())
+            return false
+        }
         return runCatching {
             val capability = capabilityClient.getCapability(
                 WearCapabilities.PIXELPLAY_WEAR_APP,
@@ -43,6 +48,10 @@ class WearPhoneTransferSender @Inject constructor(
     }
 
     suspend fun refreshWatchLibraryState(): Result<Unit> {
+        if (!GmsAvailability.isAvailable(application)) {
+            transferStateStore.retainReachableWatchNodes(emptySet())
+            return Result.failure(Exception("Google Play services are not available"))
+        }
         return runCatching {
             val capability = capabilityClient.getCapability(
                 WearCapabilities.PIXELPLAY_WEAR_APP,
@@ -65,6 +74,9 @@ class WearPhoneTransferSender @Inject constructor(
     }
 
     suspend fun requestSongTransfer(songId: String, songTitle: String = ""): Result<Int> {
+        if (!GmsAvailability.isAvailable(application)) {
+            return Result.failure(Exception("Google Play services are not available"))
+        }
         var requestId: String? = null
         return runCatching {
             val capability = capabilityClient.getCapability(
@@ -114,6 +126,10 @@ class WearPhoneTransferSender @Inject constructor(
     }
 
     suspend fun cancelTransfer(requestId: String) {
+        if (!GmsAvailability.isAvailable(application)) {
+            Timber.tag(TAG).w("Ignoring cancel: Google Play services are not available")
+            return
+        }
         val transfer = transferStateStore.transfers.value[requestId]
         if (transfer == null) {
             Timber.tag(TAG).w("Ignoring cancel for unknown transfer requestId=%s", requestId)

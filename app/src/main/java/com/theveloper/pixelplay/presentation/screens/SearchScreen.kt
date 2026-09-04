@@ -805,6 +805,10 @@ fun SearchScreen(
             },
             onBatchEdit = {
                 showMultiSelectionSheet = false
+            },
+            onRateAll = { stars ->
+                playerViewModel.rateSelectedSongs(selectedSongs, stars)
+                showMultiSelectionSheet = false
             }
         )
     }

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Importación de terceros (Poweramp) -->
+    <string name="import_entry_title">Importación de terceros</string>
+    <string name="import_entry_subtitle">Importa listas, calificaciones y estadísticas desde otros reproductores</string>
+    <string name="import_screen_title">Importación de terceros</string>
+    <string name="import_source_section">Elige una fuente</string>
+    <string name="import_source_poweramp_subtitle">Importar desde un archivo .poweramp-backup</string>
+    <string name="import_source_more_coming">Más fuentes próximamente</string>
+
+    <string name="import_parsing_title">Analizando copia de seguridad…</string>
+
+    <string name="import_preview_title">Vista previa de importación</string>
+    <string name="import_preview_playlists">Listas</string>
+    <string name="import_preview_songs">Canciones (sin duplicados)</string>
+    <string name="import_preview_rated">Calificadas</string>
+    <string name="import_preview_played">Con historial</string>
+    <string name="import_preview_matched">Coincidencias estimadas: %1$d canciones (%2$d%%)</string>
+    <string name="import_preview_rating_distribution">Calificaciones: 5★ %1$d · 4★ %2$d · 3★ %3$d · 2★ %4$d · 1★ %5$d</string>
+    <string name="import_preview_impact_title">Impacto (actual → tras importar)</string>
+    <string name="import_preview_impact_engagement">Estadísticas: %1$d → %2$d</string>
+    <string name="import_preview_impact_favorites">Favoritos: %1$d → ~%2$d</string>
+    <string name="import_preview_impact_playlists">Listas: %1$d → %2$d</string>
+
+    <string name="import_options_title">Opciones de importación</string>
+    <string name="import_options_mode_label">Modo</string>
+    <string name="import_options_mode_merge">Combinar (recomendado)</string>
+    <string name="import_options_mode_replace">Reemplazar</string>
+    <string name="import_options_mode_hint">El modo reemplazar solo afecta al historial y a las estadísticas</string>
+    <string name="import_options_threshold_label">Umbral de favoritos: ≥ %1$d estrellas</string>
+    <string name="import_options_threshold_count">~%1$d canciones pasarán a favoritos</string>
+    <string name="import_options_playlists">Listas de reproducción</string>
+    <string name="import_options_history">Historial de reproducción</string>
+    <string name="import_options_engagement">Estadísticas de reproducción</string>
+    <string name="import_options_favorites">Favoritos y calificaciones</string>
+    <string name="import_options_merge_hint">Las listas siempre se combinan: las de igual nombre se añaden en orden original</string>
+
+    <string name="import_importing_title">Importando…</string>
+    <string name="import_step_parsing">Analizando</string>
+    <string name="import_step_matching">Emparejando canciones</string>
+    <string name="import_step_playlists">Escribiendo listas</string>
+    <string name="import_step_history">Escribiendo historial</string>
+    <string name="import_step_engagement">Escribiendo estadísticas</string>
+    <string name="import_step_favorites">Escribiendo favoritos y calificaciones</string>
+
+    <string name="import_result_title">Importación completada</string>
+    <string name="import_result_matched">Canciones coincidentes: %1$d</string>
+    <string name="import_result_unresolved">Sin coincidencia: %1$d</string>
+    <string name="import_result_playlists">Listas: %1$d creadas, %2$d combinadas</string>
+    <string name="import_result_history">Eventos de historial: %1$d</string>
+    <string name="import_result_engagement">Entradas de estadísticas: %1$d</string>
+    <string name="import_result_favorites">Favoritos: %1$d (con calificación: %2$d)</string>
+    <string name="import_result_skipped_empty">Listas vacías omitidas: %1$d</string>
+    <string name="import_result_unresolved_examples">Ejemplos: %1$s</string>
+
+    <string name="import_error_title">Error de importación</string>
+
+    <string name="import_action_next">Siguiente</string>
+    <string name="import_action_start">Iniciar importación</string>
+    <string name="import_action_done">Listo</string>
+</resources>

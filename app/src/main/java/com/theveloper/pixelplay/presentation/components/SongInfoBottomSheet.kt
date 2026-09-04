@@ -54,6 +54,8 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.StarBorder
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Menu
@@ -74,8 +76,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -156,6 +160,11 @@ fun SongInfoBottomSheet(
     var pendingTonePermissionSong by remember { mutableStateOf<Song?>(null) }
     var pendingTonePermissionTarget by remember { mutableStateOf<ToneTarget?>(null) }
     val audioMeta by songInfoViewModel.audioMeta.collectAsStateWithLifecycle()
+    val songRating by songInfoViewModel.songRating.collectAsStateWithLifecycle()
+
+    LaunchedEffect(song.id) {
+        songInfoViewModel.observeRatingForSong(song.id)
+    }
     val resolvedArtists by songInfoViewModel.resolvedArtists.collectAsStateWithLifecycle()
     val isPixelPlayWatchAvailable by songInfoViewModel.isPixelPlayWatchAvailable.collectAsStateWithLifecycle()
     val isWatchAvailabilityResolved by songInfoViewModel.isWatchAvailabilityResolved.collectAsStateWithLifecycle()
@@ -525,6 +534,14 @@ fun SongInfoBottomSheet(
                                             },
                                             playButtonShape = playButtonShape,
                                             evenCornerRadiusElems = evenCornerRadiusElems
+                                        )
+
+                                        // 常驻五星条：播放器「长按展开五星」的无障碍等价入口
+                                        RatingRow(
+                                            rating = songRating,
+                                            onRatingSelected = { stars ->
+                                                songInfoViewModel.setSongRating(song.id, stars)
+                                            }
                                         )
 
                                         Row2Actions(
@@ -1325,6 +1342,63 @@ private fun Row1Actions(
                 imageVector = Icons.Rounded.Share,
                 contentDescription = stringResource(R.string.song_info_cd_share_song_file)
             )
+        }
+    }
+}
+
+@Composable
+private fun RatingRow(
+    rating: Int,
+    onRatingSelected: (Int) -> Unit
+) {
+    val haptics = LocalHapticFeedback.current
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = stringResource(R.string.song_info_rating_label),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(2.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            for (star in 1..5) {
+                val selected = star <= rating
+                Icon(
+                    imageVector = if (selected) Icons.Rounded.Star else Icons.Rounded.StarBorder,
+                    contentDescription = stringResource(R.string.song_info_cd_rate_stars, star),
+                    tint = if (selected) MaterialTheme.colorScheme.tertiary
+                    else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f),
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clickable {
+                            haptics.performHapticFeedback(
+                                if (star == rating) HapticFeedbackType.ToggleOff
+                                else HapticFeedbackType.ToggleOn
+                            )
+                            // 点当前星级 = 清除评分
+                            onRatingSelected(if (star == rating) 0 else star)
+                        }
+                        .padding(6.dp)
+                )
+            }
+            Spacer(Modifier.weight(1f))
+            if (rating > 0) {
+                Text(
+                    text = stringResource(R.string.song_info_rating_stars_value, rating),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                TextButton(
+                    onClick = {
+                        haptics.performHapticFeedback(HapticFeedbackType.ToggleOff)
+                        onRatingSelected(0)
+                    }
+                ) {
+                    Text(stringResource(R.string.song_info_rating_clear))
+                }
+            }
         }
     }
 }

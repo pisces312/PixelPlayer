@@ -279,6 +279,23 @@ interface MusicRepository {
     fun getFavoriteSongIdsFlow(): Flow<Set<String>>
 
     /**
+     * Establece la calificación de estrellas de una canción (0..5).
+     * 0 elimina la calificación; la fila se conserva si aún es favorita.
+     * La calificación es independiente del estado de favorito.
+     */
+    suspend fun setSongRating(songId: String, rating: Int)
+
+    /**
+     * Obtiene la calificación de una canción (0..5). 0 = sin calificar.
+     */
+    suspend fun getSongRating(songId: String): Int
+
+    /**
+     * Stream reactivo de la calificación de una canción (0..5). 0 = sin calificar.
+     */
+    fun observeSongRating(songId: String): Flow<Int>
+
+    /**
      * Obtiene una canción específica por su ID.
      * @param songId El ID de la canción.
      * @return Flow que emite el objeto Song o null si no se encuentra.

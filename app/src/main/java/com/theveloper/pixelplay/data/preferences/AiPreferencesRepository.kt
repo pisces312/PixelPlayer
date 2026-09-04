@@ -7,8 +7,12 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import com.theveloper.pixelplay.data.ai.provider.AiProvider
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,7 +27,7 @@ class AiPreferencesRepository @Inject constructor(
             Analyze the user's request and listening profile to provide perfect music recommendations.
             Always prioritize flow, emotional resonance, and discovery.
         """.trimIndent()
-        
+
         val DEFAULT_DEEPSEEK_SYSTEM_PROMPT = DEFAULT_SYSTEM_PROMPT
         val DEFAULT_GROQ_SYSTEM_PROMPT = DEFAULT_SYSTEM_PROMPT
         val DEFAULT_MISTRAL_SYSTEM_PROMPT = DEFAULT_SYSTEM_PROMPT
@@ -33,6 +37,20 @@ class AiPreferencesRepository @Inject constructor(
         val DEFAULT_OPENAI_SYSTEM_PROMPT = DEFAULT_SYSTEM_PROMPT
         val DEFAULT_OPENROUTER_SYSTEM_PROMPT = DEFAULT_SYSTEM_PROMPT
         val DEFAULT_VOLCANO_SYSTEM_PROMPT = DEFAULT_SYSTEM_PROMPT
+
+        /**
+         * 返回 AI 模块在共享 DataStore 中占用的全部键名。
+         * 用于备份导出/清除时精确只处理自己的键，避免误碰用户其他设置。
+         */
+        fun allAiPreferenceKeyNames(): Set<String> = Keys.STATIC_KEY_NAMES +
+            AiProvider.entries.flatMap { provider ->
+                listOfNotNull(
+                    Keys.getApiKey(provider).name,
+                    Keys.getModel(provider).name,
+                    Keys.getSystemPrompt(provider).name,
+                    Keys.getBaseUrl(provider).name.takeIf { provider.hasConfigurableUrl }
+                )
+            }
     }
 
     private object Keys {
@@ -52,6 +70,21 @@ class AiPreferencesRepository @Inject constructor(
         fun getModel(provider: AiProvider) = stringPreferencesKey("${provider.name.lowercase()}_model")
         fun getSystemPrompt(provider: AiProvider) = stringPreferencesKey("${provider.name.lowercase()}_system_prompt")
         fun getBaseUrl(provider: AiProvider) = stringPreferencesKey("${provider.name.lowercase()}_base_url")
+
+        /** 所有固定 AI 配置键名（不含各 provider 的动态键）。 */
+        val STATIC_KEY_NAMES = setOf(
+            AI_PROVIDER.name,
+            SAFE_TOKEN_LIMIT.name,
+            AI_TEMPERATURE.name,
+            AI_TOP_P.name,
+            AI_TOP_K.name,
+            AI_MAX_TOKENS.name,
+            AI_PRESENCE_PENALTY.name,
+            AI_FREQUENCY_PENALTY.name,
+            AI_SAMPLE_SIZE.name,
+            AI_DIGEST_MODE.name,
+            AI_INCLUDE_EXTENDED_FIELDS.name
+        )
     }
 
     // Generic accessors for AiHandler
@@ -216,5 +249,68 @@ class AiPreferencesRepository @Inject constructor(
 
     suspend fun setAiIncludeExtendedFields(enabled: Boolean) {
         dataStore.edit { preferences -> preferences[Keys.AI_INCLUDE_EXTENDED_FIELDS] = enabled }
+    }
+
+    suspend fun exportAiPreferencesForBackup(): List<PreferenceBackupEntry> {
+        val aiKeys = allAiPreferenceKeyNames()
+        val prefs = dataStore.data.first()
+        return prefs.asMap().mapNotNull { (key, value) ->
+            if (key.name !in aiKeys) return@mapNotNull null
+            when (value) {
+                is String -> PreferenceBackupEntry(key.name, "string", stringValue = value)
+                is Int -> PreferenceBackupEntry(key.name, "int", intValue = value)
+                is Long -> PreferenceBackupEntry(key.name, "long", longValue = value)
+                is Boolean -> PreferenceBackupEntry(key.name, "boolean", booleanValue = value)
+                is Float -> PreferenceBackupEntry(key.name, "float", floatValue = value)
+                is Double -> PreferenceBackupEntry(key.name, "double", doubleValue = value)
+                is Set<*> -> PreferenceBackupEntry(
+                    key.name,
+                    "string_set",
+                    stringSetValue = value.filterIsInstance<String>().toSet()
+                )
+                else -> null
+            }
+        }
+    }
+
+    suspend fun importAiPreferencesFromBackup(
+        entries: List<PreferenceBackupEntry>,
+        clearExisting: Boolean = true
+    ) {
+        val aiKeys = allAiPreferenceKeyNames()
+        dataStore.edit { prefs ->
+            if (clearExisting) {
+                prefs.asMap().keys
+                    .filter { it.name in aiKeys }
+                    .forEach { key ->
+                        @Suppress("UNCHECKED_CAST")
+                        prefs.remove(key as Preferences.Key<Any>)
+                    }
+            }
+            for (entry in entries) {
+                if (entry.key !in aiKeys) continue
+                when (entry.type) {
+                    "string" -> prefs[stringPreferencesKey(entry.key)] = entry.stringValue ?: ""
+                    "int" -> prefs[intPreferencesKey(entry.key)] = entry.intValue ?: 0
+                    "long" -> prefs[longPreferencesKey(entry.key)] = entry.longValue ?: 0L
+                    "boolean" -> prefs[booleanPreferencesKey(entry.key)] = entry.booleanValue ?: false
+                    "float" -> prefs[floatPreferencesKey(entry.key)] = entry.floatValue ?: 0f
+                    "double" -> prefs[doublePreferencesKey(entry.key)] = entry.doubleValue ?: 0.0
+                    "string_set", "stringSet" -> prefs[stringSetPreferencesKey(entry.key)] = entry.stringSetValue ?: emptySet()
+                }
+            }
+        }
+    }
+
+    suspend fun clearAllAiPreferences() {
+        val aiKeys = allAiPreferenceKeyNames()
+        dataStore.edit { prefs ->
+            prefs.asMap().keys
+                .filter { it.name in aiKeys }
+                .forEach { key ->
+                    @Suppress("UNCHECKED_CAST")
+                    prefs.remove(key as Preferences.Key<Any>)
+                }
+        }
     }
 }

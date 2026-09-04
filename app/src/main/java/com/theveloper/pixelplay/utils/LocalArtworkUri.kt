@@ -45,6 +45,16 @@ object LocalArtworkUri {
         if (uriString.isNullOrBlank()) return null
         if (!looksLikeVolatileArtworkUri(uriString)) return null
 
+        val normalized = uriString.lowercase()
+        // Shared artwork URI: content://<authority>.artwork/song/<id>?t=<token>
+        if (normalized.contains(".artwork/song/")) {
+            return normalized.substringAfter(".artwork/song/")
+                .substringBefore('?')
+                .substringBefore('/')
+                .toLongOrNull()
+        }
+
+        // Legacy cache file URI: .../song_art_<id>[_v2].jpg
         val fileName = uriString.substringAfterLast('/').substringBefore('?')
         if (!fileName.startsWith("song_art_")) {
             return null

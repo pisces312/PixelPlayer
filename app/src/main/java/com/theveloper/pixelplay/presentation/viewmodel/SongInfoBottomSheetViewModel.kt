@@ -17,6 +17,7 @@ import com.theveloper.pixelplay.data.database.MusicDao
 import com.theveloper.pixelplay.data.database.toArtist
 import com.theveloper.pixelplay.data.model.Artist
 import com.theveloper.pixelplay.data.model.Song
+import com.theveloper.pixelplay.data.repository.MusicRepository
 import com.theveloper.pixelplay.data.service.wear.PhoneWatchTransferState
 import com.theveloper.pixelplay.data.service.wear.PhoneWatchTransferStateStore
 import com.theveloper.pixelplay.data.service.wear.WearPhoneTransferSender
@@ -47,6 +48,7 @@ class SongInfoBottomSheetViewModel @Inject constructor(
     private val wearPhoneTransferSender: WearPhoneTransferSender,
     private val transferStateStore: PhoneWatchTransferStateStore,
     private val musicDao: MusicDao,
+    private val musicRepository: MusicRepository,
     @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
@@ -107,6 +109,28 @@ class SongInfoBottomSheetViewModel @Inject constructor(
     )
 
     val audioMeta: StateFlow<AudioMeta?> = _audioMeta.asStateFlow()
+
+    // ------------------------------------------------------------------
+    // 五星评分（独立于收藏状态；详见 docs/five-star-rating-feature-plan.md）
+    // ------------------------------------------------------------------
+    private val _songRating = MutableStateFlow(0)
+    val songRating: StateFlow<Int> = _songRating.asStateFlow()
+
+    /** 开始响应式观察指定歌曲的评分（弹窗打开时调用一次）。 */
+    fun observeRatingForSong(songId: String) {
+        viewModelScope.launch {
+            musicRepository.observeSongRating(songId).collect { rating ->
+                _songRating.value = rating
+            }
+        }
+    }
+
+    /** 设置评分（1..5）；传 0 清除评分。 */
+    fun setSongRating(songId: String, rating: Int) {
+        viewModelScope.launch {
+            musicRepository.setSongRating(songId, rating)
+        }
+    }
 
     fun loadArtistsForSong(song: Song) {
         val refs = song.artists

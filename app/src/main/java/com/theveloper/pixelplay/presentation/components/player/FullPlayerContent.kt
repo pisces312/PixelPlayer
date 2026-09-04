@@ -145,6 +145,7 @@ import java.util.Locale
 import kotlin.math.roundToLong
 import com.theveloper.pixelplay.presentation.components.WavySliderExpressive
 import com.theveloper.pixelplay.presentation.components.ToggleSegmentButton
+import com.theveloper.pixelplay.presentation.components.FavoriteRatingSegment
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
@@ -543,6 +544,8 @@ fun FullPlayerContent(
         )
     }
 
+    val currentSongRating by playerViewModel.currentSongRating.collectAsStateWithLifecycle()
+
     val controlsSection: @Composable () -> Unit = {
         FullPlayerControlsSection(
             loadingTweaks = loadingTweaks,
@@ -561,9 +564,11 @@ fun FullPlayerContent(
             shuffleTransitionInProgress = shuffleTransitionInProgress,
             repeatModeProvider = repeatModeProvider,
             isFavoriteProvider = isFavoriteProvider,
+            songRatingProvider = { currentSongRating },
             onShuffleToggle = onShuffleToggle,
             onRepeatToggle = onRepeatToggle,
-            onFavoriteToggle = onFavoriteToggle
+            onFavoriteToggle = onFavoriteToggle,
+            onRatingSelected = { playerViewModel.setCurrentSongRating(it) }
         )
     }
 
@@ -979,7 +984,9 @@ fun FullPlayerContent(
             isFavoriteProvider = isFavoriteProvider,
             onShuffleToggle = onShuffleToggle,
             onRepeatToggle = onRepeatToggle,
-            onFavoriteToggle = onFavoriteToggle
+            onFavoriteToggle = onFavoriteToggle,
+            songRatingProvider = { currentSongRating },
+            onRatingSelected = { playerViewModel.setCurrentSongRating(it) }
         )
     }
 
@@ -1124,9 +1131,11 @@ private fun FullPlayerControlsSection(
     shuffleTransitionInProgress: Boolean,
     repeatModeProvider: () -> Int,
     isFavoriteProvider: () -> Boolean,
+    songRatingProvider: () -> Int,
     onShuffleToggle: () -> Unit,
     onRepeatToggle: () -> Unit,
-    onFavoriteToggle: () -> Unit
+    onFavoriteToggle: () -> Unit,
+    onRatingSelected: (Int) -> Unit
 ) {
     val motionScheme = remember { MotionScheme.expressive() }
     val controlSpatialSpec = remember { motionScheme.fastSpatialSpec<Float>() }
@@ -1187,9 +1196,11 @@ private fun FullPlayerControlsSection(
                 isShuffleTransitionInProgress = shuffleTransitionInProgress,
                 repeatMode = repeatModeProvider(),
                 isFavoriteProvider = isFavoriteProvider,
+                songRatingProvider = songRatingProvider,
                 onShuffleToggle = onShuffleToggle,
                 onRepeatToggle = onRepeatToggle,
-                onFavoriteToggle = onFavoriteToggle
+                onFavoriteToggle = onFavoriteToggle,
+                onRatingSelected = onRatingSelected
             )
         }
     }
@@ -2548,14 +2559,31 @@ private fun BottomToggleRow(
     isShuffleTransitionInProgress: Boolean,
     repeatMode: Int,
     isFavoriteProvider: () -> Boolean,
+    songRatingProvider: () -> Int,
     onShuffleToggle: () -> Unit,
     onRepeatToggle: () -> Unit,
-    onFavoriteToggle: () -> Unit
+    onFavoriteToggle: () -> Unit,
+    onRatingSelected: (Int) -> Unit
 ) {
     val isFavorite = isFavoriteProvider()
+    val rating = songRatingProvider()
     val rowCorners = 60.dp
     val inactiveBg = LocalMaterialTheme.current.onSurface.copy(alpha = 0.07f)
     val inactiveContentColor = LocalMaterialTheme.current.onSurface
+
+    // 五星评分展开态：第三格原地展宽，其余两格收窄
+    var ratingExpanded by remember { mutableStateOf(false) }
+    val collapseRating: () -> Unit = { ratingExpanded = false }
+    val sideWeight by animateFloatAsState(
+        targetValue = if (ratingExpanded) 0.7f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        label = "sideSegmentWeight"
+    )
+    val ratingWeight by animateFloatAsState(
+        targetValue = if (ratingExpanded) 2.6f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        label = "ratingSegmentWeight"
+    )
 
 
     Box(
@@ -2593,10 +2621,8 @@ private fun BottomToggleRow(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val commonModifier = Modifier.weight(1f)
-
             ToggleSegmentButton(
-                modifier = commonModifier,
+                modifier = Modifier.weight(sideWeight),
                 active = isShuffleEnabled,
                 enabled = !isShuffleTransitionInProgress,
                 activeColor = LocalMaterialTheme.current.primaryFixed,
@@ -2604,7 +2630,7 @@ private fun BottomToggleRow(
                 activeContentColor = LocalMaterialTheme.current.onPrimaryFixed,
                 inactiveColor = inactiveBg,
                 inactiveContentColor = inactiveContentColor,
-                onClick = onShuffleToggle,
+                onClick = { collapseRating(); onShuffleToggle() },
                 iconId = R.drawable.rounded_shuffle_24,
                 contentDesc = "Aleatorio"
             )
@@ -2615,28 +2641,34 @@ private fun BottomToggleRow(
                 else -> R.drawable.rounded_repeat_24
             }
             ToggleSegmentButton(
-                modifier = commonModifier,
+                modifier = Modifier.weight(sideWeight),
                 active = repeatActive,
                 activeColor = LocalMaterialTheme.current.secondaryFixed,
                 activeCornerRadius = rowCorners,
                 activeContentColor = LocalMaterialTheme.current.onSecondaryFixed,
                 inactiveColor = inactiveBg,
                 inactiveContentColor = inactiveContentColor,
-                onClick = onRepeatToggle,
+                onClick = { collapseRating(); onRepeatToggle() },
                 iconId = repeatIcon,
                 contentDesc = "Repetir"
             )
-            ToggleSegmentButton(
-                modifier = commonModifier,
-                active = isFavorite,
+            // 双态格：单击切收藏，长按原地展开五星
+            FavoriteRatingSegment(
+                modifier = Modifier.weight(ratingWeight),
+                isFavorite = isFavorite,
+                rating = rating,
+                expanded = ratingExpanded,
+                rowCorners = rowCorners,
                 activeColor = LocalMaterialTheme.current.tertiaryFixed,
-                activeCornerRadius = rowCorners,
                 activeContentColor = LocalMaterialTheme.current.onTertiaryFixed,
+                ratingOnlyColor = LocalMaterialTheme.current.tertiaryContainer,
+                ratingOnlyContentColor = LocalMaterialTheme.current.onTertiaryContainer,
                 inactiveColor = inactiveBg,
                 inactiveContentColor = inactiveContentColor,
-                onClick = onFavoriteToggle,
-                iconId = if (isFavorite) R.drawable.round_favorite_24 else R.drawable.rounded_favorite_24,
-                contentDesc = "Favorito"
+                onToggleFavorite = onFavoriteToggle,
+                onExpand = { ratingExpanded = true },
+                onCollapse = collapseRating,
+                onRatingSelected = onRatingSelected
             )
         }
     }

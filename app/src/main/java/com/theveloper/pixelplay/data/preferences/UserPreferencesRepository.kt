@@ -85,7 +85,7 @@ class UserPreferencesRepository @Inject constructor(
 
     private val backupExcludedKeyNames = setOf(
         PreferencesKeys.INITIAL_SETUP_DONE.name
-    )
+    ) + AiPreferencesRepository.allAiPreferenceKeyNames()
 
     // ─── Preference keys ────────────────────────────────────────────────────
 

@@ -21,6 +21,7 @@ import com.theveloper.pixelplay.presentation.viewmodel.LibraryStateHolder
 import com.theveloper.pixelplay.presentation.viewmodel.ThemeStateHolder
 import com.theveloper.pixelplay.utils.AlbumArtCacheManager
 import com.theveloper.pixelplay.utils.AlbumArtUtils
+import com.theveloper.pixelplay.utils.AppLogCollector
 import com.theveloper.pixelplay.utils.CrashHandler
 import com.theveloper.pixelplay.utils.AppLocaleManager
 import com.theveloper.pixelplay.utils.MediaMetadataRetrieverPool
@@ -94,6 +95,10 @@ class PixelPlayApplication : Application(), ImageLoaderFactory, Configuration.Pr
     override fun onCreate() {
         instance = this
         super.onCreate()
+
+        // 必须在其它 Timber Tree 之前安装：release 的 ReleaseTree 只放行 WARN+，
+        // 导入等模块的 DEBUG/INFO 诊断日志只有靠 AppLogCollector 才拿得到。
+        AppLogCollector.install(this)
 
         // Benchmark variant intentionally restarts/kills app process during tests.
         // Avoid persisting those events as user-facing crash reports.

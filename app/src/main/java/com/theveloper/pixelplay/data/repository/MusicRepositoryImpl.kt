@@ -820,8 +820,36 @@ class MusicRepositoryImpl @Inject constructor(
                 )
             )
         } else {
-            favoritesDao.removeFavorite(id)
+            // 软删除：先清收藏标记（保住评分），再清掉「未收藏且未评分」的空行。
+            favoritesDao.clearFavoriteFlag(id)
+            favoritesDao.purgeIfEmpty(id)
         }
+    }
+
+    override suspend fun setSongRating(songId: String, rating: Int) = withContext(Dispatchers.IO) {
+        val id = songId.toLongOrNull() ?: return@withContext
+        val normalized = rating.coerceIn(0, 5)
+        favoritesDao.setRating(
+            songId = id,
+            rating = normalized,
+            timestamp = System.currentTimeMillis()
+        )
+        // 评分被清除后，若该行既未收藏也无评分则删除
+        if (normalized == 0) {
+            favoritesDao.purgeIfEmpty(id)
+        }
+    }
+
+    override suspend fun getSongRating(songId: String): Int = withContext(Dispatchers.IO) {
+        val id = songId.toLongOrNull() ?: return@withContext 0
+        favoritesDao.getRating(id) ?: 0
+    }
+
+    override fun observeSongRating(songId: String): Flow<Int> {
+        val id = songId.toLongOrNull() ?: return flowOf(0)
+        return favoritesDao.observeRating(id)
+            .map { it ?: 0 }
+            .distinctUntilChanged()
     }
 
     override suspend fun getFavoriteSongIdsOnce(): Set<String> = withContext(Dispatchers.IO) {

@@ -79,6 +79,10 @@ class WearStatePublisher @Inject constructor(
      * @param playerInfo The full player info from MusicService
      */
     fun publishState(songId: String?, playerInfo: PlayerInfo) {
+        // Wearable data layer requires Google Play services. On GMS-less devices
+        // touching the client would surface a system "enable Google Play services"
+        // notification on every playback state change; skip publishing instead.
+        if (!GmsAvailability.isAvailable(application)) return
         scope.launch {
             try {
                 publishStateInternal(songId, playerInfo)
