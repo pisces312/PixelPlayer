@@ -3040,6 +3040,13 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
+    fun playSongById(songId: String) {
+        viewModelScope.launch {
+            val song = musicRepository.getSong(songId).first() ?: return@launch
+            playSong(song)
+        }
+    }
+
     fun prepareBenchmarkPlayerFromLibrary() {
         viewModelScope.launch {
             repeat(90) { attempt ->

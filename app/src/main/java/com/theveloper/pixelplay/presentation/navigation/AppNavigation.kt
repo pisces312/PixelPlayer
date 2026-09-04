@@ -302,7 +302,8 @@ fun AppNavigation(
             ) {
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel, animatedVisibilityScope = this) {
                     StatsScreen(
-                        navController = navController
+                        navController = navController,
+                        onSongClick = { songId -> playerViewModel.playSongById(songId) }
                     )
                 }
             }
