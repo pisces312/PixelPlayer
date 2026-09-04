@@ -463,6 +463,12 @@
     <string name="settings_dialog_palette_regenerated">Palette regenerated for %1$s</string>
     <string name="settings_dialog_palette_regenerate_failed">Could not regenerate palette for %1$s</string>
     <string name="settings_diagnostics_section">Diagnostics</string>
+    <string name="settings_log_level_title">Log level</string>
+    <string name="settings_log_level_verbose">Verbose (all)</string>
+    <string name="settings_log_level_debug">Debug</string>
+    <string name="settings_log_level_info">Info</string>
+    <string name="settings_log_level_warn">Warn (default)</string>
+    <string name="settings_log_level_error">Error (errors only)</string>
     <string name="settings_export_logs_title">Export Diagnostic Log</string>
     <string name="settings_export_logs_subtitle">Collect recent app logs (including detailed import traces) and share them as a text file.</string>
     <string name="settings_trigger_crash_title">Trigger Test Crash</string>

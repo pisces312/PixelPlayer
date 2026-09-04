@@ -1,5 +1,6 @@
 package com.theveloper.pixelplay.presentation.screens
 
+import android.util.Log
 import com.theveloper.pixelplay.presentation.navigation.navigateSafely
 import com.theveloper.pixelplay.presentation.components.BackupModuleSelectionDialog
 import com.theveloper.pixelplay.data.preferences.AiPreferencesRepository
@@ -73,6 +74,7 @@ import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Style
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.BlurOff
@@ -106,6 +108,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -180,6 +183,7 @@ import com.theveloper.pixelplay.presentation.viewmodel.LyricsRefreshProgress
 import com.theveloper.pixelplay.presentation.viewmodel.PlayerViewModel
 import com.theveloper.pixelplay.presentation.viewmodel.SettingsViewModel
 import com.theveloper.pixelplay.ui.theme.GoogleSansRounded
+import com.theveloper.pixelplay.utils.AppLogCollector
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -243,6 +247,8 @@ fun SettingsCategoryScreen(
     var showRegenerateAllPalettesDialog by remember { mutableStateOf(false) }
     var showExportDataDialog by remember { mutableStateOf(false) }
     var showImportFlow by remember { mutableStateOf(false) }
+    var showLogLevelDialog by remember { mutableStateOf(false) }
+    var selectedLogLevel by remember { mutableStateOf(AppLogCollector.getMinimumPriority()) }
     var exportSections by remember { mutableStateOf(BackupSection.defaultSelection) }
     var importFileUri by remember { mutableStateOf<Uri?>(null) }
     var minSongDurationDraft by remember(uiState.minSongDuration) {
@@ -1465,6 +1471,12 @@ fun SettingsCategoryScreen(
                                 addBottomSpace = false
                             ) {
                                 SettingsItem(
+                                    title = stringResource(R.string.settings_log_level_title),
+                                    subtitle = stringResource(logLevelLabelRes(selectedLogLevel)),
+                                    leadingIcon = { Icon(Icons.Outlined.Tune, null, tint = MaterialTheme.colorScheme.secondary) },
+                                    onClick = { showLogLevelDialog = true }
+                                )
+                                SettingsItem(
                                     title = stringResource(R.string.settings_export_logs_title),
                                     subtitle = stringResource(R.string.settings_export_logs_subtitle),
                                     leadingIcon = { Icon(Icons.Outlined.Description, null, tint = MaterialTheme.colorScheme.secondary) },
@@ -1600,6 +1612,53 @@ fun SettingsCategoryScreen(
                 }
             )
         }
+    }
+
+    if (showLogLevelDialog) {
+        val logLevels = listOf(
+            Log.VERBOSE to R.string.settings_log_level_verbose,
+            Log.DEBUG to R.string.settings_log_level_debug,
+            Log.INFO to R.string.settings_log_level_info,
+            Log.WARN to R.string.settings_log_level_warn,
+            Log.ERROR to R.string.settings_log_level_error
+        )
+        AlertDialog(
+            title = { Text(stringResource(R.string.settings_log_level_title)) },
+            text = {
+                Column {
+                    logLevels.forEach { (priority, labelRes) ->
+                        val selected = selectedLogLevel == priority
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    selectedLogLevel = priority
+                                    AppLogCollector.setMinimumPriority(priority)
+                                    showLogLevelDialog = false
+                                }
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(selected = selected, onClick = {
+                                selectedLogLevel = priority
+                                AppLogCollector.setMinimumPriority(priority)
+                                showLogLevelDialog = false
+                            })
+                            Text(
+                                text = stringResource(labelRes),
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLogLevelDialog = false }) {
+                    Text(stringResource(R.string.common_cancel), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            },
+            onDismissRequest = { showLogLevelDialog = false }
+        )
     }
 
     if (showRegenerateAllPalettesDialog) {
@@ -3008,4 +3067,14 @@ private fun SettingsSubsection(
     if (addBottomSpace) {
         Spacer(modifier = Modifier.height(10.dp))
     }
+}
+
+/** 把 Log 级别常量映射到三语文案资源。 */
+private fun logLevelLabelRes(priority: Int): Int = when (priority) {
+    Log.VERBOSE -> R.string.settings_log_level_verbose
+    Log.DEBUG -> R.string.settings_log_level_debug
+    Log.INFO -> R.string.settings_log_level_info
+    Log.WARN -> R.string.settings_log_level_warn
+    Log.ERROR -> R.string.settings_log_level_error
+    else -> R.string.settings_log_level_warn
 }

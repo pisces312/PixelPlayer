@@ -20,8 +20,8 @@ import java.util.Locale
  * 应用内日志收集器。
  *
  * 背景：`ReleaseTree` 只放行 WARN 及以上，release 包里 DEBUG/INFO 的导入日志不会进 logcat，
- * 真机排查（如 Poweramp 导入丢历史）拿不到证据。本收集器通过独立 Timber Tree 捕获**全优先级**
- * 日志，落两处：
+ * 真机排查（如 Poweramp 导入丢历史）拿不到证据。本收集器通过独立 Timber Tree 捕获
+ * [minimumPriority] 及以上的日志（默认 release=WARN，可在设置页动态调节），落两处：
  * 1. 内存环形缓冲（[MAX_MEMORY_LINES] 行）——进程内存活，导出最快；
  * 2. 滚动文件（[MAX_FILE_BYTES] 轮转，保留 1 份 .1）——跨进程重启可追溯。
  *
@@ -41,6 +41,9 @@ object AppLogCollector {
     private const val LOG_FILE_NAME = "pixelplay.log"
     private const val EXPORT_DIR = "log_export"
 
+    private const val PREFS_NAME = "log_collector"
+    private const val KEY_MIN_PRIORITY = "minimum_priority"
+
     private val lock = Any()
     private val ring = ArrayDeque<String>()
 
@@ -50,6 +53,13 @@ object AppLogCollector {
     private var fileStream: FileOutputStream? = null
     private var bytesSinceCheck = 0L
     private var planted = false
+
+    /**
+     * 当前最小记录级别（[Log.VERBOSE]..[Log.ERROR]）。release 默认 WARN，debug 默认 VERBOSE。
+     * 可在设置页动态调节，立即生效并持久化（下次启动沿用）。
+     */
+    @Volatile
+    private var minimumPriority: Int = if (BuildConfig.DEBUG) Log.VERBOSE else Log.WARN
 
     private val lineDateFormat: ThreadLocal<SimpleDateFormat> = ThreadLocal.withInitial {
         SimpleDateFormat("MM-dd HH:mm:ss.SSS", Locale.US)
@@ -61,6 +71,11 @@ object AppLogCollector {
      */
     fun install(context: Context) {
         val ctx = context.applicationContext
+        // 读回上次调节的日志级别（默认 release=WARN / debug=VERBOSE）。
+        minimumPriority = runCatching {
+            ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getInt(KEY_MIN_PRIORITY, minimumPriority)
+        }.getOrDefault(minimumPriority)
         synchronized(lock) {
             appContext = ctx
             val dir = File(ctx.filesDir, LOG_DIR)
@@ -73,7 +88,27 @@ object AppLogCollector {
             if (planted) false else { planted = true; true }
         }
         if (shouldPlant) {
-            Timber.plant(CollectorTree())
+            Timber.plant(
+                CollectorTree(
+                    minPriorityProvider = { minimumPriority },
+                    onLog = { priority, tag, message, throwable ->
+                        append(formatLine(priority, tag, message, throwable))
+                    }
+                )
+            )
+        }
+    }
+
+    /** 当前最小记录级别（[Log.VERBOSE]..[Log.ERROR]）。 */
+    fun getMinimumPriority(): Int = minimumPriority
+
+    /** 运行时调节记录级别，立即生效并持久化（下次启动沿用）。 */
+    fun setMinimumPriority(priority: Int) {
+        val clamped = priority.coerceIn(Log.VERBOSE, Log.ERROR)
+        minimumPriority = clamped
+        runCatching {
+            appContext?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                ?.edit()?.putInt(KEY_MIN_PRIORITY, clamped)?.apply()
         }
     }
 
@@ -250,9 +285,17 @@ object AppLogCollector {
     }
 
     /** 只记录、不再转发到 Log（输出由 DebugTree / ReleaseTree 负责）。 */
-    private class CollectorTree : Timber.Tree() {
+    private class CollectorTree(
+        private val minPriorityProvider: () -> Int,
+        private val onLog: (Int, String?, String, Throwable?) -> Unit
+    ) : Timber.Tree() {
+        override fun isLoggable(tag: String?, priority: Int): Boolean {
+            // 动态级别：每次调用都读最新值（minimumPriority 为 @Volatile）。
+            return priority >= minPriorityProvider()
+        }
+
         override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-            append(formatLine(priority, tag, message, t))
+            onLog(priority, tag, message, t)
         }
     }
 

@@ -188,28 +188,11 @@
 -keep class * extends androidx.glance.appwidget.action.ActionCallback { <init>(); }
 
 # =============================================================================
-# TIMBER LOGGING OPTIMIZATION FOR RELEASE BUILDS
+# TIMBER LOGGING IN RELEASE BUILDS
 # =============================================================================
-# Strip VERBOSE and DEBUG log calls entirely from release builds.
-# This removes the method calls at bytecode level, eliminating any overhead
-# from string concatenation or log message building.
+# VERBOSE/DEBUG/INFO log calls are KEPT in release builds so the runtime log
+# level can be adjusted from Settings -> Developer -> Diagnostics (see
+# AppLogCollector.minimumPriority). Do NOT add -assumenosideeffects for
+# Timber/Log v/d/i here: it strips those calls at compile time and makes the
+# runtime level selector useless for INFO/DEBUG.
 
--assumenosideeffects class timber.log.Timber {
-    public static void v(...);
-    public static void d(...);
-    public static void i(...);
-}
-
-# Also strip Timber.Tree methods used by custom trees (belt and suspenders)
--assumenosideeffects class timber.log.Timber$Tree {
-    public void v(...);
-    public void d(...);
-    public void i(...);
-}
-
-# Strip Android Log.v and Log.d calls as well
--assumenosideeffects class android.util.Log {
-    public static int v(...);
-    public static int d(...);
-    public static int i(...);
-}

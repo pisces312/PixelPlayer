@@ -463,6 +463,12 @@
     <string name="settings_dialog_palette_regenerated">已为 %1$s 重新生成调色板</string>
     <string name="settings_dialog_palette_regenerate_failed">无法为 %1$s 重新生成调色板</string>
     <string name="settings_diagnostics_section">诊断</string>
+    <string name="settings_log_level_title">日志级别</string>
+    <string name="settings_log_level_verbose">Verbose（全部）</string>
+    <string name="settings_log_level_debug">Debug</string>
+    <string name="settings_log_level_info">Info</string>
+    <string name="settings_log_level_warn">Warn（默认）</string>
+    <string name="settings_log_level_error">Error（仅错误）</string>
     <string name="settings_export_logs_title">导出诊断日志</string>
     <string name="settings_export_logs_subtitle">收集近期应用日志（含导入等详细过程记录），以文本文件分享。</string>
     <string name="settings_trigger_crash_title">触发测试崩溃</string>
