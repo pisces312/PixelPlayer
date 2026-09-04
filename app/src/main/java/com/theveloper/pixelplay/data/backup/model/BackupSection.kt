@@ -84,6 +84,13 @@ enum class BackupSection(
         description = "History of AI requests and token consumption.",
         iconRes = R.drawable.rounded_monitoring_24,
         sinceVersion = 4
+    ),
+    AI_PROVIDER_CONFIG(
+        key = "ai_provider_config",
+        label = "AI Provider Config",
+        description = "AI provider selection, API keys, models, and base URLs.",
+        iconRes = R.drawable.rounded_monitoring_24,
+        sinceVersion = 5
     );
 
     companion object {

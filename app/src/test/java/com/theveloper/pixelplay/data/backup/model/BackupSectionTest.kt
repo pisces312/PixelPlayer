@@ -48,7 +48,7 @@ class BackupSectionTest {
 
     @Test
     fun `there are exactly 11 backup sections`() {
-        assertEquals(11, BackupSection.entries.size)
+        assertEquals(13, BackupSection.entries.size)
     }
 
     @Test

@@ -7,8 +7,12 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import com.theveloper.pixelplay.data.ai.provider.AiProvider
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -216,5 +220,45 @@ class AiPreferencesRepository @Inject constructor(
 
     suspend fun setAiIncludeExtendedFields(enabled: Boolean) {
         dataStore.edit { preferences -> preferences[Keys.AI_INCLUDE_EXTENDED_FIELDS] = enabled }
+    }
+
+    suspend fun exportAiPreferencesForBackup(): List<PreferenceBackupEntry> {
+        val prefs = dataStore.data.first()
+        return prefs.asMap().mapNotNull { (key, value) ->
+            when (value) {
+                is String -> PreferenceBackupEntry(key.name, "string", stringValue = value)
+                is Int -> PreferenceBackupEntry(key.name, "int", intValue = value)
+                is Long -> PreferenceBackupEntry(key.name, "long", longValue = value)
+                is Boolean -> PreferenceBackupEntry(key.name, "boolean", booleanValue = value)
+                is Float -> PreferenceBackupEntry(key.name, "float", floatValue = value)
+                is Double -> PreferenceBackupEntry(key.name, "double", doubleValue = value)
+                is Set<*> -> PreferenceBackupEntry(
+                    key.name,
+                    "stringSet",
+                    stringSetValue = (value as? Set<String>)?.toSet()
+                )
+                else -> null
+            }
+        }
+    }
+
+    suspend fun importAiPreferencesFromBackup(entries: List<PreferenceBackupEntry>) {
+        dataStore.edit { prefs ->
+            for (entry in entries) {
+                when (entry.type) {
+                    "string" -> prefs[stringPreferencesKey(entry.key)] = entry.stringValue ?: ""
+                    "int" -> prefs[intPreferencesKey(entry.key)] = entry.intValue ?: 0
+                    "long" -> prefs[longPreferencesKey(entry.key)] = entry.longValue ?: 0L
+                    "boolean" -> prefs[booleanPreferencesKey(entry.key)] = entry.booleanValue ?: false
+                    "float" -> prefs[floatPreferencesKey(entry.key)] = entry.floatValue ?: 0f
+                    "double" -> prefs[doublePreferencesKey(entry.key)] = entry.doubleValue ?: 0.0
+                    "stringSet" -> prefs[stringSetPreferencesKey(entry.key)] = entry.stringSetValue ?: emptySet()
+                }
+            }
+        }
+    }
+
+    suspend fun clearAllAiPreferences() {
+        dataStore.edit { it.clear() }
     }
 }

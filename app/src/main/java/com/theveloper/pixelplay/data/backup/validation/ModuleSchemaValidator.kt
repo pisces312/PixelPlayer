@@ -70,6 +70,7 @@ class ModuleSchemaValidator @Inject constructor(
             BackupSection.PLAYBACK_HISTORY -> validatePlaybackHistory(jsonElement.asJsonArray, errors)
             BackupSection.ARTIST_IMAGES -> validateArtistImages(jsonElement.asJsonArray, errors)
             BackupSection.TRANSITIONS -> validateTransitions(jsonElement.asJsonArray, errors)
+            BackupSection.AI_PROVIDER_CONFIG,
             BackupSection.GLOBAL_SETTINGS,
             BackupSection.QUICK_FILL,
             BackupSection.EQUALIZER -> {

@@ -10,7 +10,8 @@ data class BackupManifest(
 ) {
     companion object {
         // v4: favorites 表新增 rating 列（五星评分），随 FavoritesEntity 序列化自动导出。
-        const val CURRENT_SCHEMA_VERSION = 4
+        // v5: 新增 AI 服务商配置模块（api key / model / base_url / 选中 provider）。
+        const val CURRENT_SCHEMA_VERSION = 5
         const val MIN_SUPPORTED_VERSION = 1
         const val MANIFEST_FILENAME = "manifest.json"
     }
