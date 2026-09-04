@@ -27,6 +27,11 @@ PixelPlayer 是 Android 音乐播放器（100% Kotlin，Jetpack Compose + Materi
 # 跑单个测试（全限定类名）
 .\gradlew.bat :app:testDebugUnitTest --tests "com.theveloper.pixelplay.data.xxx.Klass.method"
 
+# 单元测试一键跑（推荐）：跑完自动打印摘要，并区分「基线失败」与「新增回归」
+.\run-tests.bat                        # 全部
+.\run-tests.bat ImportedHistory        # 只跑匹配 *ImportedHistory* 的测试
+.\run-tests.bat --summary-only         # 只重打摘要，不执行 gradle
+
 # Lint（release 构建已关闭 lint 检查，用 debug 变体）
 .\gradlew.bat :app:lintDebug
 
@@ -63,5 +68,8 @@ PixelPlayer 是 Android 音乐播放器（100% Kotlin，Jetpack Compose + Materi
 
 - 单元测试在 `app/src/test`（JUnit 5 + MockK + Turbine + Truth）；平台已全局 `useJUnitPlatform()`（`app/build.gradle.kts`）。
 - 仪器测试在 `app/src/androidTest`（Room、WorkManager、Compose UI、宏基准）。
+- **本地一键脚本**：`run-tests.bat`（调 `test_summary.py`）跑 JVM 单测并在结尾打印摘要，把失败分成「基线失败」与「新增回归」，避免新回归淹没在既有红灯里。只有全量跑（结果目录 ≥20 个类）才做基线过期检查，过滤跑会自动跳过。
+- **既有失败基线**：`test_summary.py` 的 `BASELINE_FAILING_CLASSES` 记录在 master 上就已失败的 6 个测试类，均非本 fork 引入。修好其中任一个后，脚本会提示更新该集合；新增失败一律归到「NEW failures」并令脚本退出码非 0。
+- **JVM 单测边界**：工程未引入 Robolectric 且开了 `unitTests.isReturnDefaultValues`，Android framework 类在 JVM 下被打桩——例如 `AtomicFile.startWrite()` 恒返回 `null`，`PlaybackStatsRepository` 的文件 I/O 写入会被静默跳过却仍返回 `true`（假成功）。涉及 `AtomicFile`/`Context` 真实文件读写的逻辑**无法在 JVM 单测验证**，只能靠真机或 `AppLogCollector` 导出的日志回读校验。
 - lint：`checkReleaseBuilds=false`，正式检查跑 debug 变体。
 - 改动构建/产物后按 `docs/build-config.md` 与 CI 工作流交叉核对，交付前回读校验。
