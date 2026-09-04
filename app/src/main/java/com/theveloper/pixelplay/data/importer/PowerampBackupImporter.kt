@@ -164,7 +164,11 @@ class PowerampBackupImporter @Inject constructor(
             matchedRecords.size, matchMap.size, prepared.unresolvedKeys.size
         )
 
-        // ---- 2. 播放历史（每首最多 1 条合成事件；N2：durationMs 恒 0）----
+        // ---- 2. 播放历史（每首 1 条带权重事件；N2：durationMs 恒 0）----
+        //
+        // Poweramp 只提供 played_times（累计次数）+ played_at（最后一次时间），没有逐次记录。
+        // 展开成 N 条事件就必须伪造 N 个时间戳，会把时间线/按天分布污染成虚假尖峰，
+        // 因此压缩成 1 条事件并令 playCount = N：次数与总时长按权重还原，时间分布只占一次。
         if (options.importHistory) {
             onProgress(ImportProgress(ImportProgress.Step.HISTORY, 0, 1))
             val events = matchedRecords.mapNotNull { (songId, record) ->
@@ -172,8 +176,9 @@ class PowerampBackupImporter @Inject constructor(
                     PlaybackStatsRepository.PlaybackEvent(
                         songId = songId,
                         timestamp = playedAt,
-                        durationMs = 0L
+                        durationMs = 0L,
                         // start/end 留空：sanitizeEvent 自动补为 start = end = timestamp
+                        playCount = record.playCount.coerceAtLeast(1)
                     )
                 }
             }

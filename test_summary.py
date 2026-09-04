@@ -40,15 +40,11 @@ MIN_CLASSES_FOR_STALE_CHECK = 20
 # Test classes that were already failing on `master` before this branch.
 # Keep in sync with reality: the script warns when an entry stops failing
 # (fixed, renamed or deleted) so the baseline never silently rots.
-BASELINE_FAILING_CLASSES = {
-    "com.theveloper.pixelplay.data.backup.model.BackupSectionTest",
-    "com.theveloper.pixelplay.data.service.player.LoadControlBufferProfileTest",
-    "com.theveloper.pixelplay.presentation.screens."
-    "LibraryScreenFolderNavigationAnimationTest",
-    "com.theveloper.pixelplay.presentation.viewmodel.LyricsStateHolderTest",
-    "com.theveloper.pixelplay.utils.AudioMetaUtilsTest",
-    "com.theveloper.pixelplay.utils.LocalArtworkUriTest",
-}
+#
+# As of 2026-09-04 all previously known baseline failures have been resolved
+# (see the five fixes in the feat/poweramp-import branch). The set is now empty;
+# any failure reported by the suite is a NEW regression and should fail CI.
+BASELINE_FAILING_CLASSES = set()
 
 BULLET = "  - "
 

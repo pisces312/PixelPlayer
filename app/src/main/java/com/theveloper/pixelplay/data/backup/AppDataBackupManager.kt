@@ -100,7 +100,9 @@ data class PlaybackHistoryBackupEntry(
     val timestamp: Long,
     val durationMs: Long,
     val startTimestamp: Long? = null,
-    val endTimestamp: Long? = null
+    val endTimestamp: Long? = null,
+    /** 本条事件代表的播放次数（导入聚合事件 > 1）；旧备份无此字段，还原时按 1 处理。 */
+    val playCount: Int = 1
 )
 
 data class AppDataBackupPayload(
@@ -372,7 +374,8 @@ class AppDataBackupManager @Inject constructor(
                                         timestamp = entry.timestamp,
                                         durationMs = entry.durationMs,
                                         startTimestamp = entry.startTimestamp,
-                                        endTimestamp = entry.endTimestamp
+                                        endTimestamp = entry.endTimestamp,
+                                        playCount = entry.playCount.coerceAtLeast(1)
                                     )
                                 },
                                 clearExisting = true

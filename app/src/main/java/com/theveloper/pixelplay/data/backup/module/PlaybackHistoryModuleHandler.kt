@@ -27,7 +27,8 @@ class PlaybackHistoryModuleHandler @Inject constructor(
                 timestamp = event.timestamp,
                 durationMs = event.durationMs,
                 startTimestamp = event.startTimestamp,
-                endTimestamp = event.endTimestamp
+                endTimestamp = event.endTimestamp,
+                playCount = event.weight
             )
         }
         gson.toJson(entries)
@@ -48,7 +49,9 @@ class PlaybackHistoryModuleHandler @Inject constructor(
                 timestamp = entry.timestamp,
                 durationMs = entry.durationMs,
                 startTimestamp = entry.startTimestamp,
-                endTimestamp = entry.endTimestamp
+                endTimestamp = entry.endTimestamp,
+                // 旧版备份没有该字段，反序列化后为 1；非法值同样退化为 1。
+                playCount = entry.playCount.coerceAtLeast(1)
             )
         }
         val writeSucceeded = playbackStatsRepository.importEventsFromBackup(

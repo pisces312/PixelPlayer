@@ -2824,10 +2824,13 @@ internal fun resolveFolderNavigationDirection(initialPath: String?, targetPath: 
     }
 
 private fun isDescendantFolderPath(ancestorPath: String, candidatePath: String): Boolean {
-    val normalizedAncestor = ancestorPath.trimEnd(File.separatorChar)
-    val normalizedCandidate = candidatePath.trimEnd(File.separatorChar)
+    // Folder paths on Android are always '/'-separated (MediaStore / content URIs). Use a
+    // hardcoded separator instead of File.separatorChar, which is '\' on Windows and breaks unit
+    // tests running on the JVM as well as any non-Unix host.
+    val normalizedAncestor = ancestorPath.trimEnd('/')
+    val normalizedCandidate = candidatePath.trimEnd('/')
     if (normalizedAncestor == normalizedCandidate) return false
-    return normalizedCandidate.startsWith("$normalizedAncestor${File.separatorChar}")
+    return normalizedCandidate.startsWith("$normalizedAncestor/")
 }
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3ExpressiveApi::class)
