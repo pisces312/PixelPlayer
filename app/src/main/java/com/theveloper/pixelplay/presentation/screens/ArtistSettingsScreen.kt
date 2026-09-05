@@ -37,6 +37,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Refresh
@@ -301,6 +302,36 @@ fun ArtistSettingsScreen(
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Rounded.Album,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+
+            // Artist Images Section
+            item {
+                SettingsSection(
+                    title = stringResource(R.string.artist_images_section),
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Outlined.Image,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                ) {
+                    Column(modifier = Modifier.clip(shape = RoundedCornerShape(24.dp))) {
+                        SwitchSettingItem(
+                            title = stringResource(R.string.deezer_artist_images_title),
+                            subtitle = stringResource(R.string.deezer_artist_images_subtitle),
+                            checked = uiState.deezerArtistImagesEnabled,
+                            onCheckedChange = { viewModel.setDeezerArtistImagesEnabled(it) },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.Image,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.secondary
                                 )

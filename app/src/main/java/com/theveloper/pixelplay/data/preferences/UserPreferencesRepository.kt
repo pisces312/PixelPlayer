@@ -174,6 +174,7 @@ class UserPreferencesRepository @Inject constructor(
         val ARTIST_WORD_DELIMITERS = stringPreferencesKey("artist_word_delimiters")
         val EXTRACT_ARTISTS_FROM_TITLE = booleanPreferencesKey("extract_artists_from_title")
         val GROUP_BY_ALBUM_ARTIST = booleanPreferencesKey("group_by_album_artist")
+        val DEEZER_ARTIST_IMAGES_ENABLED = booleanPreferencesKey("deezer_artist_images_enabled")
         val ARTIST_SETTINGS_RESCAN_REQUIRED =
             booleanPreferencesKey("artist_settings_rescan_required")
 
@@ -1070,6 +1071,15 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.GROUP_BY_ALBUM_ARTIST] = enabled
             preferences[PreferencesKeys.ARTIST_SETTINGS_RESCAN_REQUIRED] = true
+        }
+    }
+
+    val deezerArtistImagesEnabledFlow: Flow<Boolean> =
+        pref { it[PreferencesKeys.DEEZER_ARTIST_IMAGES_ENABLED] ?: false }
+
+    suspend fun setDeezerArtistImagesEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.DEEZER_ARTIST_IMAGES_ENABLED] = enabled
         }
     }
 

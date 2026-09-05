@@ -9,12 +9,14 @@ import android.util.LruCache
 import com.theveloper.pixelplay.data.database.MusicDao
 import com.theveloper.pixelplay.data.diagnostics.AdvancedPerformanceDiagnostics
 import com.theveloper.pixelplay.data.network.deezer.DeezerApiService
+import com.theveloper.pixelplay.data.preferences.UserPreferencesRepository
 import com.theveloper.pixelplay.utils.NetworkRetryUtils
 import com.theveloper.pixelplay.utils.isRetryableNetworkError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -36,7 +38,8 @@ import androidx.core.graphics.scale
 @Singleton
 class ArtistImageRepository @Inject constructor(
     private val deezerApiService: DeezerApiService,
-    private val musicDao: MusicDao
+    private val musicDao: MusicDao,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) {
     companion object {
         private const val TAG = "ArtistImageRepository"
@@ -85,6 +88,7 @@ class ArtistImageRepository @Inject constructor(
      */
     suspend fun getArtistImageUrl(artistName: String, artistId: Long): String? {
         if (artistName.isBlank()) return null
+        if (!userPreferencesRepository.deezerArtistImagesEnabledFlow.first()) return null
 
         val normalizedName = artistName.trim().lowercase()
 
@@ -125,6 +129,7 @@ class ArtistImageRepository @Inject constructor(
      * Useful for batch loading when displaying artist lists.
      */
     suspend fun prefetchArtistImages(artists: List<Pair<Long, String>>) = withContext(Dispatchers.IO) {
+        if (!userPreferencesRepository.deezerArtistImagesEnabledFlow.first()) return@withContext
         val startedAt = if (AdvancedPerformanceDiagnostics.isEnabled) System.currentTimeMillis() else 0L
         AdvancedPerformanceDiagnostics.recordEventIfEnabled(
             type = AdvancedPerformanceDiagnostics.EventTypes.WORKER,

@@ -94,6 +94,9 @@
     <string name="lib_org_section">媒体库整理</string>
     <string name="lib_org_group_by_album_artist_title">按专辑艺术家分组</string>
     <string name="lib_org_group_by_album_artist_subtitle">在主要艺术家下显示合作专辑</string>
+    <string name="artist_images_section">艺术家图片</string>
+    <string name="deezer_artist_images_title">从 Deezer 下载艺术家图片</string>
+    <string name="deezer_artist_images_subtitle">关闭后不联网获取艺术家图片（Deezer 不可达地区建议关闭）</string>
     <string name="multi_artist_info_title">关于多艺术家解析</string>
     <string name="multi_artist_info_body">
         PixelPlayer 使用字符分隔符（/、;、&amp;）和单词分隔符（feat.、ft.、vs.、x）来拆分艺术家标签。单词分隔符不区分大小写。

@@ -94,6 +94,9 @@
     <string name="lib_org_section">Library Organization</string>
     <string name="lib_org_group_by_album_artist_title">Group by Album Artist</string>
     <string name="lib_org_group_by_album_artist_subtitle">Show collaboration albums under main artist</string>
+    <string name="artist_images_section">Artist Images</string>
+    <string name="deezer_artist_images_title">Download artist images from Deezer</string>
+    <string name="deezer_artist_images_subtitle">When disabled, artist images are not fetched online</string>
     <string name="multi_artist_info_title">About Multi-Artist Parsing</string>
     <string name="multi_artist_info_body">
         PixelPlayer splits artist tags using character delimiters (/, ;, &amp;) and word delimiters (feat., ft., vs., x). Word delimiters are matched case-insensitively.
