@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Library:** Added a "Years" smart-category tab (after Albums) that groups songs by release year. Tapping a year opens its smart playlist with play/shuffle-all and 9 in-year sort orders (play count, release order, title, artist, album, date added, last played, rating, duration), each reversible via the direction toggle. Songs without a year are grouped under an "Unknown Year" bucket pinned to the end. Year list and in-year sort choices are persisted in DataStore and included in the in-app global-settings backup.
+- **Library:** Reorder-tabs sheet now supports long-press dragging on the whole row in addition to the drag handle.
+
 ## [0.7.5-beta] - 2026-06-13
 
 ### Added
