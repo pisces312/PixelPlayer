@@ -147,6 +147,7 @@ fun SongInfoBottomSheet(
         coverArtUpdate: CoverArtUpdate?
     ) -> Unit,
     removeFromListTrigger: () -> Unit,
+    initialPage: Int = 0,
     songInfoViewModel: SongInfoBottomSheetViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -369,7 +370,7 @@ fun SongInfoBottomSheet(
         songInfoViewModel.loadArtistsForSong(song)
     }
 
-    val pagerState = androidx.compose.foundation.pager.rememberPagerState(pageCount = { 2 })
+    val pagerState = androidx.compose.foundation.pager.rememberPagerState(initialPage = initialPage, pageCount = { 2 })
     val scope = androidx.compose.runtime.rememberCoroutineScope()
 
     val configuration = LocalConfiguration.current

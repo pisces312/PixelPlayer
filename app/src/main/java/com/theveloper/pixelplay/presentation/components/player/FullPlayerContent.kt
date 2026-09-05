@@ -146,6 +146,7 @@ import kotlin.math.roundToLong
 import com.theveloper.pixelplay.presentation.components.WavySliderExpressive
 import com.theveloper.pixelplay.presentation.components.ToggleSegmentButton
 import com.theveloper.pixelplay.presentation.components.FavoriteRatingSegment
+import com.theveloper.pixelplay.presentation.components.SongInfoBottomSheet
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
@@ -402,6 +403,11 @@ fun FullPlayerContent(
         onShowQueueClicked()
     }
 
+    val onSongTitleClick = {
+        playerViewModel.selectSongForInfo(song)
+        showSongInfoBottomSheet = true
+    }
+
     val onSongMetadataArtistClick = {
         val resolvedArtistId = currentSongArtists.firstOrNull { it.id != 0L && it.id != -1L }?.id ?: song.artistId
         if (currentSongArtists.size > 1) {
@@ -590,6 +596,7 @@ fun FullPlayerContent(
             chipColor = playerOnAccentColor.copy(alpha = 0.8f),
             chipContentColor = playerAccentColor,
             onQueueClick = onSongMetadataQueueClick,
+            onClickTitle = onSongTitleClick,
             onArtistClick = onSongMetadataArtistClick,
             isPlayingProvider = isPlayingProvider
         )
@@ -613,6 +620,7 @@ fun FullPlayerContent(
             chipColor = playerOnAccentColor.copy(alpha = 0.8f),
             chipContentColor = playerAccentColor,
             onQueueClick = onSongMetadataQueueClick,
+            onClickTitle = onSongTitleClick,
             onArtistClick = onSongMetadataArtistClick,
             isPlayingProvider = isPlayingProvider
         )
@@ -1003,6 +1011,42 @@ fun FullPlayerContent(
             }
         )
     }
+
+    if (showSongInfoBottomSheet) {
+        val selectedSongForInfo by playerViewModel.selectedSongForInfo.collectAsStateWithLifecycle()
+        val favoriteSongIds by playerViewModel.favoriteSongIds.collectAsStateWithLifecycle()
+        val infoSong = selectedSongForInfo ?: song
+        val isFav = remember(infoSong.id, favoriteSongIds) {
+            favoriteSongIds.contains(infoSong.id)
+        }
+        SongInfoBottomSheet(
+            song = infoSong,
+            isFavorite = isFav,
+            onToggleFavorite = { playerViewModel.toggleFavoriteSpecificSong(infoSong) },
+            onDismiss = { showSongInfoBottomSheet = false },
+            onPlaySong = { playerViewModel.showAndPlaySong(infoSong) },
+            onAddToQueue = { playerViewModel.addSongToQueue(infoSong) },
+            onAddNextToQueue = { playerViewModel.addSongNextToQueue(infoSong) },
+            onAddToPlayList = {},
+            onDeleteFromDevice = playerViewModel::deleteFromDevice,
+            onNavigateToAlbum = {
+                playerViewModel.triggerAlbumNavigationFromPlayer(infoSong.albumId)
+                showSongInfoBottomSheet = false
+            },
+            onNavigateToArtist = {
+                playerViewModel.triggerArtistNavigationFromPlayer(infoSong.artistId)
+                showSongInfoBottomSheet = false
+            },
+            onNavigateToArtistById = { artistId ->
+                playerViewModel.triggerArtistNavigationFromPlayer(artistId)
+                showSongInfoBottomSheet = false
+            },
+            onNavigateToGenre = {},
+            onEditSong = { _, _, _, _, _, _, _, _, _, _, _, _ -> },
+            removeFromListTrigger = {},
+            initialPage = 1
+        )
+    }
 }
 
 
@@ -1330,6 +1374,7 @@ private fun FullPlayerSongMetadataSection(
     chipColor: Color,
     chipContentColor: Color,
     onQueueClick: () -> Unit,
+    onClickTitle: () -> Unit,
     onArtistClick: () -> Unit,
     isPlayingProvider: () -> Boolean = { true }
 ) {
@@ -1375,6 +1420,7 @@ private fun FullPlayerSongMetadataSection(
             chipContentColor = chipContentColor,
             showQueueButton = isLandscape,
             onClickQueue = onQueueClick,
+            onClickTitle = onClickTitle,
             onClickArtist = onArtistClick,
             isPlayingProvider = isPlayingProvider
         )
@@ -1474,6 +1520,7 @@ private fun SongMetadataDisplaySection(
     onClickLyrics: () -> Unit,
     showQueueButton: Boolean,
     onClickQueue: () -> Unit,
+    onClickTitle: () -> Unit,
     onClickArtist: () -> Unit,
     modifier: Modifier = Modifier,
     isPlayingProvider: () -> Boolean = { true }
@@ -1496,6 +1543,7 @@ private fun SongMetadataDisplaySection(
                 artistTextColor = artistTextColor,
                 gradientEdgeColor = gradientEdgeColor,
                 playerViewModel = playerViewModel,
+                onClickTitle = onClickTitle,
                 onClickArtist = onClickArtist,
                 modifier = Modifier
                     .weight(1f)
@@ -2151,6 +2199,7 @@ private fun PlayerSongInfo(
     artistTextColor: Color,
     gradientEdgeColor: Color,
     playerViewModel: PlayerViewModel,
+    onClickTitle: () -> Unit,
     onClickArtist: () -> Unit,
     modifier: Modifier = Modifier,
     isPlayingProvider: () -> Boolean = { true }
@@ -2193,7 +2242,13 @@ private fun PlayerSongInfo(
             style = titleStyle,
             gradientEdgeColor = gradientEdgeColor,
             expansionFractionProvider = expansionFractionProvider,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .combinedClickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = { onClickTitle() }
+                ),
             canScroll = isPlayingProvider()
         )
         Spacer(modifier = Modifier.height(2.dp))
