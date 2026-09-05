@@ -1104,6 +1104,7 @@ constructor(
 
         val shouldAugmentMetadata =
                 deepScan ||
+                        raw.filePath.endsWith(".flac", true) ||
                         raw.filePath.endsWith(".wav", true) ||
                         raw.filePath.endsWith(".opus", true) ||
                         raw.filePath.endsWith(".ogg", true) ||
@@ -1113,6 +1114,7 @@ constructor(
                         // try TagLib+JAudioTagger to read actual tags from the file.
                         // MediaStore uses "<unknown>" for unreadable fields;
                         // our normalization may produce "Unknown Artist"/"Unknown Album".
+                        raw.year == 0 ||
                         isDefaultMetadata(raw.artist) ||
                         isDefaultMetadata(raw.album)
 

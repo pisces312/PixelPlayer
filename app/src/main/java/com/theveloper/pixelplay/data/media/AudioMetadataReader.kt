@@ -195,6 +195,8 @@ object AudioMetadataReader {
                 ?.substringBefore('/')?.toIntOrNull()
             val year = tag?.getFirst(FieldKey.YEAR)?.takeIf { it.isNotBlank() }
                 ?.take(4)?.toIntOrNull()
+                ?: runCatching { tag?.getFirst("DATE") }.getOrNull()?.takeIf { it.isNotBlank() }
+                ?.take(4)?.toIntOrNull()
 
             val durationMs = header?.trackLength?.takeIf { it > 0 }?.let { it * 1000L }
             val bitrate = header?.bitRateAsNumber?.takeIf { it > 0 }?.toInt()?.let { it * 1000 }
