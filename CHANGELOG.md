@@ -7,9 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.6-pisces] - 2026-09-05
+
 ### Added
 - **Library:** Added a "Years" smart-category tab (after Albums) that groups songs by release year. Tapping a year opens its smart playlist with play/shuffle-all and 9 in-year sort orders (play count, release order, title, artist, album, date added, last played, rating, duration), each reversible via the direction toggle. Songs without a year are grouped under an "Unknown Year" bucket pinned to the end. Year list and in-year sort choices are persisted in DataStore and included in the in-app global-settings backup.
 - **Library:** Reorder-tabs sheet now supports long-press dragging on the whole row in addition to the drag handle.
+- **Song Info:** Added year field to the song info detail page.
+
+### Fixed
+- **Metadata:** FLAC files now always use TagLib to read tags (previously relied on unreliable MediaStore YEAR column), fixing missing release years for FLAC tracks.
+- **Metadata:** All formats (MP3 included) fall back to TagLib when MediaStore reports year=0, so MP3 files with ID3v2 tags that MediaStore cannot parse still get correct year metadata.
+- **Metadata:** JAudioTagger fallback path now also tries the `DATE` tag name for better cross-format year coverage.
+
+### Changed
+- **Build:** Added a `minifiedDebug` build type (R8 minified + resource shrinking, debuggable) for smaller debug APKs (~92 MB vs ~185 MB).
+- **Build:** Debug launcher icon no longer has a "DBG" badge — only the red tint distinguishes it from release.
 
 ## [0.7.5-beta] - 2026-06-13
 
