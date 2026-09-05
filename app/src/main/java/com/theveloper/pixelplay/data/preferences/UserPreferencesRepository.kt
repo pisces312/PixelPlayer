@@ -111,6 +111,8 @@ class UserPreferencesRepository @Inject constructor(
         val PLAYLISTS_SORT_OPTION = stringPreferencesKey("playlists_sort_option")
         val FOLDERS_SORT_OPTION = stringPreferencesKey("folders_sort_option")
         val LIKED_SONGS_SORT_OPTION = stringPreferencesKey("liked_songs_sort_option")
+        val YEAR_BUCKETS_SORT_OPTION = stringPreferencesKey("year_buckets_sort_option")
+        val YEAR_DETAIL_SORT_OPTION = stringPreferencesKey("year_detail_sort_option")
 
         // UI state
         val LAST_LIBRARY_TAB_INDEX = intPreferencesKey("last_library_tab_index")
@@ -790,6 +792,12 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
     val likedSongsSortOptionFlow: Flow<String> =
         pref { SortOption.fromStorageKey(it[PreferencesKeys.LIKED_SONGS_SORT_OPTION], SortOption.LIKED, SortOption.LikedSongDateLiked).storageKey }
 
+    val yearBucketsSortOptionFlow: Flow<String> =
+        pref { SortOption.fromStorageKey(it[PreferencesKeys.YEAR_BUCKETS_SORT_OPTION], SortOption.YEAR_BUCKETS, SortOption.YearBucketNewest).storageKey }
+
+    val yearDetailSortOptionFlow: Flow<String> =
+        pref { SortOption.fromStorageKey(it[PreferencesKeys.YEAR_DETAIL_SORT_OPTION], SortOption.YEAR_SONGS, SortOption.YearSongPlayCount).storageKey }
+
     suspend fun setSongsSortOption(optionKey: String) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.SONGS_SORT_OPTION] = optionKey
@@ -815,6 +823,14 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
 
     suspend fun setLikedSongsSortOption(optionKey: String) {
         dataStore.edit { it[PreferencesKeys.LIKED_SONGS_SORT_OPTION] = optionKey }
+    }
+
+    suspend fun setYearBucketsSortOption(optionKey: String) {
+        dataStore.edit { it[PreferencesKeys.YEAR_BUCKETS_SORT_OPTION] = optionKey }
+    }
+
+    suspend fun setYearDetailSortOption(optionKey: String) {
+        dataStore.edit { it[PreferencesKeys.YEAR_DETAIL_SORT_OPTION] = optionKey }
     }
 
     suspend fun ensureLibrarySortDefaults() {

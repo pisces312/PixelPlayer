@@ -57,6 +57,7 @@ import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarBorder
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Event
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.*
@@ -644,6 +645,16 @@ fun SongInfoBottomSheet(
                                                 shape = infoSegmentItemShape,
                                                 onClick = onNavigateToAlbum,
                                             )
+
+                                            if (song.year > 0) {
+                                                SongInfoSegmentedListItem(
+                                                    headline = stringResource(R.string.song_info_year_label),
+                                                    supporting = song.year.toString(),
+                                                    icon = Icons.Rounded.Event,
+                                                    iconDescription = stringResource(R.string.song_info_year_label),
+                                                    shape = infoSegmentItemShape,
+                                                )
+                                            }
 
                                             SongInfoSegmentedListItem(
                                                 headline = stringResource(R.string.song_info_artist_label),

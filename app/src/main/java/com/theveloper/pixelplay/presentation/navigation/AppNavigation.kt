@@ -42,6 +42,7 @@ import com.theveloper.pixelplay.presentation.screens.EditTransitionScreen
 import com.theveloper.pixelplay.presentation.screens.EasterEggScreen
 import com.theveloper.pixelplay.presentation.screens.ExperimentalSettingsScreen
 import com.theveloper.pixelplay.presentation.screens.GenreDetailScreen
+import com.theveloper.pixelplay.presentation.screens.YearDetailScreen
 import com.theveloper.pixelplay.presentation.screens.HomeScreen
 import com.theveloper.pixelplay.presentation.screens.LibraryScreen
 import com.theveloper.pixelplay.presentation.screens.MashupScreen
@@ -349,6 +350,21 @@ fun AppNavigation(
                     }
                 } else {
                     Text(stringResource(R.string.nav_error_genre_id_missing), modifier = Modifier)
+                }
+            }
+            composable(
+                route = Screen.YearDetail.route,
+                arguments = listOf(navArgument(Screen.YearDetail.ARG_YEAR) { type = NavType.IntType }),
+            ) { backStackEntry ->
+                val year = backStackEntry.arguments?.getInt(Screen.YearDetail.ARG_YEAR)
+                if (year != null) {
+                    ScreenWrapper(navController = navController, playerViewModel = playerViewModel, animatedVisibilityScope = this) {
+                        YearDetailScreen(
+                            navController = navController,
+                            year = year,
+                            playerViewModel = playerViewModel
+                        )
+                    }
                 }
             }
             composable(

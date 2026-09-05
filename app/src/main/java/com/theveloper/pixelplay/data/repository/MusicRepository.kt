@@ -311,6 +311,25 @@ interface MusicRepository {
      */
     fun getGenres(): Flow<List<com.theveloper.pixelplay.data.model.Genre>>
 
+    /**
+     * 年份智能分类桶列表（Years tab L1）。已知年份按 [sortOption] 排序，
+     * year<=0 的「未知年份」桶（若存在）固定追加在列表末尾。
+     */
+    fun getYearBuckets(
+        sortOption: com.theveloper.pixelplay.data.model.SortOption,
+        storageFilter: com.theveloper.pixelplay.data.model.StorageFilter
+    ): Flow<List<com.theveloper.pixelplay.data.model.YearBucket>>
+
+    /**
+     * 某一年份下的全部歌曲（Year detail L2），SQL 层按 [sortOption] 排序，非分页。
+     * year = 0 表示未知年份桶。
+     */
+    fun getSongsByYear(
+        year: Int,
+        sortOption: com.theveloper.pixelplay.data.model.SortOption,
+        storageFilter: com.theveloper.pixelplay.data.model.StorageFilter
+    ): Flow<List<Song>>
+
     suspend fun getLyrics(
         song: Song,
         sourcePreference: LyricsSourcePreference = LyricsSourcePreference.EMBEDDED_FIRST,

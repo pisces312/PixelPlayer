@@ -26,9 +26,27 @@ class LibraryTabIdTest {
         )
         val order = decodeLibraryTabOrder(Json.encodeToString(storedKeys))
 
-        assertEquals(LibraryTabId.Liked, order.first(), "First entry should match stored stable key")
+        // Unknown keys are dropped and duplicates collapsed.
         assertTrue(order.containsAll(LibraryTabId.defaultOrder), "All default tabs should be present exactly once")
         assertEquals(LibraryTabId.defaultOrder.size, order.size)
+        // Relative order of the tabs present in storage is preserved (Liked before Playlists),
+        // while missing defaults are merged in at their default relative positions.
+        assertTrue(
+            order.indexOf(LibraryTabId.Liked) < order.indexOf(LibraryTabId.Playlists),
+            "Stored relative order should be preserved"
+        )
+        assertEquals(
+            listOf(
+                LibraryTabId.Songs,
+                LibraryTabId.Albums,
+                LibraryTabId.Years,
+                LibraryTabId.Artists,
+                LibraryTabId.Folders,
+                LibraryTabId.Liked,
+                LibraryTabId.Playlists
+            ),
+            order
+        )
     }
 
     @Test
@@ -50,5 +68,48 @@ class LibraryTabIdTest {
         shuffledOrder.forEach { tab ->
             assertEquals(persistedSorts[tab], persistedSorts.getValue(tab))
         }
+    }
+
+    @Test
+    fun `years tab defaults to directly after albums`() {
+        val defaultOrder = LibraryTabId.defaultOrder
+        val albumsIdx = defaultOrder.indexOf(LibraryTabId.Albums)
+        val yearsIdx = defaultOrder.indexOf(LibraryTabId.Years)
+        assertEquals(albumsIdx + 1, yearsIdx)
+    }
+
+    @Test
+    fun `legacy stored order without years gets years inserted right after albums`() {
+        // Stored order persisted by a build that predates the Years tab.
+        val legacyKeys = listOf(
+            LibraryTabId.Songs.stableKey,
+            LibraryTabId.Albums.stableKey,
+            LibraryTabId.Artists.stableKey,
+            LibraryTabId.Playlists.stableKey,
+            LibraryTabId.Folders.stableKey,
+            LibraryTabId.Liked.stableKey
+        )
+        val order = decodeLibraryTabOrder(Json.encodeToString(legacyKeys))
+
+        assertIterableEquals(
+            listOf(
+                LibraryTabId.Songs,
+                LibraryTabId.Albums,
+                LibraryTabId.Years,
+                LibraryTabId.Artists,
+                LibraryTabId.Playlists,
+                LibraryTabId.Folders,
+                LibraryTabId.Liked
+            ),
+            order
+        )
+    }
+
+    @Test
+    fun `years tab exposes newest and oldest sort options`() {
+        assertEquals(
+            listOf(SortOption.YearBucketNewest, SortOption.YearBucketOldest),
+            LibraryTabId.Years.sortOptions
+        )
     }
 }

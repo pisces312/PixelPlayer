@@ -206,7 +206,10 @@ fun ReorderTabsSheet(
                                     color = MaterialTheme.colorScheme.surfaceContainerLowest
                                 ) {
                                     Row(
-                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 18.dp),
+                                        modifier = Modifier
+                                            // 整行长按即可拖动排序；右侧手柄仍保留即时拖拽
+                                            .longPressDraggableHandle()
+                                            .padding(horizontal = 16.dp, vertical = 18.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Icon(

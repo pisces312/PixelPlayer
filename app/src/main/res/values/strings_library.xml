@@ -9,6 +9,7 @@
     <!-- Library Tab Names -->
     <string name="library_tab_songs">Songs</string>
     <string name="library_tab_albums">Albums</string>
+    <string name="library_tab_years">Years</string>
     <string name="library_tab_artists">Artists</string>
     <string name="library_tab_playlists">Playlists</string>
     <string name="library_tab_folders">Folders</string>
@@ -186,6 +187,7 @@
     <string name="song_info_duration_label">Duration</string>
     <string name="song_info_genre_label">Genre</string>
     <string name="song_info_album_label">Album</string>
+    <string name="song_info_year_label">Year</string>
     <string name="song_info_artist_label">Artist</string>
     <string name="song_info_audio_format_label">Song info</string>
     <string name="song_info_cd_provider">Provider</string>
@@ -228,6 +230,19 @@
     <string name="sort_display_fewest_subfolders">Fewest Subfolders</string>
     <string name="sort_display_most_subfolders">Most Subfolders</string>
 
+    <!-- Years smart playlist -->
+    <string name="unknown_year">Unknown Year</string>
+    <string name="library_empty_years_title">No years yet</string>
+    <string name="library_empty_years_subtitle">Songs with a known release year will be grouped here automatically.</string>
+    <string name="sort_display_year_newest">Newest First</string>
+    <string name="sort_display_year_oldest">Oldest First</string>
+    <string name="sort_display_play_count_most">Most Played</string>
+    <string name="sort_display_play_count_fewest">Least Played</string>
+    <string name="sort_display_last_played_recent">Recently Played</string>
+    <string name="sort_display_last_played_oldest">Least Recently Played</string>
+    <string name="sort_display_rating_high">Highest Rated</string>
+    <string name="sort_display_rating_low">Lowest Rated</string>
+
     <!-- Sort Option Method Labels -->
     <string name="sort_method_title">Title</string>
     <string name="sort_method_artist">Artist</string>
@@ -241,6 +256,10 @@
     <string name="sort_method_date_created">Date Created</string>
     <string name="sort_method_date_liked">Date Liked</string>
     <string name="sort_method_subfolder_count">Subfolder Count</string>
+    <string name="sort_method_year">Year</string>
+    <string name="sort_method_play_count">Play Count</string>
+    <string name="sort_method_last_played">Last Played</string>
+    <string name="sort_method_rating">Rating</string>
 
     <!-- LibrarySortBottomSheet-->
     <string name="library_sort_source">Source</string>

@@ -21,5 +21,12 @@ class LibraryViewModel @Inject constructor(
 
     val favoriteSongCountFlow = libraryStateHolder.favoriteSongCountFlow
 
+    val yearBucketsFlow = libraryStateHolder.yearBucketsFlow
+
+    val currentYearBucketSortOption = libraryStateHolder.currentYearBucketSortOption
+
+    fun sortYearBuckets(sortOption: com.theveloper.pixelplay.data.model.SortOption) =
+        libraryStateHolder.sortYearBuckets(sortOption)
+
     val isLoadingLibrary = libraryStateHolder.isLoadingLibrary
 }

@@ -48,6 +48,7 @@ import com.theveloper.pixelplay.data.model.SearchResultItem
 import com.theveloper.pixelplay.data.model.SortOption
 import com.theveloper.pixelplay.data.model.FolderSource
 import com.theveloper.pixelplay.data.model.StorageFilter
+import com.theveloper.pixelplay.data.model.YearBucket
 import com.theveloper.pixelplay.data.preferences.PlaylistPreferencesRepository
 import com.theveloper.pixelplay.data.preferences.UserPreferencesRepository
 import com.theveloper.pixelplay.ui.theme.GenreThemeUtils
@@ -929,6 +930,65 @@ class MusicRepositoryImpl @Inject constructor(
                 )
             }.flatMapLatest { it }
         }.conflate().flowOn(Dispatchers.IO)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun getYearBuckets(sortOption: SortOption, storageFilter: StorageFilter): Flow<List<YearBucket>> {
+        return combine(
+            userPreferencesRepository.allowedDirectoriesFlow,
+            userPreferencesRepository.blockedDirectoriesFlow
+        ) { allowedDirs, blockedDirs ->
+            allowedDirs to blockedDirs
+        }.flatMapLatest { (allowedDirs, blockedDirs) ->
+            val (allowedParentDirs, applyDirectoryFilter) =
+                computeAllowedDirs(allowedDirs, blockedDirs)
+            val filterMode = storageFilter.toFilterMode()
+            // 已知年份按 SQL 排序；未知年份桶（year<=0）固定追加在末尾，与升降序无关。
+            combine(
+                musicDao.getYearBuckets(
+                    allowedParentDirs = allowedParentDirs,
+                    applyDirectoryFilter = applyDirectoryFilter,
+                    filterMode = filterMode,
+                    sortOrder = sortOption.storageKey
+                ),
+                musicDao.getUnknownYearCount(
+                    allowedParentDirs = allowedParentDirs,
+                    applyDirectoryFilter = applyDirectoryFilter,
+                    filterMode = filterMode
+                )
+            ) { knownRows, unknownCount ->
+                buildList {
+                    knownRows.forEach { row -> add(YearBucket(row.year, row.songCount)) }
+                    if (unknownCount > 0) add(YearBucket(YearBucket.UNKNOWN_YEAR, unknownCount))
+                }
+            }
+        }.conflate().flowOn(Dispatchers.IO)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun getSongsByYear(
+        year: Int,
+        sortOption: SortOption,
+        storageFilter: StorageFilter
+    ): Flow<List<Song>> {
+        return combine(
+            userPreferencesRepository.allowedDirectoriesFlow,
+            userPreferencesRepository.blockedDirectoriesFlow
+        ) { allowedDirs, blockedDirs ->
+            allowedDirs to blockedDirs
+        }.flatMapLatest { (allowedDirs, blockedDirs) ->
+            val (allowedParentDirs, applyDirectoryFilter) =
+                computeAllowedDirs(allowedDirs, blockedDirs)
+            musicDao.getSongsByYear(
+                year = year,
+                allowedParentDirs = allowedParentDirs,
+                applyDirectoryFilter = applyDirectoryFilter,
+                filterMode = storageFilter.toFilterMode(),
+                sortOrder = sortOption.storageKey
+            )
+        }.map { entities ->
+            entities.map { it.toSong() }
+        }.distinctUntilChanged().conflate().flowOn(Dispatchers.IO)
     }
 
     private fun buildGenre(genreName: String): Genre {

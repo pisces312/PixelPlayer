@@ -47,6 +47,15 @@ enum class LibraryTabId(
             SortOption.AlbumDateAdded
         )
     ),
+    Years(
+        stableKey = "YEARS",
+        label = "YEARS",
+        labelRes = R.string.library_tab_years,
+        sortOptions = listOf(
+            SortOption.YearBucketNewest,
+            SortOption.YearBucketOldest
+        )
+    ),
     Artists(
         stableKey = "ARTIST",
         label = "ARTIST",
@@ -106,12 +115,26 @@ enum class LibraryTabId(
 }
 
 internal fun decodeLibraryTabOrder(orderJson: String?): List<LibraryTabId> {
-    val storedKeys = orderJson?.let {
+    val stored = orderJson?.let {
         runCatching { Json.decodeFromString<List<String>>(it) }.getOrNull()
-    } ?: emptyList()
+    } ?: return LibraryTabId.defaultOrder
 
+    val storedSet = stored.toSet()
     val ordered = LinkedHashSet<LibraryTabId>()
-    storedKeys.mapNotNull { LibraryTabId.fromStableKey(it) }.forEach { ordered.add(it) }
-    LibraryTabId.defaultOrder.forEach { ordered.add(it) }
+    var defaultCursor = 0
+    for (key in stored) {
+        val tab = LibraryTabId.fromStableKey(key) ?: continue
+        val defaultIdx = LibraryTabId.defaultOrder.indexOf(tab)
+        while (defaultCursor <= defaultIdx) {
+            val defaultTab = LibraryTabId.defaultOrder[defaultCursor]
+            if (defaultTab.stableKey !in storedSet) ordered.add(defaultTab)
+            defaultCursor++
+        }
+        ordered.add(tab)
+    }
+    while (defaultCursor < LibraryTabId.defaultOrder.size) {
+        ordered.add(LibraryTabId.defaultOrder[defaultCursor])
+        defaultCursor++
+    }
     return ordered.toList()
 }

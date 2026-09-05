@@ -177,6 +177,41 @@ private data class SortOptionsSnapshot(
     val favoriteSort: SortOption,
 )
 
+/**
+ * 默认音乐库 Tab 顺序（storageKey）。新增 Tab 时在此维护默认位置；
+ * 老用户持久化的顺序经 [mergeWithDefaultTabOrder] 合并缺失项。
+ */
+val DEFAULT_LIBRARY_TAB_ORDER: List<String> = listOf(
+    "SONGS", "ALBUMS", "YEARS", "ARTIST", "PLAYLISTS", "FOLDERS", "LIKED"
+)
+
+/**
+ * 以用户存储顺序优先，把默认顺序中缺失的 Tab（如新版本新增的 YEARS）按其默认
+ * 相对位置插入，保证老用户升级后自动可见；存储中的未知遗留 key 原样保留。
+ */
+internal fun mergeWithDefaultTabOrder(stored: List<String>?): List<String> {
+    if (stored.isNullOrEmpty()) return DEFAULT_LIBRARY_TAB_ORDER
+    val storedSet = stored.toSet()
+    val result = LinkedHashSet<String>()
+    var defaultCursor = 0
+    for (key in stored) {
+        val defaultIdx = DEFAULT_LIBRARY_TAB_ORDER.indexOf(key)
+        if (defaultIdx >= 0) {
+            while (defaultCursor <= defaultIdx) {
+                val defaultKey = DEFAULT_LIBRARY_TAB_ORDER[defaultCursor]
+                if (defaultKey !in storedSet) result.add(defaultKey)
+                defaultCursor++
+            }
+        }
+        result.add(key)
+    }
+    while (defaultCursor < DEFAULT_LIBRARY_TAB_ORDER.size) {
+        result.add(DEFAULT_LIBRARY_TAB_ORDER[defaultCursor])
+        defaultCursor++
+    }
+    return result.toList()
+}
+
 @UnstableApi
 @SuppressLint("LogNotTimber")
 @OptIn(coil.annotation.ExperimentalCoilApi::class, ExperimentalCoroutinesApi::class)
@@ -1064,17 +1099,18 @@ class PlayerViewModel @Inject constructor(
 
     val libraryTabsFlow: StateFlow<List<String>> = userPreferencesRepository.libraryTabsOrderFlow
         .map { orderJson ->
-            if (orderJson != null) {
+            val stored = orderJson?.let {
                 try {
-                    Json.decodeFromString<List<String>>(orderJson)
+                    Json.decodeFromString<List<String>>(it)
                 } catch (e: Exception) {
-                    listOf("SONGS", "ALBUMS", "ARTIST", "PLAYLISTS", "FOLDERS", "LIKED")
+                    null
                 }
-            } else {
-                listOf("SONGS", "ALBUMS", "ARTIST", "PLAYLISTS", "FOLDERS", "LIKED")
             }
+            // Merge stored order with defaults so newly introduced tabs (e.g. YEARS)
+            // appear at their default relative position for existing users.
+            mergeWithDefaultTabOrder(stored)
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), listOf("SONGS", "ALBUMS", "ARTIST", "PLAYLISTS", "FOLDERS", "LIKED"))
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DEFAULT_LIBRARY_TAB_ORDER)
 
     private val _loadedTabs = MutableStateFlow(emptySet<String>())
     private var lastBlockedDirectories: Set<String>? = null
@@ -1092,6 +1128,7 @@ class PlayerViewModel @Inject constructor(
                 when (tabId) {
                     LibraryTabId.SONGS -> SortOption.SONGS
                     LibraryTabId.ALBUMS -> SortOption.ALBUMS
+                    LibraryTabId.YEARS -> SortOption.YEAR_BUCKETS
                     LibraryTabId.ARTISTS -> SortOption.ARTISTS
                     LibraryTabId.PLAYLISTS -> SortOption.PLAYLISTS
                     LibraryTabId.FOLDERS -> SortOption.FOLDERS
@@ -1126,6 +1163,18 @@ class PlayerViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = persistentListOf()
         )
+
+    // Years smart-category buckets - delegated to LibraryStateHolder
+    val yearBuckets: StateFlow<ImmutableList<com.theveloper.pixelplay.data.model.YearBucket>> =
+        libraryStateHolder.yearBucketsFlow
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = persistentListOf()
+            )
+
+    val currentYearBucketSortOption: StateFlow<SortOption> =
+        libraryStateHolder.currentYearBucketSortOption
 
     val paletteRegenerationTargets: StateFlow<List<Song>> = musicRepository.getDistinctAlbumArtSongs()
         .stateIn(
@@ -2533,6 +2582,10 @@ class PlayerViewModel @Inject constructor(
 
     fun sortFolders(sortOption: SortOption, persist: Boolean = true) {
         libraryStateHolder.sortFolders(sortOption, persist)
+    }
+
+    fun sortYearBuckets(sortOption: SortOption, persist: Boolean = true) {
+        libraryStateHolder.sortYearBuckets(sortOption, persist)
     }
 
     fun setFoldersPlaylistView(isPlaylistView: Boolean) {

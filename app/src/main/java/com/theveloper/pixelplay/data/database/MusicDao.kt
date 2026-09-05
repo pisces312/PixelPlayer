@@ -117,6 +117,15 @@ data class MimeTypeCountRow(
     val count: Int
 )
 
+/**
+ * 年份聚合桶行（Years smart category）。
+ * [songCount] 为该年份下的歌曲数；year <= 0 的「未知年份」不走聚合，单独计数。
+ */
+data class YearBucketRow(
+    val year: Int,
+    val songCount: Int
+)
+
 @Dao
 interface MusicDao {
 
@@ -1625,6 +1634,104 @@ interface MusicDao {
         allowedParentDirs: List<String>,
         applyDirectoryFilter: Boolean
     ): Flow<Boolean>
+
+    // --- Years smart category queries ---
+
+    /**
+     * 已知年份聚合桶（year > 0），按年份新→旧 / 旧→新排序。
+     * filterMode：0=全部，1=本地（source_type=0），2=云端（source_type!=0）。
+     * 未知年份（year<=0）由 [getUnknownYearCount] 单独计数，Repository 固定追加到末尾。
+     */
+    @Query("""
+        SELECT year AS year, COUNT(*) AS songCount
+        FROM songs
+        WHERE year > 0
+        AND (:applyDirectoryFilter = 0 OR id < 0 OR parent_directory_path IN (:allowedParentDirs))
+        AND (
+            :filterMode = 0
+            OR (:filterMode = 1 AND source_type = 0)
+            OR (:filterMode = 2 AND source_type != 0)
+        )
+        GROUP BY year
+        ORDER BY
+            CASE WHEN :sortOrder = 'year_bucket_oldest' THEN year END ASC,
+            CASE WHEN :sortOrder = 'year_bucket_newest' THEN year END DESC,
+            year DESC
+    """)
+    fun getYearBuckets(
+        allowedParentDirs: List<String>,
+        applyDirectoryFilter: Boolean,
+        filterMode: Int,
+        sortOrder: String
+    ): Flow<List<YearBucketRow>>
+
+    /** 未知年份（year<=0）歌曲计数，响应式。 */
+    @Query("""
+        SELECT COUNT(*) FROM songs
+        WHERE year <= 0
+        AND (:applyDirectoryFilter = 0 OR id < 0 OR parent_directory_path IN (:allowedParentDirs))
+        AND (
+            :filterMode = 0
+            OR (:filterMode = 1 AND source_type = 0)
+            OR (:filterMode = 2 AND source_type != 0)
+        )
+    """)
+    fun getUnknownYearCount(
+        allowedParentDirs: List<String>,
+        applyDirectoryFilter: Boolean,
+        filterMode: Int
+    ): Flow<Int>
+
+    /**
+     * 某一年份下的全部歌曲（year=0 即未知年份桶），非分页、响应式。
+     * LEFT JOIN favorites / song_engagements 仅为支持评分、播放次数、最后播放排序；
+     * 两表均以歌曲为主键一对一，不会产生行数扇出。排序键见 SortOption.YEAR_SONGS。
+     */
+    @Query("""
+        SELECT """ + SONG_LIST_PROJECTION + """
+        FROM songs
+        LEFT JOIN favorites       ON songs.id = favorites.songId
+        LEFT JOIN song_engagements ON songs.id = song_engagements.song_id
+        WHERE ((:year = 0 AND songs.year <= 0) OR songs.year = :year)
+        AND (:applyDirectoryFilter = 0 OR songs.id < 0 OR songs.parent_directory_path IN (:allowedParentDirs))
+        AND (
+            :filterMode = 0
+            OR (:filterMode = 1 AND songs.source_type = 0)
+            OR (:filterMode = 2 AND songs.source_type != 0)
+        )
+        ORDER BY
+            CASE WHEN :sortOrder = 'year_song_play_count' THEN song_engagements.play_count END DESC,
+            CASE WHEN :sortOrder = 'year_song_play_count_asc' THEN song_engagements.play_count END ASC,
+            CASE WHEN :sortOrder = 'year_song_release' THEN songs.album_name END COLLATE NOCASE ASC,
+            CASE WHEN :sortOrder = 'year_song_release' THEN songs.disc_number END ASC,
+            CASE WHEN :sortOrder = 'year_song_release' THEN songs.track_number END ASC,
+            CASE WHEN :sortOrder = 'year_song_release_desc' THEN songs.album_name END COLLATE NOCASE DESC,
+            CASE WHEN :sortOrder = 'year_song_release_desc' THEN songs.disc_number END DESC,
+            CASE WHEN :sortOrder = 'year_song_release_desc' THEN songs.track_number END DESC,
+            CASE WHEN :sortOrder = 'year_song_title_az' THEN songs.title END COLLATE NOCASE ASC,
+            CASE WHEN :sortOrder = 'year_song_title_za' THEN songs.title END COLLATE NOCASE DESC,
+            CASE WHEN :sortOrder = 'year_song_artist' THEN songs.artist_name END COLLATE NOCASE ASC,
+            CASE WHEN :sortOrder = 'year_song_artist_desc' THEN songs.artist_name END COLLATE NOCASE DESC,
+            CASE WHEN :sortOrder = 'year_song_album' THEN songs.album_name END COLLATE NOCASE ASC,
+            CASE WHEN :sortOrder = 'year_song_album_desc' THEN songs.album_name END COLLATE NOCASE DESC,
+            CASE WHEN :sortOrder = 'year_song_date_added' THEN songs.date_added END DESC,
+            CASE WHEN :sortOrder = 'year_song_date_added_asc' THEN songs.date_added END ASC,
+            CASE WHEN :sortOrder = 'year_song_last_played' THEN song_engagements.last_played_timestamp END DESC,
+            CASE WHEN :sortOrder = 'year_song_last_played_asc' THEN song_engagements.last_played_timestamp END ASC,
+            CASE WHEN :sortOrder = 'year_song_rating_high' THEN favorites.rating END DESC,
+            CASE WHEN :sortOrder = 'year_song_rating_low' THEN favorites.rating END ASC,
+            CASE WHEN :sortOrder = 'year_song_duration' THEN songs.duration END DESC,
+            CASE WHEN :sortOrder = 'year_song_duration_asc' THEN songs.duration END ASC,
+            songs.title COLLATE NOCASE ASC,
+            songs.id ASC
+    """)
+    fun getSongsByYear(
+        year: Int,
+        allowedParentDirs: List<String>,
+        applyDirectoryFilter: Boolean,
+        filterMode: Int,
+        sortOrder: String
+    ): Flow<List<SongEntity>>
 
     // --- Combined Queries (Potentially useful for more complex scenarios) ---
     // E.g., Get all album art URIs from songs (could be useful for theme preloading from SSoT)

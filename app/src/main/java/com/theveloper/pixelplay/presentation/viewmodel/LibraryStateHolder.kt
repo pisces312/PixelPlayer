@@ -14,6 +14,7 @@ import com.theveloper.pixelplay.data.model.LibraryTabId
 import com.theveloper.pixelplay.data.model.MusicFolder
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.data.model.SortOption
+import com.theveloper.pixelplay.data.model.YearBucket
 import com.theveloper.pixelplay.data.preferences.UserPreferencesRepository
 import com.theveloper.pixelplay.data.repository.MusicRepository
 import kotlinx.collections.immutable.ImmutableList
@@ -122,6 +123,9 @@ class LibraryStateHolder @Inject constructor(
     private val _currentFavoriteSortOption = MutableStateFlow<SortOption>(SortOption.LikedSongDateLiked)
     val currentFavoriteSortOption = _currentFavoriteSortOption.asStateFlow()
 
+    private val _currentYearBucketSortOption = MutableStateFlow<SortOption>(SortOption.YearBucketNewest)
+    val currentYearBucketSortOption = _currentYearBucketSortOption.asStateFlow()
+
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     val albumsPagingFlow: kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Album>> =
         kotlinx.coroutines.flow.combine(
@@ -157,6 +161,17 @@ class LibraryStateHolder @Inject constructor(
     val favoriteSongCountFlow: kotlinx.coroutines.flow.Flow<Int> = effectiveStorageFilter
         .flatMapLatest { filter -> musicRepository.getFavoriteSongCountFlow(filter) }
         .flowOn(Dispatchers.IO)
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    val yearBucketsFlow: kotlinx.coroutines.flow.Flow<ImmutableList<YearBucket>> =
+        kotlinx.coroutines.flow.combine(_currentYearBucketSortOption, effectiveStorageFilter) { sort, filter ->
+            sort to filter
+        }.flatMapLatest { (sortOption, filter) ->
+            musicRepository.getYearBuckets(sortOption, filter)
+        }
+            .map { buckets -> withContext(Dispatchers.Default) { buckets.toImmutableList() } }
+            .distinctUntilChanged()
+            .flowOn(Dispatchers.IO)
 
     val genres: kotlinx.coroutines.flow.Flow<ImmutableList<com.theveloper.pixelplay.data.model.Genre>> =
         musicRepository.getGenres()
@@ -217,6 +232,9 @@ class LibraryStateHolder @Inject constructor(
 
             val likedSortKey = userPreferencesRepository.likedSongsSortOptionFlow.first()
             _currentFavoriteSortOption.value = SortOption.LIKED.find { it.storageKey == likedSortKey } ?: SortOption.LikedSongDateLiked
+
+            val yearBucketSortKey = userPreferencesRepository.yearBucketsSortOptionFlow.first()
+            _currentYearBucketSortOption.value = SortOption.YEAR_BUCKETS.find { it.storageKey == yearBucketSortKey } ?: SortOption.YearBucketNewest
 
             // Restore last storage filter (All / Cloud / Local)
             _currentStorageFilter.value = userPreferencesRepository.lastStorageFilterFlow.first()
@@ -539,6 +557,19 @@ class LibraryStateHolder @Inject constructor(
             }
             _currentFavoriteSortOption.value = sortOption
             // The actual filtering/sorting of favorites happens in ViewModel using this flow
+        }
+    }
+
+    /** Years tab L1 排序：排序下推 SQL，这里只持久化偏好并切换触发流重查。 */
+    fun sortYearBuckets(sortOption: SortOption, persist: Boolean = true) {
+        scope?.launch {
+            if (persist && _currentYearBucketSortOption.value.storageKey == sortOption.storageKey) {
+                return@launch
+            }
+            if (persist) {
+                userPreferencesRepository.setYearBucketsSortOption(sortOption.storageKey)
+            }
+            _currentYearBucketSortOption.value = sortOption
         }
     }
 

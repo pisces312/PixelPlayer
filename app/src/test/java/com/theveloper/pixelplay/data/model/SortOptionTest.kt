@@ -52,4 +52,68 @@ class SortOptionTest {
 
         assertEquals(SortOption.SongArtist, resolved)
     }
+
+    // --- Years smart playlist ---
+
+    @Test
+    fun `year bucket default sort is newest first and pair flips to oldest`() {
+        assertEquals(SortDirection.Descending, SortOption.YearBucketNewest.direction)
+        assertEquals(SortOption.YearBucketOldest, SortOption.YearBucketNewest.flipDirection())
+        assertEquals(SortOption.YearBucketNewest, SortOption.YearBucketOldest.flipDirection())
+        assertEquals(
+            SortOption.YearBucketNewest.methodKey,
+            SortOption.YearBucketOldest.methodKey
+        )
+    }
+
+    @Test
+    fun `year detail default sort is most played descending`() {
+        assertEquals(SortOption.YearSongPlayCount, SortOption.YEAR_SONGS.first())
+        assertEquals(SortDirection.Descending, SortOption.YearSongPlayCount.direction)
+    }
+
+    @Test
+    fun `every year detail sort method forms an asc desc flip pair`() {
+        val pairs = listOf(
+            SortOption.YearSongPlayCount to SortOption.YearSongPlayCountAsc,
+            SortOption.YearSongRelease to SortOption.YearSongReleaseDesc,
+            SortOption.YearSongTitleAZ to SortOption.YearSongTitleZA,
+            SortOption.YearSongArtist to SortOption.YearSongArtistDesc,
+            SortOption.YearSongAlbum to SortOption.YearSongAlbumDesc,
+            SortOption.YearSongDateAdded to SortOption.YearSongDateAddedAsc,
+            SortOption.YearSongLastPlayed to SortOption.YearSongLastPlayedAsc,
+            SortOption.YearSongRatingHigh to SortOption.YearSongRatingLow,
+            SortOption.YearSongDuration to SortOption.YearSongDurationAsc
+        )
+        assertEquals(9, pairs.size)
+        pairs.forEach { (ascOrDefault, counterpart) ->
+            assertEquals(counterpart, ascOrDefault.flipDirection())
+            assertEquals(ascOrDefault, counterpart.flipDirection())
+            assertEquals(ascOrDefault.methodKey, counterpart.methodKey)
+        }
+    }
+
+    @Test
+    fun `year detail sort sheet exposes exactly nine distinct methods`() {
+        val distinctMethods = SortOption.YEAR_SONGS.map { it.methodKey }.distinct()
+        assertEquals(9, distinctMethods.size)
+        assertEquals(18, SortOption.YEAR_SONGS.size)
+    }
+
+    @Test
+    fun `unknown year detail storage key falls back to default`() {
+        val resolved = SortOption.fromStorageKey(
+            rawValue = "year_song_does_not_exist",
+            allowed = SortOption.YEAR_SONGS,
+            fallback = SortOption.YearSongPlayCount
+        )
+        assertEquals(SortOption.YearSongPlayCount, resolved)
+    }
+
+    @Test
+    fun `year bucket model flags unknown year`() {
+        assertEquals(0, YearBucket.UNKNOWN_YEAR)
+        assertEquals(true, YearBucket(YearBucket.UNKNOWN_YEAR, 3).isUnknown)
+        assertEquals(false, YearBucket(2012, 10).isUnknown)
+    }
 }

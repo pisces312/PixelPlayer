@@ -9,6 +9,7 @@
     <!-- Library Tab Names -->
     <string name="library_tab_songs">歌曲</string>
     <string name="library_tab_albums">专辑</string>
+    <string name="library_tab_years">年份</string>
     <string name="library_tab_artists">艺术家</string>
     <string name="library_tab_playlists">播放列表</string>
     <string name="library_tab_folders">文件夹</string>
@@ -228,6 +229,19 @@
     <string name="sort_display_fewest_subfolders">子文件夹最少</string>
     <string name="sort_display_most_subfolders">子文件夹最多</string>
 
+    <!-- Years smart playlist -->
+    <string name="unknown_year">未知年份</string>
+    <string name="library_empty_years_title">暂无年份</string>
+    <string name="library_empty_years_subtitle">带有发行年份的歌曲会自动按年份分组到这里。</string>
+    <string name="sort_display_year_newest">最新优先</string>
+    <string name="sort_display_year_oldest">最早优先</string>
+    <string name="sort_display_play_count_most">播放最多</string>
+    <string name="sort_display_play_count_fewest">播放最少</string>
+    <string name="sort_display_last_played_recent">最近播放</string>
+    <string name="sort_display_last_played_oldest">最久未播</string>
+    <string name="sort_display_rating_high">评分最高</string>
+    <string name="sort_display_rating_low">评分最低</string>
+
     <!-- Sort Option Method Labels -->
     <string name="sort_method_title">标题</string>
     <string name="sort_method_artist">艺术家</string>
@@ -241,6 +255,10 @@
     <string name="sort_method_date_created">创建时间</string>
     <string name="sort_method_date_liked">收藏时间</string>
     <string name="sort_method_subfolder_count">子文件夹数量</string>
+    <string name="sort_method_year">年份</string>
+    <string name="sort_method_play_count">播放次数</string>
+    <string name="sort_method_last_played">最后播放</string>
+    <string name="sort_method_rating">评分</string>
 
     <!-- LibrarySortBottomSheet-->
     <string name="library_sort_source">来源</string>

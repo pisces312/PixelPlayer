@@ -26,6 +26,10 @@ sealed class Screen(val route: String) {
     object GenreDetail : Screen("genre_detail/{genreId}") { // New screen
         fun createRoute(genreId: String) = "genre_detail/$genreId"
     }
+    object YearDetail : Screen("year_detail/{year}") {
+        const val ARG_YEAR = "year"
+        fun createRoute(year: Int) = "year_detail/$year"
+    }
     object DJSpace : Screen("dj_space")
     // La ruta base es "album_detail". La ruta completa con el argumento se define en AppNavigation.
     object AlbumDetail : Screen("album_detail/{albumId}") {

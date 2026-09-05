@@ -692,7 +692,8 @@ fun LibraryScreen(
                 LibraryTabId.SONGS,
                 LibraryTabId.LIKED,
                 LibraryTabId.FOLDERS -> isSelectionMode
-                LibraryTabId.ARTISTS -> false
+                LibraryTabId.ARTISTS,
+                LibraryTabId.YEARS -> false
             }
         }
     }
@@ -727,7 +728,8 @@ fun LibraryScreen(
                         showMultiSelectionSheet = false
                     }
 
-                    LibraryTabId.ARTISTS -> Unit
+                    LibraryTabId.ARTISTS,
+                    LibraryTabId.YEARS -> Unit
                 }
             }
 
@@ -1040,6 +1042,7 @@ fun LibraryScreen(
                     Column(Modifier.fillMaxSize()) {
                         // OPTIMIZACIÓN: La lógica de ordenamiento ahora es más eficiente.
                         val availableSortOptions by playerViewModel.availableSortOptions.collectAsStateWithLifecycle()
+                        val currentYearBucketSortOption by playerViewModel.currentYearBucketSortOption.collectAsStateWithLifecycle()
                         val sanitizedSortOptions = remember(availableSortOptions, currentTabId) {
                             val cleaned = availableSortOptions.filterIsInstance<SortOption>()
                             val ensured = if (cleaned.any { option ->
@@ -1138,6 +1141,7 @@ fun LibraryScreen(
                             LibraryTabId.PLAYLISTS -> playlistUiState.currentPlaylistSortOption
                             LibraryTabId.LIKED -> playerUiState.currentFavoriteSortOption
                             LibraryTabId.FOLDERS -> playerUiState.currentFolderSortOption
+                            LibraryTabId.YEARS -> currentYearBucketSortOption
                         }
 
                         val showLocateButton = when (currentTabId) {
@@ -1162,6 +1166,7 @@ fun LibraryScreen(
                                     LibraryTabId.PLAYLISTS -> playlistViewModel.sortPlaylists(option)
                                     LibraryTabId.LIKED -> playerViewModel.sortFavoriteSongs(option)
                                     LibraryTabId.FOLDERS -> playerViewModel.sortFolders(option)
+                                    LibraryTabId.YEARS -> playerViewModel.sortYearBuckets(option)
                                 }
                             }
                         }
@@ -1563,6 +1568,17 @@ fun LibraryScreen(
                                             onAlbumLongPress = onAlbumLongPress,
                                             onAlbumSelectionToggle = onAlbumSelectionToggle,
                                             getSelectionIndex = getAlbumSelectionIndex,
+                                            storageFilter = playerUiState.currentStorageFilter
+                                        )
+                                    }
+
+                                    LibraryTabId.YEARS -> {
+                                        YearsTabContent(
+                                            playerViewModel = playerViewModel,
+                                            navController = navController,
+                                            bottomBarHeight = bottomBarHeightDp,
+                                            isRefreshing = isRefreshing,
+                                            onRefresh = onRefresh,
                                             storageFilter = playerUiState.currentStorageFilter
                                         )
                                     }
@@ -2804,6 +2820,7 @@ private fun targetPageForTabIndex(
 private fun LibraryTabId.iconRes(): Int = when (this) {
     LibraryTabId.SONGS -> R.drawable.rounded_music_note_24
     LibraryTabId.ALBUMS -> R.drawable.rounded_album_24
+    LibraryTabId.YEARS -> R.drawable.rounded_calendar_view_week_24
     LibraryTabId.ARTISTS -> R.drawable.rounded_artist_24
     LibraryTabId.PLAYLISTS -> R.drawable.rounded_playlist_play_24
     LibraryTabId.FOLDERS -> R.drawable.rounded_folder_24

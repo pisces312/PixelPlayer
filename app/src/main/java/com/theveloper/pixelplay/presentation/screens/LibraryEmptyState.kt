@@ -75,6 +75,12 @@ private fun libraryEmptySpec(
             )
         }
 
+        LibraryTabId.YEARS -> LibraryEmptySpec(
+            iconRes = R.drawable.rounded_calendar_view_week_24,
+            titleRes = R.string.library_empty_years_title,
+            subtitleRes = R.string.library_empty_years_subtitle
+        )
+
         LibraryTabId.ARTISTS -> when (storageFilter) {
             StorageFilter.ALL -> LibraryEmptySpec(
                 iconRes = R.drawable.rounded_artist_24,
