@@ -142,6 +142,18 @@ android {
             )
         }
 
+        create("minifiedDebug") {
+            initWith(getByName("debug"))
+            matchingFallbacks += listOf("debug")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            isDebuggable = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+
         create("benchmark") {
             initWith(getByName("release"))
             matchingFallbacks += listOf("release")

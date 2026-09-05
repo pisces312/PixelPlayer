@@ -74,6 +74,9 @@
 # Debug
 .\gradlew.bat assembleDebug --no-daemon "-Ppixelplay.enableAbiSplits=true"
 
+# Minified Debug（R8 混淆 + 资源压缩，体积 ~92MB vs debug ~185MB，可调试）
+.\gradlew.bat assembleMinifiedDebug --no-daemon "-Ppixelplay.enableAbiSplits=true"
+
 # Release (签名)
 $env:JAVA_HOME="D:\dev\AndroidStudio\jbr"
 $env:GRADLE_USER_HOME="D:\dev\.gradle"
@@ -86,7 +89,8 @@ $env:GRADLE_USER_HOME="D:\dev\.gradle"
 | 官方 release | 62MB | 3 | 1901 | R8 混淆 + shrinkResources |
 | 我们 release (无混淆) | 147MB | 9 | 3241 | minify/shrink 关闭 |
 | 我们 release (开混淆) | ~65MB (预期) | ~3 | ~1900 | R8 + shrinkResources |
-| 我们 debug | 178MB | 9 | 3241 | 无混淆 + debug 信息 |
+| 我们 debug | 185MB | 9 | 3241 | 无混淆 + debug 信息 |
+| 我们 minifiedDebug | 92MB | ~4 | ~2000 | R8 混淆 + shrinkResources，可调试 |
 
 ## 改动文件清单 (相对官方源码)
 1. settings.gradle.kts - 加阿里云镜像

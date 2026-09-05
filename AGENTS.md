@@ -15,6 +15,9 @@ PixelPlayer 是 Android 音乐播放器（100% Kotlin，Jetpack Compose + Materi
 # Debug 手机端 APK（默认仅 arm64-v8a 拆分）
 .\gradlew.bat :app:assembleDebug "-Ppixelplay.enableAbiSplits=true"
 
+# Minified Debug（R8 混淆 + 资源压缩，体积约为普通 debug 的一半，可调试）
+.\gradlew.bat :app:assembleMinifiedDebug "-Ppixelplay.enableAbiSplits=true"
+
 # Release（需先设置签名环境变量，见「关键约束」）
 .\gradlew.bat :app:assembleRelease "-Ppixelplay.enableAbiSplits=true"
 
