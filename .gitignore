@@ -40,6 +40,7 @@ CLAUDE.md
 markdown.xml
 .vscode/
 .agents/
+.workbuddy/
 
 # Node/tooling dependencies and local env files
 **/node_modules/
