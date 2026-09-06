@@ -545,6 +545,7 @@
     <string name="artist_detail_not_found">Could not find the artist</string>
 
     <!-- SongRemovalStateHolder -->
+    <string name="song_removal_protection_mode_blocked">Deletion is blocked in protection mode.</string>
     <string name="song_removal_cannot_delete_currently_playing">Cannot delete currently playing song</string>
     <string name="song_removal_batch_delete_files_deleted_skipped_format">%1$d files deleted (%2$d skipped - playing)</string>
     <string name="song_removal_batch_delete_partial_format">%1$d of %2$d files deleted</string>

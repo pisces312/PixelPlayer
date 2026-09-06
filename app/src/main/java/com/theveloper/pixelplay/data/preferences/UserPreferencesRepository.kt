@@ -249,6 +249,7 @@ class UserPreferencesRepository @Inject constructor(
         val REPLAYGAIN_USE_ALBUM_GAIN = booleanPreferencesKey("replaygain_use_album_gain")
         val PAUSE_ON_VOLUME_ZERO = booleanPreferencesKey("pause_on_volume_zero")
         val SHOW_SCROLLBAR = booleanPreferencesKey("show_scrollbar")
+        val SONG_DELETION_ENABLED = booleanPreferencesKey("song_deletion_enabled")
     }
 
     // ─── Private helpers ─────────────────────────────────────────────────────
@@ -770,6 +771,19 @@ suspend fun markDirectoryRulesVersionApplied(version: Int) {
     suspend fun setShowScrollbar(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHOW_SCROLLBAR] = enabled
+        }
+    }
+
+    // ─── Song deletion protection ───────────────────────────────────────────
+
+    val songDeletionEnabledFlow: Flow<Boolean> =
+        dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.SONG_DELETION_ENABLED] ?: true
+        }
+
+    suspend fun setSongDeletionEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SONG_DELETION_ENABLED] = enabled
         }
     }
 

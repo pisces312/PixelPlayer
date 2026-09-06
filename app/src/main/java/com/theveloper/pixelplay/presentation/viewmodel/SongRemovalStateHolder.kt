@@ -6,6 +6,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.theveloper.pixelplay.R
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.data.preferences.PlaylistPreferencesRepository
+import com.theveloper.pixelplay.data.preferences.UserPreferencesRepository
 import com.theveloper.pixelplay.data.repository.MusicRepository
 import com.theveloper.pixelplay.utils.MediaStorePermissionHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -18,6 +19,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -40,6 +42,7 @@ class SongRemovalStateHolder @Inject constructor(
     private val musicRepository: MusicRepository,
     private val metadataEditStateHolder: MetadataEditStateHolder,
     private val playlistPreferencesRepository: PlaylistPreferencesRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
     private val libraryStateHolder: LibraryStateHolder,
     private val playbackStateHolder: PlaybackStateHolder,
     private val multiSelectionStateHolder: MultiSelectionStateHolder,
@@ -121,6 +124,13 @@ class SongRemovalStateHolder @Inject constructor(
         cb: SongRemovalCallbacks,
     ) {
         cb.scope.launch {
+            // 保护模式：禁止从设备删除歌曲
+            if (!userPreferencesRepository.songDeletionEnabledFlow.first()) {
+                cb.sendToast(context.getString(R.string.song_removal_protection_mode_blocked))
+                onComplete()
+                return@launch
+            }
+
             // Filter out currently playing song
             val currentSongId = playbackStateHolder.stablePlayerState.value.currentSong?.id
             val deletableSongs = songs.filter { it.id != currentSongId }
@@ -261,6 +271,13 @@ class SongRemovalStateHolder @Inject constructor(
         cb: SongRemovalCallbacks,
     ) {
         cb.scope.launch {
+            // 保护模式：禁止从设备删除歌曲
+            if (!userPreferencesRepository.songDeletionEnabledFlow.first()) {
+                cb.sendToast(context.getString(R.string.song_removal_protection_mode_blocked))
+                onResult(false)
+                return@launch
+            }
+
             // Failsafe: Prevent deleting the currently playing song
             if (playbackStateHolder.stablePlayerState.value.currentSong?.id == song.id) {
                 cb.sendToast(context.getString(R.string.song_removal_cannot_delete_currently_playing))

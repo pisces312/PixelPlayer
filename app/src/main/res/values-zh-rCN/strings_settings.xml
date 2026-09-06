@@ -40,6 +40,9 @@
     <string name="settings_excluded_directories_subtitle">扫描媒体库时将跳过此处的文件夹。</string>
     <string name="settings_artists_title">艺术家</string>
     <string name="settings_artists_subtitle">多艺术家解析和整理选项。</string>
+    <string name="settings_delete_protection_section">删除保护</string>
+    <string name="settings_allow_delete_songs_title">允许删除歌曲</string>
+    <string name="settings_allow_delete_songs_subtitle">关闭后进入保护模式，禁止从设备删除歌曲，避免误触。</string>
     <string name="settings_filtering_section">过滤</string>
     <string name="settings_min_song_duration">最小歌曲时长</string>
     <string name="settings_min_tracks_per_album">每张专辑最少曲目数</string>
