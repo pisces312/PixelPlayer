@@ -580,7 +580,10 @@ class MusicService : MediaLibraryService() {
                     return MediaSession.ConnectionResult.reject()
                 }
 
-                val defaultResult = super.onConnect(session, controller)
+                // Media3 1.11.0: 默认 onConnect 现返回空命令集 + "未实现"标记；改用
+                // AcceptedResultBuilder(session, controller) 按 isTrusted() 取回默认命令集，
+                // 与 1.10.1 的 super.onConnect() 语义等价（否则控制器拿不到 play/pause 命令）。
+                val defaultResult = MediaSession.ConnectionResult.AcceptedResultBuilder(session, controller).build()
                 val customCommands = listOf(
                     MusicNotificationProvider.CUSTOM_COMMAND_CLOSE_PLAYER,
                     MusicNotificationProvider.CUSTOM_COMMAND_LIKE,
