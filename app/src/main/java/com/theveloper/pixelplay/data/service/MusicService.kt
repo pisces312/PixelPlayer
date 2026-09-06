@@ -58,6 +58,7 @@ import com.theveloper.pixelplay.data.service.player.TransitionController
 import com.theveloper.pixelplay.ui.glancewidget.PlayerActions
 import com.theveloper.pixelplay.utils.AlbumArtUtils
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -1654,9 +1655,11 @@ class MusicService : MediaLibraryService() {
     private suspend fun persistPlaybackSnapshot(playWhenReadyOverride: Boolean? = null) {
         if (isRestoringPlaybackSnapshot) return
         val snapshot = capturePlaybackSnapshot(playWhenReadyOverride)
-        runCatching {
+        try {
             userPreferencesRepository.setPlaybackQueueSnapshot(snapshot)
-        }.onFailure { e ->
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
             Timber.tag(TAG).w(e, "Failed to persist playback snapshot")
         }
     }
@@ -2550,9 +2553,11 @@ class MusicService : MediaLibraryService() {
     private fun writePlaybackSnapshotOnUnload(snapshot: PlaybackQueueSnapshot?) {
         playbackSnapshotUnloadWriteJob?.cancel()
         playbackSnapshotUnloadWriteJob = appScope.launch {
-            runCatching {
+            try {
                 userPreferencesRepository.setPlaybackQueueSnapshot(snapshot)
-            }.onFailure { e ->
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
                 Timber.tag(TAG).w(e, "Failed to persist playback snapshot during unload")
             }
         }
