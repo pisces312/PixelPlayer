@@ -40,6 +40,9 @@
     <string name="settings_excluded_directories_subtitle">Folders here will be skipped when scanning your library.</string>
     <string name="settings_artists_title">Artists</string>
     <string name="settings_artists_subtitle">Multi-artist parsing and organization options.</string>
+    <string name="settings_delete_protection_section">Delete Protection</string>
+    <string name="settings_allow_delete_songs_title">Allow deleting songs</string>
+    <string name="settings_allow_delete_songs_subtitle">When disabled, deleting songs from your device is blocked to prevent accidental removal.</string>
     <string name="settings_filtering_section">Filtering</string>
     <string name="settings_min_song_duration">Minimum Song Duration</string>
     <string name="settings_min_tracks_per_album">Minimum Tracks per Album</string>

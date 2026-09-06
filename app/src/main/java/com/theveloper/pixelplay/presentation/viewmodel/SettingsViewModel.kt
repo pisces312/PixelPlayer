@@ -117,7 +117,8 @@ data class SettingsUiState(
     val replayGainEnabled: Boolean = false,
     val replayGainUseAlbumGain: Boolean = false,
     val isSafeTokenLimitEnabled: Boolean = true,
-    val showScrollbar: Boolean = true
+    val showScrollbar: Boolean = true,
+    val songDeletionEnabled: Boolean = true
 )
 
 data class FailedSongInfo(
@@ -802,6 +803,12 @@ class SettingsViewModel @Inject constructor(
                 _uiState.update { it.copy(isSafeTokenLimitEnabled = enabled) }
             }
         }
+
+        viewModelScope.launch {
+            userPreferencesRepository.songDeletionEnabledFlow.collect { enabled ->
+                _uiState.update { it.copy(songDeletionEnabled = enabled) }
+            }
+        }
     }
 
     fun setAppRebrandDialogShown(wasShown: Boolean) {
@@ -955,6 +962,12 @@ class SettingsViewModel @Inject constructor(
     fun setShowScrollbar(enabled: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setShowScrollbar(enabled)
+        }
+    }
+
+    fun setSongDeletionEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setSongDeletionEnabled(enabled)
         }
     }
 

@@ -445,6 +445,16 @@ fun SettingsCategoryScreen(
                                 )
                             }
 
+                            SettingsSubsection(title = stringResource(R.string.settings_delete_protection_section)) {
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.settings_allow_delete_songs_title),
+                                    subtitle = stringResource(R.string.settings_allow_delete_songs_subtitle),
+                                    checked = uiState.songDeletionEnabled,
+                                    onCheckedChange = { settingsViewModel.setSongDeletionEnabled(it) },
+                                    leadingIcon = { Icon(Icons.Rounded.Delete, null, tint = MaterialTheme.colorScheme.secondary) }
+                                )
+                            }
+
                             SettingsSubsection(title = stringResource(R.string.settings_filtering_section)) {
                                 SliderSettingsItem(
                                     label = stringResource(R.string.settings_min_song_duration),

@@ -187,6 +187,7 @@
     <string name="song_info_duration_label">时长</string>
     <string name="song_info_genre_label">流派</string>
     <string name="song_info_album_label">专辑</string>
+    <string name="song_info_year_label">年份</string>
     <string name="song_info_artist_label">艺术家</string>
     <string name="song_info_audio_format_label">歌曲信息</string>
     <string name="song_info_cd_provider">提供商</string>
@@ -544,6 +545,7 @@
     <string name="artist_detail_not_found">找不到该艺术家</string>
 
     <!-- SongRemovalStateHolder -->
+    <string name="song_removal_protection_mode_blocked">当前是保护模式，不允许删除</string>
     <string name="song_removal_cannot_delete_currently_playing">无法删除当前正在播放的歌曲</string>
     <string name="song_removal_batch_delete_files_deleted_skipped_format">删除了 %1$d 个文件（跳过了 %2$d 个 - 正在播放）</string>
     <string name="song_removal_batch_delete_partial_format">删除了 %1$d 个（共 %2$d 个）文件</string>
