@@ -68,6 +68,12 @@ val copyThirdPartyNotices = tasks.register<CopyThirdPartyNotices>("copyThirdPart
     outputDirectory.set(generatedNoticesAssets)
 }
 
+val generatedChangelogAssets = layout.buildDirectory.dir("generated/assets/changelog")
+val copyChangelog = tasks.register<CopyThirdPartyNotices>("copyChangelog") {
+    sourceFile.set(rootProject.layout.projectDirectory.file("CHANGELOG.md"))
+    outputDirectory.set(generatedChangelogAssets)
+}
+
 @Suppress("DEPRECATION")
 android {
     namespace = "com.theveloper.pixelplay"
@@ -203,6 +209,10 @@ androidComponents {
     onVariants(selector().all()) { variant ->
         variant.sources.assets?.addGeneratedSourceDirectory(
             copyThirdPartyNotices,
+            CopyThirdPartyNotices::outputDirectory,
+        )
+        variant.sources.assets?.addGeneratedSourceDirectory(
+            copyChangelog,
             CopyThirdPartyNotices::outputDirectory,
         )
     }

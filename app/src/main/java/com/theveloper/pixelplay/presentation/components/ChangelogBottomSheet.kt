@@ -3,7 +3,6 @@ package com.theveloper.pixelplay.presentation.components
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import androidx.annotation.ArrayRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,13 +27,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.LinkAnnotation
@@ -48,82 +48,19 @@ import com.theveloper.pixelplay.R
 import com.theveloper.pixelplay.presentation.components.subcomps.SineWaveLine
 import com.theveloper.pixelplay.ui.theme.ExpTitleTypography
 import com.theveloper.pixelplay.ui.theme.GoogleSansRounded
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 
 data class ChangelogSection(
     @StringRes val titleRes: Int,
-    @ArrayRes val itemsRes: Int
+    val items: List<String>
 )
 
 data class ChangelogVersion(
     val version: String,
     val date: String,
     val sections: List<ChangelogSection>
-)
-
-@Composable
-private fun changelogVersions(): List<ChangelogVersion> = listOf(
-    ChangelogVersion(
-        version = "0.7.5-beta",
-        date = "2026-06-13",
-        sections = listOf(
-            ChangelogSection(R.string.changelog_sec_whats_new, R.array.changelog_075_whats_new),
-            ChangelogSection(R.string.changelog_sec_improvements, R.array.changelog_075_improvements),
-            ChangelogSection(R.string.changelog_sec_fixes, R.array.changelog_075_fixes)
-        )
-    ),
-    ChangelogVersion(
-        version = "0.7.0-beta",
-        date = "2026-05-25",
-        sections = listOf(
-            ChangelogSection(R.string.changelog_sec_whats_new, R.array.changelog_070_whats_new),
-            ChangelogSection(R.string.changelog_sec_improvements, R.array.changelog_070_improvements),
-            ChangelogSection(R.string.changelog_sec_fixes, R.array.changelog_070_fixes),
-            ChangelogSection(R.string.changelog_sec_added, R.array.changelog_070_added)
-        )
-    ),
-    ChangelogVersion(
-        version = "0.6.0-beta",
-        date = "2026-03-05",
-        sections = listOf(
-            ChangelogSection(R.string.changelog_sec_whats_new, R.array.changelog_060_whats_new),
-            ChangelogSection(R.string.changelog_sec_improvements, R.array.changelog_060_improvements),
-            ChangelogSection(R.string.changelog_sec_fixes, R.array.changelog_060_fixes)
-        )
-    ),
-    ChangelogVersion(
-        version = "0.5.0-beta",
-        date = "2026-01-14",
-        sections = listOf(
-            ChangelogSection(R.string.changelog_sec_improvements, R.array.changelog_050_improvements),
-            ChangelogSection(R.string.changelog_sec_fixes, R.array.changelog_050_fixes)
-        )
-    ),
-    ChangelogVersion(
-        version = "0.4.0-beta",
-        date = "2025-12-15",
-        sections = listOf(
-            ChangelogSection(R.string.changelog_sec_improvements, R.array.changelog_040_improvements)
-        )
-    ),
-    ChangelogVersion(
-        version = "0.3.0-beta",
-        date = "2025-10-28",
-        sections = listOf(
-            ChangelogSection(R.string.changelog_sec_whats_new, R.array.changelog_030_whats_new),
-            ChangelogSection(R.string.changelog_sec_improvements, R.array.changelog_030_improvements),
-            ChangelogSection(R.string.changelog_sec_fixes, R.array.changelog_030_fixes)
-        )
-    ),
-    ChangelogVersion(
-        version = "0.2.0-beta",
-        date = "2024-09-15",
-        sections = listOf(
-            ChangelogSection(R.string.changelog_sec_added, R.array.changelog_020_added),
-            ChangelogSection(R.string.changelog_sec_improvements, R.array.changelog_020_improvements),
-            ChangelogSection(R.string.changelog_sec_fixes, R.array.changelog_020_fixes)
-        )
-    )
 )
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -133,7 +70,13 @@ fun ChangelogBottomSheet(
 ) {
     val context = LocalContext.current
     val changelogUrl = "https://github.com/theovilardo/PixelPlayer/blob/master/CHANGELOG.md"
-    val changelog = changelogVersions()
+    val changelog by produceState(initialValue = emptyList<ChangelogVersion>()) {
+        value = withContext(Dispatchers.IO) {
+            runCatching {
+                context.assets.open("CHANGELOG.md").bufferedReader().use { it.readText() }
+            }.getOrNull()?.let(ChangelogParser::parse) ?: emptyList()
+        }
+    }
 
     val fabCornerRadius = 16.dp
 
@@ -253,7 +196,7 @@ fun ChangelogVersionItem(version: ChangelogVersion) {
 
 @Composable
 fun ChangelogCategory(section: ChangelogSection) {
-    val items = stringArrayResource(section.itemsRes).toList()
+    val items = section.items
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,

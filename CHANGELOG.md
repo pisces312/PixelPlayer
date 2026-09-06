@@ -5,10 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.7.7-pisces] - 2026-09-06
+
+### Added
+- **Audio:** Added an audio decoder inventory card to the device capabilities page, listing every platform audio decoder exposed by MediaCodecList.
+- **Playback:** Hardware-first decoder ordering in the dual-player engine; the bitrate capsule on the player screen now alternates between the active decoder name and its HW/SW tag.
+- **Library:** Added a song deletion protection mode (settings toggle plus deletion interception).
 
 ### Changed
 - **Build:** Upgraded Media3 (exoplayer, session, ui, transformer, exoplayer-midi) from 1.10.1 to 1.11.0, bringing dynamic scheduling by default, MP4 chapter parsing, and session threading fixes.
+- **Changelog:** The in-app changelog now reads CHANGELOG.md at runtime instead of hardcoded localized entries, so it stays in sync with the repository.
+
+### Fixed
+- **Session:** Fixed a Media3 1.11.0 regression where the default `onConnect` returned an empty command set, breaking pause/play and the mini player.
+- **Persistence:** Playback snapshot persistence no longer logs a spurious "failed to persist" warning when the debounce job is cancelled normally.
 
 ## [0.7.6-pisces] - 2026-09-05
 
