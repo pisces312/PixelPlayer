@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Build:** Upgraded Media3 (exoplayer, session, ui, transformer, exoplayer-midi) from 1.10.1 to 1.11.0, bringing dynamic scheduling by default, MP4 chapter parsing, and session threading fixes.
+
 ## [0.7.6-pisces] - 2026-09-05
 
 ### Added
