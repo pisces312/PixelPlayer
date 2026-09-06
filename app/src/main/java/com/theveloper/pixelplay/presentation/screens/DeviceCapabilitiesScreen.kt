@@ -96,6 +96,7 @@ import com.theveloper.pixelplay.presentation.components.CollapsibleCommonTopBar
 import com.theveloper.pixelplay.presentation.components.MiniPlayerHeight
 import com.theveloper.pixelplay.presentation.viewmodel.AudioCapabilities
 import com.theveloper.pixelplay.presentation.viewmodel.AudioOutputCategory
+import com.theveloper.pixelplay.presentation.viewmodel.CodecInfo
 import com.theveloper.pixelplay.presentation.viewmodel.DeviceCapabilitiesState
 import com.theveloper.pixelplay.presentation.viewmodel.DeviceCapabilitiesViewModel
 import com.theveloper.pixelplay.presentation.viewmodel.ExoPlayerInfo
@@ -289,6 +290,12 @@ private fun DeviceCapabilitiesContent(
                 onMarkLagNow = onMarkLagNow
             )
         }
+
+        state.audioCapabilities?.let { audio ->
+            item {
+                FullCodecListCard(codecs = audio.supportedCodecs)
+            }
+        }
     }
 }
 
@@ -421,6 +428,100 @@ private fun PerformanceReportCard(
                             .verticalScroll(rememberScrollState())
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FullCodecListCard(
+    codecs: List<CodecInfo>,
+    modifier: Modifier = Modifier
+) {
+    val hardwareCodecs = codecs.filter { it.isHardwareAccelerated }
+    val softwareCodecs = codecs.filter { !it.isHardwareAccelerated }
+
+    CapabilityCard(
+        title = "音频解码器清单 (${codecs.size})",
+        icon = Icons.Rounded.Memory,
+        modifier = modifier
+    ) {
+        if (hardwareCodecs.isNotEmpty()) {
+            CodecGroup(title = "硬件解码 (${hardwareCodecs.size})", codecs = hardwareCodecs)
+        }
+        if (softwareCodecs.isNotEmpty()) {
+            if (hardwareCodecs.isNotEmpty()) Spacer(Modifier.height(10.dp))
+            CodecGroup(title = "软件解码 (${softwareCodecs.size})", codecs = softwareCodecs)
+        }
+    }
+}
+
+@Composable
+private fun CodecGroup(title: String, codecs: List<CodecInfo>) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.onSurface
+    )
+    Spacer(Modifier.height(6.dp))
+    codecs.forEachIndexed { index, codec ->
+        CodecRow(codec = codec)
+        if (index < codecs.size - 1) Spacer(Modifier.height(5.dp))
+    }
+}
+
+@Composable
+private fun CodecRow(codec: CodecInfo) {
+    Surface(
+        shape = AbsoluteSmoothCornerShape(14.dp, 60),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(10.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = codec.name,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                val tag = if (codec.isHardwareAccelerated) "HW" else "SW"
+                val tagColor = if (codec.isHardwareAccelerated)
+                    MaterialTheme.colorScheme.primary
+                else
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                Surface(
+                    shape = AbsoluteSmoothCornerShape(8.dp, 60),
+                    color = tagColor.copy(alpha = 0.15f)
+                ) {
+                    Text(
+                        text = tag,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = tagColor,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
+            }
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = codec.supportedTypes.joinToString("  ·  "),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (codec.maxSupportedInstances > 0) {
+                Text(
+                    text = "最大实例: ${codec.maxSupportedInstances}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(top = 2.dp)
+                )
             }
         }
     }
