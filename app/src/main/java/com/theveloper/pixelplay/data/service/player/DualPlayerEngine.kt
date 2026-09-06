@@ -1035,7 +1035,31 @@ class DualPlayerEngine @Inject constructor(
                 requiresTunnelingDecoder
             )
 
-            AudioDecoderPolicy.selectPlatformDecoders(mimeType, decoderInfos)
+            // Hardware-first ordering: vendor codecs (c2.qti.*, OMX.qcom.*, c2.mtk.*,
+            // c2.exynos.*, c2.sec.*) are preferred over generic software codecs
+            // (c2.android.*) even when the platform fails to flag them as
+            // hardwareAccelerated. enableDecoderFallback remains true so a failing
+            // hardware codec automatically falls back to software.
+            val hardwareFirst = decoderInfos.sortedByDescending { info ->
+                AudioDecoderPolicy.isLikelyHardwareDecoder(info.name)
+            }
+
+            val selected = AudioDecoderPolicy.selectPlatformDecoders(mimeType, hardwareFirst)
+            // Log the final order so the hardware-first rule can be verified on real devices
+            // (platforms without vendor audio codecs will log a software-only list).
+            Timber.tag("DualPlayerEngine").d(
+                "Decoders for %s: %s",
+                mimeType,
+                if (selected.isEmpty()) {
+                    "<none, extension renderer only>"
+                } else {
+                    selected.joinToString(" > ") { info ->
+                        val tag = if (AudioDecoderPolicy.isLikelyHardwareDecoder(info.name)) "HW" else "SW"
+                        "${info.name}[$tag]"
+                    }
+                }
+            )
+            selected
         }
         val renderersFactory = object : DefaultRenderersFactory(context) {
             override fun buildAudioSink(

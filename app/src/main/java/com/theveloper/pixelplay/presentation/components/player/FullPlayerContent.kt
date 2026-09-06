@@ -24,6 +24,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -262,6 +263,8 @@ fun FullPlayerContent(
     val selectedRouteName = fullPlayerSlice.selectedRouteName
     val isBluetoothEnabled = fullPlayerSlice.isBluetoothEnabled
     val bluetoothName = fullPlayerSlice.bluetoothName
+    val decoderName = fullPlayerSlice.decoderName
+    val decoderIsHardware = fullPlayerSlice.decoderIsHardware
     val navigationBarBottomInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val queueGestureBottomExclusion = maxOf(20.dp, navigationBarBottomInset + 8.dp)
     val queueGestureBottomExclusionPx = with(LocalDensity.current) {
@@ -535,6 +538,8 @@ fun FullPlayerContent(
             playbackMetadataMimeType = playbackAudioMetadata.mimeType,
             playbackMetadataBitrate = playbackAudioMetadata.bitrate,
             playbackMetadataSampleRate = playbackAudioMetadata.sampleRate,
+            decoderName = decoderName,
+            decoderIsHardware = decoderIsHardware,
             currentPositionProvider = currentPositionProvider,
             totalDurationValue = totalDurationValue,
             showPlayerFileInfo = showPlayerFileInfo,
@@ -1257,6 +1262,8 @@ private fun FullPlayerProgressSection(
     playbackMetadataMimeType: String?,
     playbackMetadataBitrate: Int?,
     playbackMetadataSampleRate: Int?,
+    decoderName: String?,
+    decoderIsHardware: Boolean?,
     currentPositionProvider: () -> Long,
     totalDurationValue: Long,
     showPlayerFileInfo: Boolean,
@@ -1306,6 +1313,8 @@ private fun FullPlayerProgressSection(
         timeTextColor = playerOnBaseColor,
         allowRealtimeUpdates = allowRealtimeUpdates,
         isSheetDragGestureActive = isSheetDragGestureActive,
+        decoderName = decoderName,
+        decoderIsHardware = decoderIsHardware,
         loadingTweaks = loadingTweaks
     )
 }
@@ -1708,6 +1717,8 @@ private fun PlayerProgressBarSection(
     allowRealtimeUpdates: Boolean = true,
     isSheetDragGestureActive: Boolean = false,
     loadingTweaks: FullPlayerLoadingTweaks? = null,
+    decoderName: String? = null,
+    decoderIsHardware: Boolean? = null,
     modifier: Modifier = Modifier
 ) {
     val progressSectionHorizontalInset = 0.dp
@@ -1742,16 +1753,21 @@ private fun PlayerProgressBarSection(
             null
         }
     }
-    var displayAudioMetaLabel by remember(songId) { mutableStateOf<String?>(null) }
-    LaunchedEffect(songId, audioMetaLabel, showAudioFileInfo) {
-        if (!showAudioFileInfo) {
-            displayAudioMetaLabel = null
-        } else if (!audioMetaLabel.isNullOrBlank()) {
-            displayAudioMetaLabel = audioMetaLabel
-        } else {
-            kotlinx.coroutines.delay(500)
-            displayAudioMetaLabel = null
+    // Combined label: bitrate/format/sample-rate + active decoder, shown as a
+    // horizontally scrolling marquee chip above the progress bar (e.g.
+    // "320 kbps • MP3 • 44.1 kHz · c2.android.mp3.decoder · SW").
+    val decoderLabel = decoderName?.takeIf { it.isNotBlank() }?.let { name ->
+        // decoderIsHardware stays null until the first onDecoderInitialized callback.
+        // Don't mislabel an unknown decoder as software.
+        when (decoderIsHardware) {
+            true -> "$name · HW"
+            false -> "$name · SW"
+            null -> name
         }
+    }
+    val displayAudioMetaLabel = remember(showAudioFileInfo, audioMetaLabel, decoderLabel) {
+        if (!showAudioFileInfo) null
+        else listOfNotNull(audioMetaLabel, decoderLabel).joinToString(" · ").ifBlank { null }
     }
     val durationForCalc = displayDurationValue.coerceAtLeast(1L)
     
@@ -2017,9 +2033,9 @@ private fun EfficientTimeLabels(
                         fontWeight = FontWeight.Medium,
                         fontSize = 11.sp
                     ),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp, vertical = 3.dp)
+                        .basicMarquee()
                 )
             }
         }

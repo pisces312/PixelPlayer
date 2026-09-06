@@ -38,6 +38,12 @@ internal object AudioDecoderPolicy {
         )
         if (knownSoftwareTokens.any(normalized::contains)) return false
 
+        // Vendor codecs sometimes ship explicit .sw. / .hw. suffixes (e.g.
+        // c2.qti.flac.sw.decoder vs c2.qti.aac.hw.decoder). Trust the suffix
+        // over the vendor prefix: a .sw. codec is software even under c2.qti.
+        if (normalized.contains(".sw.")) return false
+        if (normalized.contains(".hw.")) return true
+
         return normalized.startsWith("omx.") ||
             normalized.startsWith("c2.") ||
             normalized.contains(".qti.") ||

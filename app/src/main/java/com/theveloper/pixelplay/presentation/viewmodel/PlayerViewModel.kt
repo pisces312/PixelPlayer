@@ -66,6 +66,7 @@ import com.theveloper.pixelplay.data.service.MusicService
 import com.theveloper.pixelplay.data.service.cast.CastRemotePlaybackState
 import com.theveloper.pixelplay.data.service.player.CastPlayer
 import com.theveloper.pixelplay.data.service.http.MediaFileHttpServerService
+import com.theveloper.pixelplay.data.service.player.ActiveDecoderInfo
 import com.theveloper.pixelplay.data.service.player.DualPlayerEngine
 import com.theveloper.pixelplay.data.worker.SyncManager
 import com.theveloper.pixelplay.utils.ValidatedLyricsImport
@@ -1248,6 +1249,11 @@ class PlayerViewModel @Inject constructor(
     val playbackAudioMetadata: StateFlow<PlaybackAudioMetadata> =
         mediaControllerSyncStateHolder.playbackAudioMetadata
 
+    // Current audio decoder name + hardware flag, updated by DualPlayerEngine on
+    // onDecoderInitialized. Surfaced to the full-player UI so the bitrate chip can
+    // alternate between format info and the active decoder (e.g. c2.qti.mp3.decoder).
+    val activeDecoderInfo: StateFlow<ActiveDecoderInfo?> = dualPlayerEngine.activeDecoderInfo
+
     val favoriteSongIds: StateFlow<Set<String>> = musicRepository
         .getFavoriteSongIdsFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
@@ -1312,7 +1318,9 @@ class PlayerViewModel @Inject constructor(
         val isRemotePlaybackActive: Boolean = false,
         val selectedRouteName: String? = null,
         val isBluetoothEnabled: Boolean = false,
-        val bluetoothName: String? = null
+        val bluetoothName: String? = null,
+        val decoderName: String? = null,
+        val decoderIsHardware: Boolean? = null
     )
 
     // Intermediate combine #1: 5 settings flows
@@ -1366,8 +1374,9 @@ class PlayerViewModel @Inject constructor(
 
     val fullPlayerSlice: StateFlow<FullPlayerSlice> = combine(
         fullPlayerSlicePart1,
-        fullPlayerSlicePart2
-    ) { p1, p2 ->
+        fullPlayerSlicePart2,
+        activeDecoderInfo
+    ) { p1, p2, decoder ->
         FullPlayerSlice(
             currentSongArtists = p1.currentSongArtists,
             lyricsSyncOffset = p1.lyricsSyncOffset,
@@ -1380,7 +1389,9 @@ class PlayerViewModel @Inject constructor(
             isRemotePlaybackActive = p2.isRemotePlaybackActive,
             selectedRouteName = p2.selectedRouteName,
             isBluetoothEnabled = p2.isBluetoothEnabled,
-            bluetoothName = p2.bluetoothName
+            bluetoothName = p2.bluetoothName,
+            decoderName = decoder?.name,
+            decoderIsHardware = decoder?.isHardware
         )
     }
         .distinctUntilChanged()

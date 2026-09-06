@@ -291,6 +291,11 @@ class DeviceCapabilitiesViewModel @Inject constructor(
         val codecList = android.media.MediaCodecList(android.media.MediaCodecList.ALL_CODECS)
         val codecs = mutableListOf<CodecInfo>()
         val isSamsung = Build.MANUFACTURER.lowercase(Locale.US) == "samsung"
+        // Qualcomm platforms (Build.HARDWARE == "qcom") ship hardware audio decoders
+        // as c2.qti.*.hw.decoder and software variants as c2.qti.*.sw.decoder.
+        // Only the .hw. suffix indicates a real hardware path; .sw. variants are
+        // CPU-based even though they live under the c2.qti namespace.
+        val isQualcomm = Build.HARDWARE.lowercase(Locale.US).contains("qcom")
 
         for (codecInfo in codecList.codecInfos) {
             if (codecInfo.isEncoder) continue
@@ -304,10 +309,15 @@ class DeviceCapabilitiesViewModel @Inject constructor(
             // On many Samsung devices, c2.sec.* codecs are high-performance hardware paths,
             // but the platform doesn't always flag them as hardwareAccelerated in the manifest.
             // We force report them as hardware in the UI if the name starts with c2.sec.
+            val codecNameLower = codecInfo.name.lowercase(Locale.US)
+            val isQualcommHw = isQualcomm && codecNameLower.startsWith("c2.qti.") &&
+                codecNameLower.contains(".hw.")
             val isHardware = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                codecInfo.isHardwareAccelerated || (isSamsung && codecInfo.name.startsWith("c2.sec."))
+                codecInfo.isHardwareAccelerated ||
+                    (isSamsung && codecInfo.name.startsWith("c2.sec.")) ||
+                    isQualcommHw
             } else {
-                isSamsung && codecInfo.name.startsWith("c2.sec.")
+                (isSamsung && codecInfo.name.startsWith("c2.sec.")) || isQualcommHw
             }
 
             val instances = try {
