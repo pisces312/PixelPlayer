@@ -13,9 +13,10 @@ PixelPlayer 是 Android 音乐播放器（100% Kotlin，Jetpack Compose + Materi
 
 ```powershell
 # Debug 手机端 APK（默认仅 arm64-v8a 拆分）
+# Debug（自 china-only 起默认开启 R8 混淆 + 资源压缩，等价于旧 minifiedDebug；debuggable=true + LineNumberTable 保留，断点/单步可用，崩溃栈需 build/outputs/mapping/debug/mapping.txt + retrace 还原）
 .\gradlew.bat :app:assembleDebug "-Ppixelplay.enableAbiSplits=true"
 
-# Minified Debug（R8 混淆 + 资源压缩，体积约为普通 debug 的一半，可调试）
+# Minified Debug（与 assembleDebug 等价，保留作别名；initWith(debug) 已继承 minify 设置）
 .\gradlew.bat :app:assembleMinifiedDebug "-Ppixelplay.enableAbiSplits=true"
 
 # Release（需先设置签名环境变量，见「关键约束」）
@@ -88,6 +89,6 @@ PixelPlayer 是 Android 音乐播放器（100% Kotlin，Jetpack Compose + Materi
   - 原因：删表/改 `source_type` 会触发 Room 版本号递增，与 master（同源 v43）的备份互通时产生迁移碰撞。保留空表 + 只读查询零运行时成本、无网络请求。
   - GDrive 的网络层（`data/gdrive/*`）、UI（`presentation/gdrive/*`）、`ExternalServiceAccount.GOOGLE_DRIVE` 早在 degoogle-plan 已删；本分支仅删了 `StreamingProviderSheet` 里的 "Google Drive" 占位行。
 - **不要**在本分支加回 flavor 或 `FEATURE_*` 守卫（那是已废弃的 flavor 方案）；要移除功能就直接删源码。
-- **体积收益**：debug 约 141MB（无 `libtdjni.so` ~20.7MB + 无 kuromoji 词典 ~12.7MB；`lib/` 仅 `libffmpegJNI.so`/`libtaglib.so`/`libandroidx.graphics.path.so`）；release R8+shrink 约 27MB。
+- **体积收益**：minified debug（已开启 R8+shrink）APK ≈ 57 MiB（实测 2026-09-08 干净重建：dex 以 STORED 存盘 ~45.6 MiB + res 4.2 + arsc 4.0 + so 2.7，Telegram/tdlib/kuromoji 标记已全部为 False）。debug 把 DEX 以未压缩 STORED 存盘，故文件体积（~57 MiB）偏大于压缩后 payload（~56 Mi B）；release 因 DEX 走 deflate 会更小。移除 telegram/kuromoji 省下 `libtdjni.so` ~20.7MB + kuromoji 词典 ~12.7MB（已不进包）；历史带 telegram 的 minifiedDebug ≈ 93 Mi B，移除后更小。
 - **提交/推送规则**：提交前先 `git diff` 审查；push 到 fork `pisces312/PixelPlayer` 的 `china-only` 分支（默认不自动 push，需显式确认）。
 - **验证基线**：`compileDebugKotlin` + `testDebugUnitTest`（444/444 全绿）+ `assembleDebug` 均通过。`ImportedHistoryVisibilityTest` 曾因 WEEK=week-to-date 与运行周几隐性相关而失败，已修复为锚定本周内。
