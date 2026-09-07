@@ -83,7 +83,6 @@ import com.theveloper.pixelplay.presentation.netease.auth.NeteaseLoginActivity
 import com.theveloper.pixelplay.presentation.jellyfin.auth.JellyfinLoginActivity
 import com.theveloper.pixelplay.presentation.navidrome.auth.NavidromeLoginActivity
 import com.theveloper.pixelplay.presentation.qqmusic.auth.QqMusicLoginActivity
-import com.theveloper.pixelplay.presentation.telegram.auth.TelegramLoginActivity
 import com.theveloper.pixelplay.presentation.viewmodel.AccountsViewModel
 import com.theveloper.pixelplay.presentation.viewmodel.ExternalAccountUiModel
 import com.theveloper.pixelplay.presentation.viewmodel.ExternalServiceAccount
@@ -221,8 +220,6 @@ fun AccountsScreen(
                             painterResource(R.drawable.netease_cloud_music_logo_icon_206716__1_)
                         } else if (account.service == ExternalServiceAccount.QQ_MUSIC) {
                             painterResource(R.drawable.qq_music)
-                        } else if (account.service == ExternalServiceAccount.TELEGRAM) {
-                            painterResource(R.drawable.telegram)
                         } else if (account.service == ExternalServiceAccount.JELLYFIN) {
                             painterResource(R.drawable.ic_jellyfin)
                         } else if (account.service == ExternalServiceAccount.NAVIDROME) {
@@ -546,9 +543,9 @@ private fun EmptyAccountsCard(
                 val painter = when (service) {
                     ExternalServiceAccount.NETEASE -> painterResource(R.drawable.netease_cloud_music_logo_icon_206716__1_)
                     ExternalServiceAccount.QQ_MUSIC -> painterResource(R.drawable.qq_music)
-                    ExternalServiceAccount.TELEGRAM -> painterResource(R.drawable.telegram)
                     ExternalServiceAccount.JELLYFIN -> painterResource(R.drawable.ic_jellyfin)
                     ExternalServiceAccount.NAVIDROME -> painterResource(R.drawable.ic_navidrome_md3)
+                    else -> painterResource(R.drawable.rounded_person_24)
                 }
                 FilledTonalButton(
                     onClick = { onConnect(service) },
@@ -588,14 +585,6 @@ private data class ServicePalette(
 @Composable
 private fun servicePalette(service: ExternalServiceAccount): ServicePalette {
     return when (service) {
-        ExternalServiceAccount.TELEGRAM -> ServicePalette(
-            iconContainer = MaterialTheme.colorScheme.primaryContainer,
-            iconTint = MaterialTheme.colorScheme.onPrimaryContainer,
-            statusContainer = Color(0xFFC9F8E6),
-            statusTint = Color(0xFF035C43),
-            primaryActionContainer = MaterialTheme.colorScheme.primaryContainer,
-            primaryActionTint = MaterialTheme.colorScheme.onPrimaryContainer
-        )
         ExternalServiceAccount.NETEASE -> ServicePalette(
             iconContainer = MaterialTheme.colorScheme.errorContainer,
             iconTint = MaterialTheme.colorScheme.onErrorContainer,
@@ -628,16 +617,24 @@ private fun servicePalette(service: ExternalServiceAccount): ServicePalette {
             primaryActionContainer = Color(0xFFE3F2FD),
             primaryActionTint = Color(0xFF1565C0)
         )
+        else -> ServicePalette(
+            iconContainer = MaterialTheme.colorScheme.primaryContainer,
+            iconTint = MaterialTheme.colorScheme.onPrimaryContainer,
+            statusContainer = MaterialTheme.colorScheme.secondaryContainer,
+            statusTint = MaterialTheme.colorScheme.onSecondaryContainer,
+            primaryActionContainer = MaterialTheme.colorScheme.primaryContainer,
+            primaryActionTint = MaterialTheme.colorScheme.onPrimaryContainer
+        )
     }
 }
 
 private fun accountIcon(service: ExternalServiceAccount): ImageVector {
     return when (service) {
-        ExternalServiceAccount.TELEGRAM -> Icons.AutoMirrored.Rounded.Send
         ExternalServiceAccount.NETEASE -> Icons.Rounded.MusicNote
         ExternalServiceAccount.QQ_MUSIC -> Icons.Rounded.MusicNote
         ExternalServiceAccount.NAVIDROME -> Icons.Rounded.CloudQueue
         ExternalServiceAccount.JELLYFIN -> Icons.Rounded.CloudQueue
+        else -> Icons.Rounded.MusicNote
     }
 }
 
@@ -687,11 +684,11 @@ private fun ServiceIcon(service: ExternalServiceAccount, tint: Color, modifier: 
 @Composable
 private fun serviceDisplayName(service: ExternalServiceAccount): String {
     return when (service) {
-        ExternalServiceAccount.TELEGRAM -> stringResource(R.string.auth_telegram_title)
         ExternalServiceAccount.NETEASE -> stringResource(R.string.auth_netease_title)
         ExternalServiceAccount.QQ_MUSIC -> stringResource(R.string.auth_qq_title)
         ExternalServiceAccount.NAVIDROME -> stringResource(R.string.auth_subsonic_title)
         ExternalServiceAccount.JELLYFIN -> stringResource(R.string.auth_jellyfin_title)
+        else -> service.name
     }
 }
 
@@ -705,12 +702,6 @@ private fun openService(
     preferNeteaseDashboard: Boolean
 ) {
     when (service) {
-        ExternalServiceAccount.TELEGRAM -> {
-            safeStartActivity(
-                context = context,
-                intent = Intent(context, TelegramLoginActivity::class.java)
-            )
-        }
         ExternalServiceAccount.NETEASE -> {
             if (preferNeteaseDashboard) {
                 onOpenNeteaseDashboard()

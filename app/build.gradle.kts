@@ -334,7 +334,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.androidx.security.crypto)
     implementation(libs.google.play.services.cast.framework)
-    implementation(libs.tdlib)
 
     // UI Utilities & Extra
     implementation(libs.timber)
@@ -345,7 +344,6 @@ dependencies {
     implementation(libs.androidx.glance)
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.glance.material3)
-    implementation(libs.kuromoji.ipadic)
     implementation(libs.pinyin4j.core)
     implementation(libs.accompanist.drawablepainter)
     implementation(libs.accompanist.permissions)

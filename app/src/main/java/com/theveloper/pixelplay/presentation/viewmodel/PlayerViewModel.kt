@@ -115,9 +115,7 @@ import timber.log.Timber
 import javax.inject.Inject
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import coil.imageLoader
 import coil.memory.MemoryCache
-import dagger.Lazy
 
 private const val CAST_LOG_TAG = "PlayerCastTransfer"
 private const val ENABLE_FOLDERS_SOURCE_SWITCHING = true
@@ -226,7 +224,6 @@ class PlayerViewModel @Inject constructor(
     val syncManager: SyncManager, // Inyectar SyncManager
 
     private val dualPlayerEngine: DualPlayerEngine,
-    private val telegramCacheManagerProvider: Lazy<com.theveloper.pixelplay.data.telegram.TelegramCacheManager>,
     private val listeningStatsTracker: ListeningStatsTracker,
     private val dailyMixStateHolder: DailyMixStateHolder,
     private val lyricsStateHolder: LyricsStateHolder,
@@ -359,83 +356,6 @@ class PlayerViewModel @Inject constructor(
         connectivityStateHolder.offlinePlaybackBlocked.collect {
             Timber.w("Received offline blocked event. Showing dialog.")
             _showNoInternetDialog.emit(Unit)
-        }
-    }
-
-    private var telegramPlaybackObserversStarted = false
-
-    private fun ensureTelegramPlaybackObserversStarted() {
-        if (telegramPlaybackObserversStarted) return
-        telegramPlaybackObserversStarted = true
-
-        val telegramCacheManager = telegramCacheManagerProvider.get()
-        val telegramRepository = musicRepository.telegramRepository
-
-        viewModelScope.launch {
-            launch {
-                telegramCacheManager.embeddedArtUpdated.collect { updatedArtUri ->
-                    refreshArtwork(updatedArtUri)
-                }
-            }
-
-            launch {
-                telegramRepository.downloadCompleted.collect {
-                    val currentSong = playbackStateHolder.stablePlayerState.value.currentSong
-                    if (currentSong != null && currentSong.contentUriString.startsWith("telegram:")) {
-                        val uri = Uri.parse(currentSong.contentUriString)
-                        val chatId = uri.host?.toLongOrNull()
-                        val messageId = uri.pathSegments.firstOrNull()?.toLongOrNull()
-
-                        if (chatId != null && messageId != null) {
-                            refreshArtwork("telegram_art://$chatId/$messageId")
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private suspend fun refreshArtwork(updatedArtUri: String) {
-        val currentState = playbackStateHolder.stablePlayerState.value
-        val currentSong = currentState.currentSong
-        // Check if it matches, ignoring query params for comparison
-        val currentUriClean = currentSong?.albumArtUriString?.substringBefore('?')
-        val updatedUriClean = updatedArtUri.substringBefore('?')
-        
-        if (currentUriClean == updatedUriClean) {
-            Timber.d("PlayerViewModel: Embedded art updated for current song, forcing refresh")
-            
-            // 1. Invalidate Coil cache for the BASE uri (without params)
-            // This ensures next time we load it without params, it's fresh too.
-            val baseUri = currentUriClean
-            
-            // Remove from Memory Cache
-            context.imageLoader.memoryCache?.keys?.forEach { key ->
-                if (key.toString().contains(baseUri)) {
-                    context.imageLoader.memoryCache?.remove(key)
-                }
-            }
-            // Remove from Disk Cache
-            context.imageLoader.diskCache?.remove(baseUri)
-
-            // 2. Extract Colors (using base URI)
-            themeStateHolder.extractAndGenerateColorScheme(updatedArtUri.toUri(), updatedArtUri, isPreload = false)
-            
-            // 3. FORCE UI REFRESH by updating the URI with a version timestamp
-            // This forces SmartImage to see a "new" model and reload.
-            // We keep the quality param if it exists, or add a version param.
-            val newUri = if (updatedArtUri.contains("?")) {
-                "$updatedArtUri&v=${System.currentTimeMillis()}"
-            } else {
-                "$updatedArtUri?v=${System.currentTimeMillis()}"
-            }
-            
-            val updatedSong = currentSong.copy(albumArtUriString = newUri)
-            
-            // Update State
-            playbackStateHolder.updateStablePlayerState { state ->
-                state.copy(currentSong = updatedSong)
-            }
         }
     }
 
@@ -1042,7 +962,6 @@ class PlayerViewModel @Inject constructor(
         sendToast = ::sendToast,
         emitToast = { _toastEvents.emit(it) },
         showNoInternetDialog = { _showNoInternetDialog.tryEmit(Unit) },
-        ensureTelegramObservers = ::ensureTelegramPlaybackObserversStarted,
         cancelTransitionScheduler = { mediaControllerSyncStateHolder.cancelTransitionScheduler() },
         incrementSongScore = ::incrementSongScore,
         resetPredictiveBackState = ::resetPredictiveBackState,
@@ -1063,7 +982,6 @@ class PlayerViewModel @Inject constructor(
         setTrackVolume = { _trackVolume.value = it },
         emitToast = { _toastEvents.emit(it) },
         showNoInternetDialog = { _showNoInternetDialog.emit(Unit) },
-        ensureTelegramObservers = ::ensureTelegramPlaybackObserversStarted,
         cancelSleepTimerForEot = { cancelSleepTimer(suppressDefaultToast = true) },
         resetLyricsSearchState = ::resetLyricsSearchState,
         loadLyricsForCurrentSong = ::loadLyricsForCurrentSong,

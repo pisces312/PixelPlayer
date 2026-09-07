@@ -457,15 +457,6 @@ class MusicService : MediaLibraryService() {
         }
         registerHeadsetReconnectMonitor()
 
-        serviceScope.launch {
-            musicRepository.telegramRepository.downloadCompleted.collect {
-                if (isCurrentWidgetArtworkBackedByTelegram()) {
-                    invalidateCachedWidgetArtwork()
-                    widgetUpdateManager.requestWithFollowUp()
-                }
-            }
-        }
-
         // Restore equalizer state from preferences and only attach audio effects when
         // the user actually has at least one effect enabled for the current session.
         serviceScope.launch {
@@ -2171,16 +2162,6 @@ class MusicService : MediaLibraryService() {
         cachedWidgetArtBytes = null
         cachedWidgetArtLoadFailureKey = null
         cachedWidgetArtLoadFailureAtMs = 0L
-    }
-
-    private fun isCurrentWidgetArtworkBackedByTelegram(): Boolean {
-        val currentItem = engine.masterPlayer.currentMediaItem ?: return false
-        val metadata = currentItem.mediaMetadata
-        val contentUriString = currentItem.localConfiguration?.uri?.toString()
-            ?: metadata.extras?.getString(MediaItemBuilder.EXTERNAL_EXTRA_CONTENT_URI)
-        val artworkUriString = resolveStoredArtworkUriString(metadata)
-        return contentUriString?.startsWith("telegram://") == true ||
-            artworkUriString?.startsWith("telegram_art://") == true
     }
 
     private suspend fun getAlbumArtForWidget(

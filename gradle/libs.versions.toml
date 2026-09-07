@@ -63,7 +63,6 @@ credentials = "1.6.0"
 googleid = "1.2.0"
 androidxTestCore = "1.7.0"
 junit5 = "6.1.0"
-kuromoji = "0.9.0"
 pinyin4j = "2.5.1"
 securityCrypto = "1.1.0"
 netty = "4.2.28.Final"
@@ -121,7 +120,6 @@ worktesting = { group = "androidx.work", name = "work-testing", version.ref = "w
 credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
 credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
 googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
-tdlib = { module = "com.github.tdlibx:td", version = "1.8.56" }
 androidx-paging-common = { group = "androidx.paging", name = "paging-common", version = "3.5.0" }
 androidx-app = { module = "androidx.car.app:app", version.ref = "app" }
 androidx-app-projected = { module = "androidx.car.app:app-projected", version.ref = "app" }
@@ -255,9 +253,6 @@ play-services-wearable = { module = "com.google.android.gms:play-services-wearab
 
 # Coroutines Play Services (for .await() on GMS Tasks)
 kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines" }
-
-# Kuromoji
-kuromoji-ipadic = { module = "com.atilika.kuromoji:kuromoji-ipadic", version.ref = "kuromoji" }
 
 # Pinyin
 pinyin4j-core = { module = "com.belerweb:pinyin4j", version.ref = "pinyin4j" }

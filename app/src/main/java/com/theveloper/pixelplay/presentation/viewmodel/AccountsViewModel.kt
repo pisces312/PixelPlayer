@@ -6,23 +6,18 @@ import com.theveloper.pixelplay.data.jellyfin.JellyfinRepository
 import com.theveloper.pixelplay.data.navidrome.NavidromeRepository
 import com.theveloper.pixelplay.data.netease.NeteaseRepository
 import com.theveloper.pixelplay.data.qqmusic.QqMusicRepository
-import com.theveloper.pixelplay.data.repository.MusicRepository
-import com.theveloper.pixelplay.data.telegram.TelegramRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.drinkless.tdlib.TdApi
 
 enum class ExternalServiceAccount {
-    TELEGRAM,
     NETEASE,
     QQ_MUSIC,
     NAVIDROME,
@@ -44,8 +39,6 @@ data class AccountsUiState(
 
 @HiltViewModel
 class AccountsViewModel @Inject constructor(
-    private val telegramRepository: TelegramRepository,
-    private val musicRepository: MusicRepository,
     private val neteaseRepository: NeteaseRepository,
     private val qqMusicRepository: QqMusicRepository,
     private val navidromeRepository: NavidromeRepository,
@@ -53,15 +46,6 @@ class AccountsViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val loggingOutServices = MutableStateFlow<Set<ExternalServiceAccount>>(emptySet())
-
-    private val telegramStateFlow = combine(
-        telegramRepository.authorizationState
-            .map { it is TdApi.AuthorizationStateReady }
-            .distinctUntilChanged(),
-        musicRepository.getAllTelegramChannels().map { it.size }
-    ) { connected, channelCount ->
-        connected to channelCount
-    }
 
     private val neteaseStateFlow = combine(
         neteaseRepository.isLoggedInFlow,
@@ -94,7 +78,6 @@ class AccountsViewModel @Inject constructor(
     val uiState: StateFlow<AccountsUiState> = combine(
         combine(
             listOf(
-                telegramStateFlow,
                 neteaseStateFlow,
                 qqMusicStateFlow,
                 navidromeStateFlow,
@@ -103,28 +86,12 @@ class AccountsViewModel @Inject constructor(
         ) { it.toList() },
         loggingOutServices
     ) { states, activeLogouts ->
-        val (telegramConnected, telegramChannelCount) = states[0] as Pair<Boolean, Int>
-        val (neteaseConnected, neteasePlaylistCount) = states[1] as Pair<Boolean, Int>
-        val (qqConnected, qqPlaylistCount) = states[2] as Pair<Boolean, Int>
-        val (navidromeConnected, navidromePlaylistCount) = states[3] as Pair<Boolean, Int>
-        val (jellyfinConnected, jellyfinPlaylistCount) = states[4] as Pair<Boolean, Int>
+        val (neteaseConnected, neteasePlaylistCount) = states[0] as Pair<Boolean, Int>
+        val (qqConnected, qqPlaylistCount) = states[1] as Pair<Boolean, Int>
+        val (navidromeConnected, navidromePlaylistCount) = states[2] as Pair<Boolean, Int>
+        val (jellyfinConnected, jellyfinPlaylistCount) = states[3] as Pair<Boolean, Int>
 
         val connectedAccounts = buildList {
-            if (telegramConnected) {
-                add(
-                    ExternalAccountUiModel(
-                        service = ExternalServiceAccount.TELEGRAM,
-                        title = "Telegram",
-                        accountLabel = "Active Telegram session",
-                        syncedContentLabel = formatCount(
-                            count = telegramChannelCount,
-                            singular = "synced channel",
-                            plural = "synced channels"
-                        ),
-                        isLoggingOut = ExternalServiceAccount.TELEGRAM in activeLogouts
-                    )
-                )
-            }
             if (neteaseConnected) {
                 add(
                     ExternalAccountUiModel(
@@ -196,7 +163,6 @@ class AccountsViewModel @Inject constructor(
         }
 
         val disconnectedServices = buildList {
-            if (!telegramConnected) add(ExternalServiceAccount.TELEGRAM)
             if (!neteaseConnected) add(ExternalServiceAccount.NETEASE)
             if (!qqConnected) add(ExternalServiceAccount.QQ_MUSIC)
             if (!navidromeConnected) add(ExternalServiceAccount.NAVIDROME)
@@ -217,11 +183,6 @@ class AccountsViewModel @Inject constructor(
             try {
                 runCatching {
                     when (service) {
-                        ExternalServiceAccount.TELEGRAM -> {
-                            telegramRepository.logout()
-                            telegramRepository.clearMemoryCache()
-                            musicRepository.clearTelegramData()
-                        }
                         ExternalServiceAccount.NETEASE -> neteaseRepository.logout()
                         ExternalServiceAccount.QQ_MUSIC -> qqMusicRepository.logout()
                         ExternalServiceAccount.NAVIDROME -> navidromeRepository.logout()

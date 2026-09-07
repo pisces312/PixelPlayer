@@ -38,7 +38,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.atilika.kuromoji.ipadic.Tokenizer
 import net.sourceforge.pinyin4j.PinyinHelper
 import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType
 import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat
@@ -56,16 +55,6 @@ import kotlin.math.sin
 
 // Roman Multilang
 object MultiLangRomanizer {
-    private val kuromojiTokenizer: Tokenizer? by lazy {
-        try {
-            Thread.currentThread().contextClassLoader = MultiLangRomanizer::class.java.classLoader
-            Tokenizer()
-        } catch (e: Throwable) {
-            e.printStackTrace()
-            null
-        }
-    }
-
     private val HANGUL_ROMAJA_MAP = mapOf(
         "cho" to mapOf("ᄀ" to "g", "ᄁ" to "kk", "ᄂ" to "n", "ᄃ" to "d", "ᄄ" to "tt", "ᄅ" to "r", "ᄆ" to "m", "ᄇ" to "b", "ᄈ" to "pp", "ᄉ" to "s", "ᄊ" to "ss", "ᄋ" to "", "ᄌ" to "j", "ᄍ" to "jj", "ᄎ" to "ch", "ᄏ" to "k", "ᄐ" to "t", "ᄑ" to "p", "ᄒ" to "h"),
         "jung" to mapOf("ᅡ" to "a", "ᅢ" to "ae", "ᅣ" to "ya", "ᅤ" to "yae", "ᅥ" to "eo", "ᅦ" to "e", "ᅧ" to "yeo", "ᅨ" to "ye", "ᅩ" to "o", "ᅪ" to "wa", "ᅫ" to "wae", "ᅬ" to "oe", "ᅭ" to "yo", "ᅮ" to "u", "ᅯ" to "wo", "ᅰ" to "we", "ᅱ" to "wi", "ᅲ" to "yu", "ᅳ" to "eu", "ᅴ" to "eui", "ᅵ" to "i"),
@@ -107,13 +96,6 @@ object MultiLangRomanizer {
     private val KYRGYZ_SPECIFIC_CYRILLIC_LETTERS = setOf("Ң", "ң", "Ө", "ө", "Ү", "ү")
     private val MACEDONIAN_SPECIFIC_CYRILLIC_LETTERS = setOf("Ѓ", "ѓ", "Ѕ", "ѕ", "Ќ", "ќ")
 
-    fun isJapanese(text: String, entireLyricsHasKana: Boolean = false): Boolean {
-        // Detect Hiragana or Katakana
-        if (text.any { it in '\u3040'..'\u309F' || it in '\u30A0'..'\u30FF' }) return true
-        
-        // Treat Kanji-only lines as Japanese only if the entire song has Japanese kana
-        return entireLyricsHasKana && text.any { it in '\u4E00'..'\u9FFF' }
-    }
     fun isKorean(text: String) = text.any { it in '\uAC00'..'\uD7A3' }
     fun isHindi(text: String) = text.any { it in '\u0900'..'\u097F' }
     fun isPunjabi(text: String) = text.any { it in '\u0A00'..'\u0A7F' }
@@ -140,96 +122,6 @@ object MultiLangRomanizer {
     private fun isBelarusian(text: String) = text.any { BELARUSIAN_CYRILLIC_LETTERS.contains(it.toString()) || BELARUSIAN_SPECIFIC_CYRILLIC_LETTERS.contains(it.toString()) } && text.all { BELARUSIAN_CYRILLIC_LETTERS.contains(it.toString()) || BELARUSIAN_SPECIFIC_CYRILLIC_LETTERS.contains(it.toString()) || !it.toString().matches("[\\u0400-\\u04FF]".toRegex()) }
     private fun isKyrgyz(text: String) = text.any { KYRGYZ_CYRILLIC_LETTERS.contains(it.toString()) || KYRGYZ_SPECIFIC_CYRILLIC_LETTERS.contains(it.toString()) } && text.all { KYRGYZ_CYRILLIC_LETTERS.contains(it.toString()) || KYRGYZ_SPECIFIC_CYRILLIC_LETTERS.contains(it.toString()) || !it.toString().matches("[\\u0400-\\u04FF]".toRegex()) }
     private fun isMacedonian(text: String) = text.any { MACEDONIAN_CYRILLIC_LETTERS.contains(it.toString()) || MACEDONIAN_SPECIFIC_CYRILLIC_LETTERS.contains(it.toString()) } && text.all { MACEDONIAN_CYRILLIC_LETTERS.contains(it.toString()) || MACEDONIAN_SPECIFIC_CYRILLIC_LETTERS.contains(it.toString()) || !it.toString().matches("[\\u0400-\\u04FF]".toRegex()) }
-
-    fun romanizeJapanese(japaneseText: String): String? {
-        val tokenizer = kuromojiTokenizer ?: return null
-
-        return try {
-            val tokens = tokenizer.tokenize(japaneseText)
-
-            // ── Pass 1: resolve readings ──────────────────────────────────────
-            val readings = mutableListOf<Triple<String, String, String>>()
-            var i = 0
-            while (i < tokens.size) {
-                val token = tokens[i]
-                val next  = tokens.getOrNull(i + 1)
-
-                // Irregular lexical compounds
-                when {
-                    token.surface == "一" && next?.surface == "人" -> {
-                        readings += Triple("ヒトリ", "名詞", "一般"); i += 2; continue
-                    }
-                    token.surface == "二" && next?.surface == "人" -> {
-                        readings += Triple("フタリ", "名詞", "一般"); i += 2; continue
-                    }
-                    token.surface == "今日" -> {
-                        readings += Triple("キョウ", "名詞", "一般"); i++; continue
-                    }
-                    token.surface == "明日" -> {
-                        readings += Triple("アシタ", "名詞", "一般"); i++; continue
-                    }
-                    token.surface == "昨日" -> {
-                        readings += Triple("キノウ", "名詞", "一般"); i++; continue
-                    }
-                }
-
-                val pos1    = token.partOfSpeechLevel1 ?: ""
-                val pos2    = token.partOfSpeechLevel2 ?: ""
-                val surface = token.surface ?: ""
-                val reading = token.reading?.takeIf { it.isNotBlank() && it != "*" }
-
-                val kata = when {
-                    pos1 == "助詞" -> when (surface) {
-                        "は" -> "ワ"
-                        "へ" -> "エ"
-                        "を" -> "オ"
-                        else -> reading ?: surface
-                    }
-                    else -> reading ?: surface
-                }
-                readings += Triple(kata, pos1, pos2)
-                i++
-            }
-
-            // ── Pass 2: build katakana string with spacing ────────────────────
-            val kataBuf = StringBuilder()
-            readings.forEachIndexed { idx, (kata, pos1, pos2) ->
-                val prevKata = readings.getOrNull(idx - 1)?.first ?: ""
-                val prevEndsWithSokuon = prevKata.endsWith("ッ") || prevKata.endsWith("っ")
-                val noSpace = idx == 0
-                    || prevEndsWithSokuon
-                    || pos1 == "助動詞"
-                    || pos2 == "接尾"
-                    || pos1 == "記号"
-                    || pos2 == "非自立"
-                if (!noSpace) kataBuf.append(" ")
-                kataBuf.append(kata)
-            }
-
-            val katakanaText = kataBuf.toString().replace("\\s+".toRegex(), " ").trim()
-
-            // ── Pass 3: Katakana → Latin via ICU transliterator ───────────────
-            val latin = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                android.icu.text.Transliterator
-                    .getInstance("Katakana-Latin; Lower")
-                    .transliterate(katakanaText)
-            } else {
-                katakanaText
-            }
-
-            // ── Pass 4: context-sensitive post-processing ─────────────────────
-            // Fix ん before b/p → "m" (standard Hepburn).
-            // Fix word-initial false "m" that is actually "n".
-            latin
-                .replace(Regex("n(?=[bp])"), "m")
-                .replace(Regex("\\s+"), " ")
-                .trim()
-
-        } catch (e: Throwable) {
-            e.printStackTrace()
-            null
-        }
-    }
 
     // ── 多音字 (polyphone) override table ────────────────────────────────────
     // Pinyin4j always returns the statistically most common reading which is
@@ -730,7 +622,6 @@ object LyricsUtils {
             return Lyrics(plain = emptyList(), synced = emptyList())
         }
 
-        val entireLyricsHasKana = lyricsText.any { it in '\u3040'..'\u309F' || it in '\u30A0'..'\u30FF' }
 
         val normalizedInput = stripLeadingLyricsDocumentNoise(lyricsText)
         if (looksLikeTtmlDocument(normalizedInput)) {
@@ -868,7 +759,6 @@ object LyricsUtils {
             val pairedLines = pairTranslationLines(sortedSyncedLines).map { line ->
 
                 val romanized = when {
-                    MultiLangRomanizer.isJapanese(line.line, entireLyricsHasKana) -> MultiLangRomanizer.romanizeJapanese(line.line)
                     MultiLangRomanizer.isChinese(line.line) -> MultiLangRomanizer.romanizeChinese(line.line)
                     MultiLangRomanizer.isKorean(line.line) -> MultiLangRomanizer.romanizeKorean(line.line)
                     MultiLangRomanizer.isHindi(line.line) -> MultiLangRomanizer.romanizeHindi(line.line)
@@ -890,7 +780,6 @@ object LyricsUtils {
         } else {
             val processedPlain = plainLines.map { line ->
                 val romanized = when {
-                    MultiLangRomanizer.isJapanese(line, entireLyricsHasKana) -> MultiLangRomanizer.romanizeJapanese(line)
                     MultiLangRomanizer.isChinese(line) -> MultiLangRomanizer.romanizeChinese(line)
                     MultiLangRomanizer.isKorean(line) -> MultiLangRomanizer.romanizeKorean(line)
                     MultiLangRomanizer.isHindi(line) -> MultiLangRomanizer.romanizeHindi(line)

@@ -79,13 +79,6 @@
         </activity>
 
         <activity
-            android:name=".presentation.telegram.auth.TelegramLoginActivity"
-            android:exported="false"
-            android:label="Telegram Login"
-            android:theme="@style/Theme.PixelPlay"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
             android:name=".presentation.netease.auth.NeteaseLoginActivity"
             android:exported="false"
             android:label="Netease Login"

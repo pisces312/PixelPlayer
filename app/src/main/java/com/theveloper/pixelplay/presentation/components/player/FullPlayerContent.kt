@@ -727,15 +727,6 @@ fun FullPlayerContent(
                                         style = MaterialTheme.typography.labelLargeEmphasized,
                                         fontWeight = FontWeight.SemiBold
                                     )
-
-                                    if (currentSong != null && (currentSong.telegramChatId != null || currentSong.contentUriString.startsWith("telegram:"))) {
-                                        Icon(
-                                            imageVector = androidx.compose.material.icons.Icons.Rounded.Cloud,
-                                            contentDescription = stringResource(R.string.player_cd_cloud_stream),
-                                            tint = LocalMaterialTheme.current.onPrimaryContainer.copy(alpha = 0.6f),
-                                            modifier = Modifier.padding(start = 8.dp).size(16.dp)
-                                        )
-                                    }
                                 }
                             }
                         }

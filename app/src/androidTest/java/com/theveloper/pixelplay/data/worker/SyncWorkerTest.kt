@@ -55,7 +55,6 @@ class SyncWorkerTest {
                     musicDao = dao,
                     userPreferencesRepository = mockk(relaxed = true),
                     lyricsRepository = mockk(relaxed = true),
-                    telegramDao = mockk(relaxed = true),
                     neteaseDao = mockk(relaxed = true),
                     navidromeRepository = mockk(relaxed = true)
                 )

@@ -16,7 +16,6 @@ import coil.ImageLoaderFactory
 import com.theveloper.pixelplay.data.preferences.UserPreferencesRepository
 import com.theveloper.pixelplay.data.diagnostics.AdvancedPerformanceDiagnosticsController
 import com.theveloper.pixelplay.data.repository.ArtistImageRepository
-import com.theveloper.pixelplay.data.telegram.TelegramRepository
 import com.theveloper.pixelplay.presentation.viewmodel.LibraryStateHolder
 import com.theveloper.pixelplay.presentation.viewmodel.ThemeStateHolder
 import com.theveloper.pixelplay.utils.AlbumArtCacheManager
@@ -44,9 +43,6 @@ class PixelPlayApplication : Application(), ImageLoaderFactory, Configuration.Pr
     lateinit var imageLoader: dagger.Lazy<ImageLoader>
 
     @Inject
-    lateinit var telegramCoilFetcherFactory: dagger.Lazy<com.theveloper.pixelplay.data.image.TelegramCoilFetcher.Factory>
-
-    @Inject
     lateinit var navidromeCoilFetcherFactory: dagger.Lazy<com.theveloper.pixelplay.data.image.NavidromeCoilFetcher.Factory>
 
     @Inject
@@ -60,9 +56,6 @@ class PixelPlayApplication : Application(), ImageLoaderFactory, Configuration.Pr
 
     @Inject
     lateinit var artistImageRepository: dagger.Lazy<ArtistImageRepository>
-
-    @Inject
-    lateinit var telegramRepository: dagger.Lazy<TelegramRepository>
 
     @Inject
     lateinit var libraryStateHolder: dagger.Lazy<LibraryStateHolder>
@@ -141,7 +134,6 @@ class PixelPlayApplication : Application(), ImageLoaderFactory, Configuration.Pr
         return imageLoader.get().newBuilder()
             .components {
                 add(localArtworkCoilFetcherFactory.get())
-                add(telegramCoilFetcherFactory.get())
                 add(navidromeCoilFetcherFactory.get())
                 add(jellyfinCoilFetcherFactory.get())
             }
@@ -168,7 +160,6 @@ class PixelPlayApplication : Application(), ImageLoaderFactory, Configuration.Pr
             level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN
         ) {
             artistImageRepository.get().clearCache()
-            telegramRepository.get().clearMemoryCache()
             MediaMetadataRetrieverPool.clear()
         }
 

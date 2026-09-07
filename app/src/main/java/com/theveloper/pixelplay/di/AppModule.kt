@@ -48,7 +48,6 @@ import com.theveloper.pixelplay.data.repository.TransitionRepositoryImpl
 import com.theveloper.pixelplay.data.repository.FolderTreeBuilder
 import dagger.Module
 import dagger.Provides
-import dagger.Lazy
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
@@ -377,9 +376,6 @@ object AppModule {
         searchHistoryDao: SearchHistoryDao,
         musicDao: MusicDao,
         lyricsRepository: LyricsRepository,
-        telegramDao: com.theveloper.pixelplay.data.database.TelegramDao,
-        telegramCacheManager: Lazy<com.theveloper.pixelplay.data.telegram.TelegramCacheManager>,
-        telegramRepository: Lazy<com.theveloper.pixelplay.data.telegram.TelegramRepository>,
         songRepository: SongRepository,
         favoritesDao: FavoritesDao,
         artistImageRepository: ArtistImageRepository,
@@ -392,9 +388,6 @@ object AppModule {
             searchHistoryDao = searchHistoryDao,
             musicDao = musicDao,
             lyricsRepository = lyricsRepository,
-            telegramDao = telegramDao,
-            telegramCacheManagerProvider = telegramCacheManager,
-            telegramRepositoryProvider = telegramRepository,
             songRepository = songRepository,
             favoritesDao = favoritesDao,
             artistImageRepository = artistImageRepository,
@@ -416,10 +409,9 @@ object AppModule {
     fun provideSongMetadataEditor(
         @ApplicationContext context: Context,
         musicDao: MusicDao,
-        telegramDao: com.theveloper.pixelplay.data.database.TelegramDao,
         userPreferencesRepository: UserPreferencesRepository
     ): SongMetadataEditor {
-        return SongMetadataEditor(context, musicDao, telegramDao, userPreferencesRepository)
+        return SongMetadataEditor(context, musicDao, userPreferencesRepository)
     }
 
     /**

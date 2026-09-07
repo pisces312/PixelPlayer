@@ -1707,7 +1707,6 @@ class LyricsRepositoryImpl @Inject constructor(
 
     private fun romanizeForMatch(text: String): String {
         return when {
-            MultiLangRomanizer.isJapanese(text) -> MultiLangRomanizer.romanizeJapanese(text) ?: text
             MultiLangRomanizer.isChinese(text) -> MultiLangRomanizer.romanizeChinese(text) ?: text
             MultiLangRomanizer.isKorean(text) -> MultiLangRomanizer.romanizeKorean(text)
             else -> text
