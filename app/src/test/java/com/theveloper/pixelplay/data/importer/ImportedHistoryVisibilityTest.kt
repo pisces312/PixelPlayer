@@ -6,6 +6,10 @@ import com.theveloper.pixelplay.data.stats.StatsTimeRange
 import com.theveloper.pixelplay.presentation.model.collectRecentlyPlayedSongIds
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
+import java.time.DayOfWeek
+import java.time.Instant
+import java.time.ZoneId
+import java.time.temporal.TemporalAdjusters
 import java.util.concurrent.TimeUnit
 
 /**
@@ -75,14 +79,25 @@ class ImportedHistoryVisibilityTest {
     }
 
     /**
-     * 模拟真机数据：本地 300 条（2 天内）+ 导入 1676 条（900 ~ 481 天前）。
+     * 模拟真机数据：本地 300 条（全部落在本自然周内）+ 导入 1676 条（900 ~ 481 天前）。
      * 与 PowerampBackupImporter 一致——每首歌只合成 1 条事件，挂在最后收听时间上。
+     *
+     * 关键：本地记录必须落在 `StatsTimeRange.WEEK`（week-to-date，本周一 00:00 起）之内，
+     * 否则测试通过与否会随运行当天是周几而波动（周一运行时「昨天=周日」会被 WEEK 裁掉）。
+     * 偶数档=今天(now)，奇数档=本周内某时刻(weekStart 与 now 的中点)，两种都稳定可见。
      */
     private fun mixedHistory(now: Long): List<PlaybackStatsRepository.PlaybackHistoryEntry> {
+        val zoneId = ZoneId.systemDefault()
+        val today = Instant.ofEpochMilli(now).atZone(zoneId).toLocalDate()
+        val weekStartLocalDate = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val weekStart = weekStartLocalDate.atStartOfDay(zoneId).toInstant().toEpochMilli()
+        // weekStart <= inWeekTs < now：恒落在 WEEK 范围内，与周几/当天时刻无关
+        val inWeekTs = weekStart + (now - weekStart) / 2
+
         val local = (0 until LOCAL_EVENT_COUNT).map { i ->
             PlaybackStatsRepository.PlaybackHistoryEntry(
                 songId = "local-$i",
-                timestamp = now - (i % 2) * DAY_MS
+                timestamp = if (i % 2 == 0) now else inWeekTs
             )
         }
         val imported = (0 until IMPORTED_EVENT_COUNT).map { i ->
