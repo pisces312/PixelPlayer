@@ -983,6 +983,7 @@ fun SettingsCategoryScreen(
                                     com.theveloper.pixelplay.data.ai.provider.AiProvider.OPENROUTER -> "OpenRouter (openrouter.ai)"
                                     com.theveloper.pixelplay.data.ai.provider.AiProvider.OLLAMA -> "Ollama (cloud)"
                                     com.theveloper.pixelplay.data.ai.provider.AiProvider.VOLCANO -> "Volcano Engine (ark.cn-beijing.volces.com)"
+                                    com.theveloper.pixelplay.data.ai.provider.AiProvider.MIMO -> "Xiaomi MiMo (token-plan-cn.xiaomimimo.com)"
                                     com.theveloper.pixelplay.data.ai.provider.AiProvider.CUSTOM -> "Custom Provider"
                                 }
                                 

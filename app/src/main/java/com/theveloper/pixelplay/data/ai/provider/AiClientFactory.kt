@@ -82,6 +82,12 @@ class AiClientFactory @Inject constructor() {
                 defaultModelId = "",
                 providerName = "Volcano Engine"
             )
+            AiProvider.MIMO -> GenericOpenAiClient(
+                apiKey = apiKey,
+                baseUrl = "https://token-plan-cn.xiaomimimo.com/v1",
+                defaultModelId = "mimo-v2.5",
+                providerName = "Xiaomi MiMo"
+            )
             AiProvider.CUSTOM -> GenericOpenAiClient(
                 apiKey = apiKey,
                 baseUrl = "",
