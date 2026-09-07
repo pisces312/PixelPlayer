@@ -77,3 +77,17 @@ PixelPlayer 是 Android 音乐播放器（100% Kotlin，Jetpack Compose + Materi
 - **JVM 单测边界**：工程未引入 Robolectric 且开了 `unitTests.isReturnDefaultValues`，Android framework 类在 JVM 下被打桩——例如 `AtomicFile.startWrite()` 恒返回 `null`，`PlaybackStatsRepository` 的文件 I/O 写入会被静默跳过却仍返回 `true`（假成功）。涉及 `AtomicFile`/`Context` 真实文件读写的逻辑**无法在 JVM 单测验证**，只能靠真机或 `AppLogCollector` 导出的日志回读校验。
 - lint：`checkReleaseBuilds=false`，正式检查跑 debug 变体。
 - 改动构建/产物后按 `docs/build-config.md` 与 CI 工作流交叉核对，交付前回读校验。
+
+## china-only 分支注意事项（本分支专用）
+
+> 本节仅适用于 `china-only` 长期分支。上游 master 的「分发变体」章节（chinaOnly/global flavor）**不适用**于本分支——本分支已**完全移除 flavor 维度**，功能靠直接删源码、不靠 `BuildConfig.FEATURE_*` 守卫。
+
+- **分支定位**：从 `af0d81b0`（MiMo commit）起长期分支，已完全删除 Telegram 与日文罗马音（kuromoji），并删除 Google Drive 的云端串流入口。目的：上游改动同时 merge 到 master 与 china-only，减少冲突。
+- **无 distribution flavor**：本分支基于 `af0d81b0`，没有 `chinaOnly`/`global` flavor 维度。变体即普通 `Debug`/`Release`；构建用 `assembleDebug` / `assembleRelease`（**不是** `assembleChinaOnlyDebug`）。测试 task 是 `:app:testDebugUnitTest`（**不是** `testChinaOnlyDebugUnitTest`，后者在本分支不存在）。
+- **刻意保留 DB 层（关键，勿动）**：Telegram 三表（`TelegramChannelEntity`/`TelegramSongEntity`/`TelegramTopicEntity`/`TelegramDao`）、`SongEntity.SourceType.TELEGRAM` 枚举值、`MusicDao` 的 telegram 查询，以及 GDrive 表（`GDriveSongEntity`/`GDriveFolderEntity`/`GDriveDao`/`SongEntity.GDRIVE`/`PixelPlayDatabase` 建表）**全部保留**，未写任何 migration，schema 恒为 v43。
+  - 原因：删表/改 `source_type` 会触发 Room 版本号递增，与 master（同源 v43）的备份互通时产生迁移碰撞。保留空表 + 只读查询零运行时成本、无网络请求。
+  - GDrive 的网络层（`data/gdrive/*`）、UI（`presentation/gdrive/*`）、`ExternalServiceAccount.GOOGLE_DRIVE` 早在 degoogle-plan 已删；本分支仅删了 `StreamingProviderSheet` 里的 "Google Drive" 占位行。
+- **不要**在本分支加回 flavor 或 `FEATURE_*` 守卫（那是已废弃的 flavor 方案）；要移除功能就直接删源码。
+- **体积收益**：debug 约 141MB（无 `libtdjni.so` ~20.7MB + 无 kuromoji 词典 ~12.7MB；`lib/` 仅 `libffmpegJNI.so`/`libtaglib.so`/`libandroidx.graphics.path.so`）；release R8+shrink 约 27MB。
+- **提交/推送规则**：提交前先 `git diff` 审查；push 到 fork `pisces312/PixelPlayer` 的 `china-only` 分支（默认不自动 push，需显式确认）。
+- **验证基线**：`compileDebugKotlin` + `testDebugUnitTest`（444/444 全绿）+ `assembleDebug` 均通过。`ImportedHistoryVisibilityTest` 曾因 WEEK=week-to-date 与运行周几隐性相关而失败，已修复为锚定本周内。
