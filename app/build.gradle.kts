@@ -219,7 +219,7 @@ androidComponents {
             val abi = output.filters
                 .firstOrNull { it.filterType == FilterConfiguration.FilterType.ABI }
                 ?.identifier ?: "universal"
-            output.outputFileName.set("app-${abi}-lite-${appVersionName}-${variant.buildType}.apk")
+            output.outputFileName.set("pixelplayer-${abi}-lite-${appVersionName}-${variant.buildType}.apk")
         }
         variant.sources.assets?.addGeneratedSourceDirectory(
             copyThirdPartyNotices,
