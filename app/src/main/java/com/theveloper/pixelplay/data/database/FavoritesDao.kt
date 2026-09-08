@@ -10,11 +10,29 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Dao
 interface FavoritesDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun setFavorite(favorite: FavoritesEntity)
-
+    /**
+     * 批量整行写入（备份恢复 / 导入），调用方必须提供完整行（含 rating）。
+     * 业务层的单曲收藏切换禁止使用 REPLACE 整行覆盖，改用 [markFavorite]，
+     * 否则会把已有 rating 清回默认值 0。
+     */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(favorites: List<FavoritesEntity>)
+
+    /**
+     * 置收藏标记（isFavorite = 1）并刷新收藏时间戳，**保留 rating 原值**——
+     * 与 [setRating] 对称：行不存在时插入 rating = 0 的收藏行；行已存在
+     * （如「仅评分」行 isFavorite = 0, rating > 0）时只更新收藏位与时间戳。
+     * 不能用 @Insert(REPLACE) + FavoritesEntity 默认 rating = 0，那会整行覆盖丢分。
+     */
+    @Query(
+        """
+        INSERT INTO favorites (songId, isFavorite, timestamp, rating)
+        VALUES (:songId, 1, :timestamp,
+                COALESCE((SELECT rating FROM favorites WHERE songId = :songId), 0))
+        ON CONFLICT(songId) DO UPDATE SET isFavorite = 1, timestamp = :timestamp
+        """
+    )
+    suspend fun markFavorite(songId: Long, timestamp: Long)
 
     @Query("DELETE FROM favorites WHERE songId = :songId")
     suspend fun removeFavorite(songId: Long)

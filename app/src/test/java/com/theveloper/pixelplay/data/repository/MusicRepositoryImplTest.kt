@@ -354,6 +354,38 @@ class MusicRepositoryImplTest {
         // TODO: Añadir más tests para el historial si es necesario
     }
 
+    @Nested
+    @DisplayName("Favorite status & rating")
+    inner class FavoriteRatingFunctions {
+        @Test
+        fun `setFavoriteStatus true marks favorite via rating-preserving upsert`() = runTest(testDispatcher) {
+            // 回归：收藏不能走 REPLACE 整行写入，否则已有 rating 会被默认值 0 覆盖
+            musicRepository.setFavoriteStatus("42", true)
+
+            coVerify { mockFavoritesDao.markFavorite(eq(42L), any()) }
+            coVerify(exactly = 0) { mockFavoritesDao.insertAll(any()) }
+            coVerify(exactly = 0) { mockFavoritesDao.clearFavoriteFlag(any()) }
+        }
+
+        @Test
+        fun `setFavoriteStatus false soft-clears flag then purges empty row`() = runTest(testDispatcher) {
+            musicRepository.setFavoriteStatus("42", false)
+
+            coVerifyOrder {
+                mockFavoritesDao.clearFavoriteFlag(42L)
+                mockFavoritesDao.purgeIfEmpty(42L)
+            }
+        }
+
+        @Test
+        fun `setFavoriteStatus ignores non-numeric song id without dao writes`() = runTest(testDispatcher) {
+            musicRepository.setFavoriteStatus("not-a-number", true)
+
+            coVerify(exactly = 0) { mockFavoritesDao.markFavorite(any(), any()) }
+            coVerify(exactly = 0) { mockFavoritesDao.clearFavoriteFlag(any()) }
+        }
+    }
+
     // TODO: Añadir tests para:
     // - getSongsForAlbum, getSongsForArtist, getSongsByIds
     // - searchSongs, searchAlbums, searchArtists, searchAll (verificando la lógica de combine y filtrado)
