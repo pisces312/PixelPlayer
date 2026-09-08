@@ -20,7 +20,7 @@
     <string name="settings_category_device_capabilities_title">Enhetsfunksjoner</string>
     <string name="settings_category_device_capabilities_subtitle">Lydspesifikasjoner, kodeker og dekoderinfo</string>
     <string name="settings_category_accounts_title">Kontoer</string>
-    <string name="settings_category_accounts_subtitle">Administrer Telegram, NetEase og andre tjenester</string>
+    <string name="settings_category_accounts_subtitle">Administrer NetEase, QQ Music og andre tjenester</string>
     <string name="settings_category_about_title">Om</string>
     <string name="settings_category_about_subtitle">App-info, versjon og bidragsytere</string>
 

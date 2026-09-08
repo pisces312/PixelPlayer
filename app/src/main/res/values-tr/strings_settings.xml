@@ -20,7 +20,7 @@
     <string name="settings_category_device_capabilities_title">Cihaz Yetenekleri</string>
     <string name="settings_category_device_capabilities_subtitle">Ses özellikleri, kodekler ve çözücü bilgileri</string>
     <string name="settings_category_accounts_title">Hesaplar</string>
-    <string name="settings_category_accounts_subtitle">Telegram, NetEase ve diğer hizmetleri yönetin</string>
+    <string name="settings_category_accounts_subtitle">NetEase, QQ Music ve diğer hizmetleri yönetin</string>
     <string name="settings_category_about_title">Hakkında</string>
     <string name="settings_category_about_subtitle">Uygulama bilgisi, sürüm ve katkıda bulunanlar</string>
 

@@ -535,6 +535,13 @@ class PlayerViewModel @Inject constructor(
             initialValue = true
         )
 
+    val keepScreenOnPlayback: StateFlow<Boolean> = userPreferencesRepository.keepScreenOnPlaybackFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
+
     // Lyrics sync offset - now managed by LyricsStateHolder
     val currentSongLyricsSyncOffset: StateFlow<Int> = lyricsStateHolder.currentSongSyncOffset
 

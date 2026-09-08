@@ -20,7 +20,7 @@
     <string name="settings_category_device_capabilities_title">기기 성능</string>
     <string name="settings_category_device_capabilities_subtitle">오디오 사양, 코덱 및 디코더 정보</string>
     <string name="settings_category_accounts_title">계정</string>
-    <string name="settings_category_accounts_subtitle">Telegram, NetEase Music 및 기타 서비스 관리</string>
+    <string name="settings_category_accounts_subtitle">NetEase Music, QQ Music 및 기타 서비스 관리</string>
     <string name="settings_category_about_title">정보</string>
     <string name="settings_category_about_subtitle">앱 정보, 버전 및 제작진</string>
 

@@ -20,7 +20,7 @@
     <string name="settings_category_device_capabilities_title">设备性能</string>
     <string name="settings_category_device_capabilities_subtitle">音频规格、编解码器和解码器信息</string>
     <string name="settings_category_accounts_title">账户</string>
-    <string name="settings_category_accounts_subtitle">管理 Telegram、网易云音乐等服务</string>
+    <string name="settings_category_accounts_subtitle">管理网易云音乐、QQ 音乐等服务</string>
     <string name="settings_category_about_title">关于</string>
     <string name="settings_category_about_subtitle">应用信息、版本和鸣谢</string>
 
@@ -297,6 +297,9 @@
     <string name="settings_persistent_shuffle_subtitle">即使关闭应用后也能记住随机播放设置。</string>
     <string name="settings_show_queue_history_title">显示队列历史记录</string>
     <string name="settings_show_queue_history_subtitle">在队列中显示以前播放过的歌曲。</string>
+    <string name="settings_screen_section">屏幕</string>
+    <string name="settings_keep_screen_on_playback_title">播放时保持屏幕常亮</string>
+    <string name="settings_keep_screen_on_playback_subtitle">播放期间阻止屏幕自动熄灭。暂停或离开应用后恢复正常的自动锁屏。</string>
 
     <!-- Behavior category -->
     <string name="settings_folders_section">文件夹</string>
@@ -358,6 +361,21 @@
     <string name="settings_ai_usage_provier_model">%1$s · %2$s</string>
     <string name="settings_ai_show_logs">显示</string>
     <string name="settings_ai_hide_logs">隐藏</string>
+
+    <!-- AI request log (file-backed cache, debugging) -->
+    <string name="ai_request_log_entry_title">AI 请求日志</string>
+    <string name="ai_request_log_entry_subtitle">浏览最近 AI 调用的完整请求与响应。仅存于缓存，最多保留 %1$d 条。</string>
+    <string name="ai_request_log_title">AI 请求日志</string>
+    <string name="ai_request_log_detail_title">请求详情</string>
+    <string name="ai_request_log_empty">暂无 AI 请求记录</string>
+    <string name="ai_request_log_clear_all">清空全部</string>
+    <string name="ai_request_log_clear_all_message">删除 %1$d 条缓存请求日志？</string>
+    <string name="ai_request_log_copy_all">复制全部</string>
+    <string name="ai_request_log_copy_response">复制响应</string>
+    <string name="ai_request_log_share">分享</string>
+    <string name="ai_request_log_status_success">成功</string>
+    <string name="ai_request_log_status_failed">失败</string>
+    <string name="ai_request_log_status_cached">缓存</string>
 
     <!-- Backup & Restore category -->
     <string name="settings_backup_how_dialog_title">备份的工作原理</string>

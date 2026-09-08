@@ -20,7 +20,7 @@
     <string name="settings_category_device_capabilities_title">Kemampuan Perangkat</string>
     <string name="settings_category_device_capabilities_subtitle">Spek audio, codec, dan info dekoder</string>
     <string name="settings_category_accounts_title">Akun</string>
-    <string name="settings_category_accounts_subtitle">Kelola Telegram, NetEase, dan layanan lainnya</string>
+    <string name="settings_category_accounts_subtitle">Kelola NetEase, QQ Music, dan layanan lainnya</string>
     <string name="settings_category_about_title">Tentang</string>
     <string name="settings_category_about_subtitle">Info aplikasi, versi, dan kredit</string>
 

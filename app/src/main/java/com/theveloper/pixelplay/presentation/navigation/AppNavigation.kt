@@ -487,6 +487,15 @@ fun AppNavigation(
                 }
             }
             composable(
+                Screen.AiRequestLog.route,
+            ) {
+                ScreenWrapper(navController = navController, playerViewModel = playerViewModel, animatedVisibilityScope = this) {
+                    com.theveloper.pixelplay.presentation.screens.AiRequestLogScreen(
+                        navController = navController
+                    )
+                }
+            }
+            composable(
                 Screen.NeteaseDashboard.route,
             ) {
                 ScreenWrapper(navController = navController, playerViewModel = playerViewModel, animatedVisibilityScope = this) {

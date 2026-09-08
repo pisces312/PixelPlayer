@@ -24,6 +24,7 @@ class AiHandler @Inject constructor(
     private val clientFactory: AiClientFactory,
     private val cacheDao: AiCacheDao,
     private val usageDao: AiUsageDao,
+    private val requestLogStore: AiRequestLogStore,
     private val promptEngine: AiSystemPromptEngine,
     @AppScope private val appScope: CoroutineScope
 ) {
@@ -73,6 +74,17 @@ class AiHandler @Inject constructor(
         val response: String,
         val modelUsed: String,
     )
+
+    /**
+     * Best-effort persistence of the full request context into cacheDir.
+     * Failures are logged only — they must never affect playback or generation.
+     */
+    private fun logRequest(log: AiRequestLog) {
+        appScope.launch {
+            runCatching { requestLogStore.write(log) }
+                .onFailure { error -> Timber.tag("AiHandler").e(error, "Failed to persist AI request log") }
+        }
+    }
 
     private suspend fun getGenerationParams(): GenerationParams {
         return GenerationParams(
@@ -192,6 +204,18 @@ class AiHandler @Inject constructor(
         cacheDao.getCache(hash)?.let { cached ->
             val age = System.currentTimeMillis() - cached.timestamp
             if (age < CACHE_TTL_MS) {
+                logRequest(
+                    AiRequestLog(
+                        timestamp = System.currentTimeMillis(),
+                        status = AiRequestLog.STATUS_FROM_CACHE,
+                        promptType = type.name,
+                        provider = userProvider.displayName,
+                        model = "cached",
+                        systemPrompt = combinedSystemPrompt,
+                        userPrompt = prompt,
+                        responseText = cached.responseJson
+                    )
+                )
                 return cached.responseJson
             }
         }
@@ -271,6 +295,32 @@ class AiHandler @Inject constructor(
                     }
                 }
 
+                logRequest(
+                    AiRequestLog(
+                        timestamp = now,
+                        status = AiRequestLog.STATUS_SUCCESS,
+                        promptType = type.name,
+                        provider = provider.displayName,
+                        model = result.modelUsed,
+                        endpoint = if (baseUrl.isBlank()) null else AiRequestLogStore.redactUrl("${baseUrl.trimEnd('/')}/chat/completions"),
+                        durationMs = System.currentTimeMillis() - now,
+                        params = AiRequestLog.Params(
+                            temperature = effectiveTemperature,
+                            topP = params.topP,
+                            topK = params.topK,
+                            maxTokens = params.maxTokens,
+                            presencePenalty = params.presencePenalty,
+                            frequencyPenalty = params.frequencyPenalty
+                        ),
+                        systemPrompt = finalSystemPrompt,
+                        userPrompt = prompt,
+                        responseText = result.response,
+                        promptTokens = estimatedPromptTokens,
+                        outputTokens = estimatedOutputTokens,
+                        thoughtTokens = estimatedThoughtTokens
+                    )
+                )
+
                 cacheDao.insert(AiCacheEntity(promptHash = hash, responseJson = result.response, timestamp = System.currentTimeMillis()))
                 return result.response
             } catch (e: Exception) {
@@ -301,6 +351,20 @@ class AiHandler @Inject constructor(
         }
         
         Timber.tag("AiHandler").e("All providers failed. Details: %s", failedProviders.joinToString(" | "))
+
+        logRequest(
+            AiRequestLog(
+                timestamp = now,
+                status = AiRequestLog.STATUS_FAILED,
+                promptType = type.name,
+                provider = userProvider.displayName,
+                durationMs = System.currentTimeMillis() - now,
+                systemPrompt = combinedSystemPrompt,
+                userPrompt = prompt,
+                errorMessage = failedProviders.joinToString("\n• ", prefix = "• ")
+            )
+        )
+
         throw Exception(errorMessage)
     }
 }
