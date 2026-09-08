@@ -75,6 +75,7 @@ data class SettingsUiState(
     val pauseOnVolumeZero: Boolean = false,
     val resumeOnHeadsetReconnect: Boolean = false,
     val showQueueHistory: Boolean = true,
+    val keepScreenOnPlayback: Boolean = false,
     val isCrossfadeEnabled: Boolean = false,
     val hiFiModeEnabled: Boolean = false,
     val hiFiModeDeviceSupported: Boolean = true,
@@ -179,7 +180,8 @@ private sealed interface SettingsUiUpdate {
         val animatedLyricsBlurEnabled: Boolean,
         val animatedLyricsBlurStrength: Float,
         val disableBlurAllOver: Boolean,
-        val showScrollbar: Boolean
+        val showScrollbar: Boolean,
+        val keepScreenOnPlayback: Boolean
     ) : SettingsUiUpdate
 }
 
@@ -672,7 +674,8 @@ class SettingsViewModel @Inject constructor(
                 userPreferencesRepository.animatedLyricsBlurEnabledFlow,
                 userPreferencesRepository.animatedLyricsBlurStrengthFlow,
                 userPreferencesRepository.disableBlurAllOverFlow,
-                userPreferencesRepository.showScrollbarFlow
+                userPreferencesRepository.showScrollbarFlow,
+                userPreferencesRepository.keepScreenOnPlaybackFlow
             ) { values ->
                 SettingsUiUpdate.Group2(
                     keepPlayingInBackground = values[0] as Boolean,
@@ -694,7 +697,8 @@ class SettingsViewModel @Inject constructor(
                     animatedLyricsBlurEnabled = values[16] as Boolean,
                     animatedLyricsBlurStrength = values[17] as Float,
                     disableBlurAllOver = values[18] as Boolean,
-                    showScrollbar = values[19] as Boolean
+                    showScrollbar = values[19] as Boolean,
+                    keepScreenOnPlayback = values[20] as Boolean
                 )
             }.collect { update ->
                 _uiState.update { state ->
@@ -718,7 +722,8 @@ class SettingsViewModel @Inject constructor(
                         animatedLyricsBlurEnabled = update.animatedLyricsBlurEnabled,
                         animatedLyricsBlurStrength = update.animatedLyricsBlurStrength,
                         disableBlurAllOver = update.disableBlurAllOver,
-                        showScrollbar = update.showScrollbar
+                        showScrollbar = update.showScrollbar,
+                        keepScreenOnPlayback = update.keepScreenOnPlayback
                     )
                 }
             }
@@ -1010,6 +1015,12 @@ class SettingsViewModel @Inject constructor(
     fun setShowQueueHistory(show: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.setShowQueueHistory(show)
+        }
+    }
+
+    fun setKeepScreenOnPlayback(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setKeepScreenOnPlayback(enabled)
         }
     }
 

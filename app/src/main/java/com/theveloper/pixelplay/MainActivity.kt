@@ -65,6 +65,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.compose.runtime.derivedStateOf
@@ -643,6 +644,7 @@ class MainActivity : ComponentActivity() {
                 Screen.PaletteStyle.route,
                 Screen.RecentlyPlayed.route,
                 Screen.DeviceCapabilities.route,
+                Screen.AiRequestLog.route,
                 Screen.EasterEgg.route,
                 Screen.WordDelimiterConfig.route
             )
@@ -690,6 +692,20 @@ class MainActivity : ComponentActivity() {
         LaunchedEffect(hapticsEnabled, rootView) {
             rootView.isHapticFeedbackEnabled = hapticsEnabled
             rootView.rootView?.isHapticFeedbackEnabled = hapticsEnabled
+        }
+
+        // Keep the screen awake only while audio is actually playing. Buffering with
+        // playWhenReady is treated as playing so the screen does not blink between tracks.
+        val keepScreenOnPlayback by playerViewModel.keepScreenOnPlayback.collectAsStateWithLifecycle()
+        val isPlaybackActive by remember(playerViewModel) {
+            playerViewModel.stablePlayerState
+                .map { it.isPlaying || (it.playWhenReady && it.isBuffering) }
+                .distinctUntilChanged()
+        }.collectAsStateWithLifecycle(initialValue = false)
+
+        DisposableEffect(rootView, keepScreenOnPlayback, isPlaybackActive) {
+            rootView.keepScreenOn = keepScreenOnPlayback && isPlaybackActive
+            onDispose { rootView.keepScreenOn = false }
         }
 
         val horizontalPadding = if (navBarStyle == NavBarStyle.DEFAULT) {

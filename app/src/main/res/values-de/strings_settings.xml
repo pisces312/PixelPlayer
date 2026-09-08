@@ -20,7 +20,7 @@
     <string name="settings_category_device_capabilities_title">Gerätefähigkeiten</string>
     <string name="settings_category_device_capabilities_subtitle">Codecs, Decoder und Audio-Specs</string>
     <string name="settings_category_accounts_title">Accounts</string>
-    <string name="settings_category_accounts_subtitle">Telegram, Netease und mehr verwalten</string>
+    <string name="settings_category_accounts_subtitle">Netease, QQ Music und mehr verwalten</string>
     <string name="settings_category_about_title">Über</string>
     <string name="settings_category_about_subtitle">Version, Credits und mehr</string>
 

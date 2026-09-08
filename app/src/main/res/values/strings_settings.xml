@@ -20,7 +20,7 @@
     <string name="settings_category_device_capabilities_title">Device Capabilities</string>
     <string name="settings_category_device_capabilities_subtitle">Audio specs, codecs, and decoder info</string>
     <string name="settings_category_accounts_title">Accounts</string>
-    <string name="settings_category_accounts_subtitle">Manage Telegram, NetEase, and more services</string>
+    <string name="settings_category_accounts_subtitle">Manage NetEase, QQ Music, and more services</string>
     <string name="settings_category_about_title">About</string>
     <string name="settings_category_about_subtitle">App info, version, and credits</string>
 
@@ -297,6 +297,9 @@
     <string name="settings_persistent_shuffle_subtitle">Remember shuffle setting even after closing the app.</string>
     <string name="settings_show_queue_history_title">Show queue history</string>
     <string name="settings_show_queue_history_subtitle">Show previously played songs in the queue.</string>
+    <string name="settings_screen_section">Screen</string>
+    <string name="settings_keep_screen_on_playback_title">Keep screen on while playing</string>
+    <string name="settings_keep_screen_on_playback_subtitle">Prevent the screen from turning off during playback. Pausing or leaving the app restores normal screen timeout.</string>
 
     <!-- Behavior category -->
     <string name="settings_folders_section">Folders</string>
@@ -358,6 +361,21 @@
     <string name="settings_ai_usage_provier_model">%1$s · %2$s</string>
     <string name="settings_ai_show_logs">Show</string>
     <string name="settings_ai_hide_logs">Hide</string>
+
+    <!-- AI request log (file-backed cache, debugging) -->
+    <string name="ai_request_log_entry_title">AI Request Log</string>
+    <string name="ai_request_log_entry_subtitle">Browse full prompts and responses of recent AI calls. Stored in cache only, latest %1$d kept.</string>
+    <string name="ai_request_log_title">AI Request Log</string>
+    <string name="ai_request_log_detail_title">Request Detail</string>
+    <string name="ai_request_log_empty">No AI request recorded yet.</string>
+    <string name="ai_request_log_clear_all">Clear all</string>
+    <string name="ai_request_log_clear_all_message">Delete %1$d cached request logs?</string>
+    <string name="ai_request_log_copy_all">Copy all</string>
+    <string name="ai_request_log_copy_response">Copy response</string>
+    <string name="ai_request_log_share">Share</string>
+    <string name="ai_request_log_status_success">Success</string>
+    <string name="ai_request_log_status_failed">Failed</string>
+    <string name="ai_request_log_status_cached">Cached</string>
 
     <!-- Backup & Restore category -->
     <string name="settings_backup_how_dialog_title">How backup works</string>

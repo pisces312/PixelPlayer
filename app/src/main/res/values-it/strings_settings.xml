@@ -20,7 +20,7 @@
     <string name="settings_category_device_capabilities_title">Capacità dispositivo</string>
     <string name="settings_category_device_capabilities_subtitle">Specifiche audio, codec e info decoder</string>
     <string name="settings_category_accounts_title">Account</string>
-    <string name="settings_category_accounts_subtitle">Gestisci Telegram, NetEase e altri servizi</string>
+    <string name="settings_category_accounts_subtitle">Gestisci NetEase, QQ Music e altri servizi</string>
     <string name="settings_category_about_title">Informazioni</string>
     <string name="settings_category_about_subtitle">Info app, versione e crediti</string>
 

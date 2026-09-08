@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.8-pisces] - 2026-09-08
+
+### Added
+- **Playback:** Added a "Keep screen on while playing" toggle (Settings → Playback → Screen), off by default. The screen stays awake only while audio is playing (buffering counts as playing) and only while the app is in the foreground.
+- **AI:** Added an AI request log (Settings → AI Integration → AI Usage Report). Every AI call stores its full context — system/user prompt, generation params, response or error, duration and token estimate — as one JSON file in the cache, capped at the latest 50 entries. Logs can be browsed, copied or shared from the app; they are cache-only and never written to the database.
+
+### Fixed
+- **Settings:** Removed the leftover Telegram mention from the accounts category description.
+
 ## [0.7.7-pisces] - 2026-09-06
 
 ### Added

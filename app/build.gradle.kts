@@ -8,6 +8,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import com.android.build.api.variant.FilterConfiguration
 
 plugins {
     alias(libs.plugins.android.application)
@@ -206,7 +207,14 @@ android {
 }
 
 androidComponents {
+    val appVersionName = providers.gradleProperty("APP_VERSION_NAME").getOrElse("0.0.0")
     onVariants(selector().all()) { variant ->
+        variant.outputs.forEach { output ->
+            val abi = output.filters
+                .firstOrNull { it.filterType == FilterConfiguration.FilterType.ABI }
+                ?.identifier ?: "universal"
+            output.outputFileName.set("app-${abi}-lite-${appVersionName}-${variant.buildType}.apk")
+        }
         variant.sources.assets?.addGeneratedSourceDirectory(
             copyThirdPartyNotices,
             CopyThirdPartyNotices::outputDirectory,

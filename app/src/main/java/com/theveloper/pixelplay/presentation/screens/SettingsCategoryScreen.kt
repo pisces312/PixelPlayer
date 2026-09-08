@@ -3,6 +3,7 @@ package com.theveloper.pixelplay.presentation.screens
 import android.util.Log
 import com.theveloper.pixelplay.presentation.navigation.navigateSafely
 import com.theveloper.pixelplay.presentation.components.BackupModuleSelectionDialog
+import com.theveloper.pixelplay.data.ai.AiRequestLogStore
 import com.theveloper.pixelplay.data.preferences.AiPreferencesRepository
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -78,6 +79,7 @@ import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.BlurOff
+import androidx.compose.material.icons.rounded.BrightnessHigh
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
@@ -790,6 +792,16 @@ fun SettingsCategoryScreen(
                                 )
                             }
 
+                            SettingsSubsection(title = stringResource(R.string.settings_screen_section)) {
+                                SwitchSettingItem(
+                                    title = stringResource(R.string.settings_keep_screen_on_playback_title),
+                                    subtitle = stringResource(R.string.settings_keep_screen_on_playback_subtitle),
+                                    checked = uiState.keepScreenOnPlayback,
+                                    onCheckedChange = { settingsViewModel.setKeepScreenOnPlayback(it) },
+                                    leadingIcon = { Icon(Icons.Rounded.BrightnessHigh, null, tint = MaterialTheme.colorScheme.secondary) }
+                                )
+                            }
+
                             SettingsSubsection(title = stringResource(R.string.settings_replaygain_section)) {
                                 SwitchSettingItem(
                                     title = stringResource(R.string.settings_replaygain_enable_title),
@@ -1285,6 +1297,27 @@ fun SettingsCategoryScreen(
                                     },
                                     primaryActionLabel = stringResource(R.string.settings_ai_clear_logs),
                                     onPrimaryAction = { settingsViewModel.clearAiUsageData() }
+                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+                                SettingsItem(
+                                    title = stringResource(R.string.ai_request_log_entry_title),
+                                    subtitle = stringResource(R.string.ai_request_log_entry_subtitle, AiRequestLogStore.MAX_FILES),
+                                    leadingIcon = {
+                                        Icon(
+                                            painterResource(R.drawable.rounded_monitoring_24),
+                                            null,
+                                            tint = MaterialTheme.colorScheme.secondary
+                                        )
+                                    },
+                                    trailingIcon = {
+                                        Icon(
+                                            Icons.Rounded.ChevronRight,
+                                            stringResource(R.string.settings_cd_open),
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    },
+                                    onClick = { navController.navigateSafely(Screen.AiRequestLog.route) }
                                 )
 
                                 if (recentAiUsage.isNotEmpty()) {

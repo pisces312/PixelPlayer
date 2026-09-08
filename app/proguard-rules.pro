@@ -73,6 +73,10 @@
 -keep class com.theveloper.pixelplay.data.preferences.PreferenceBackupEntry { *; }
 -keep class com.theveloper.pixelplay.data.backup.model.** { *; }
 -keep class com.theveloper.pixelplay.data.backup.module.** { *; }
+
+# AI request log payloads are Gson-serialized to cache files; keep field names stable.
+-keep class com.theveloper.pixelplay.data.ai.AiRequestLog { *; }
+-keep class com.theveloper.pixelplay.data.ai.AiRequestLog$Params { *; }
 # Backup payload entities are part of the persisted .pxpl contract.
 -keep class com.theveloper.pixelplay.data.database.FavoritesEntity { *; }
 -keep class com.theveloper.pixelplay.data.database.SongEngagementEntity { *; }
