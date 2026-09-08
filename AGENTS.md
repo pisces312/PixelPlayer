@@ -99,4 +99,8 @@ PixelPlayer 是 Android 音乐播放器（100% Kotlin，Jetpack Compose + Materi
 - **不要**在本分支加回 flavor 或 `FEATURE_*` 守卫（那是已废弃的 flavor 方案）；要移除功能就直接删源码。
 - **体积收益**：minified debug（已开启 R8+shrink）APK ≈ 57 MiB（实测 2026-09-08 干净重建：dex 以 STORED 存盘 ~45.6 MiB + res 4.2 + arsc 4.0 + so 2.7，Telegram/tdlib/kuromoji 标记已全部为 False）。debug 把 DEX 以未压缩 STORED 存盘，故文件体积（~57 MiB）偏大于压缩后 payload（~56 Mi B）；release 因 DEX 走 deflate 会更小。移除 telegram/kuromoji 省下 `libtdjni.so` ~20.7MB + kuromoji 词典 ~12.7MB（已不进包）；历史带 telegram 的 minifiedDebug ≈ 93 Mi B，移除后更小。
 - **提交/推送规则**：提交前先 `git diff` 审查；push 到 fork `pisces312/PixelPlayer` 的 `china-only` 分支（默认不自动 push，需显式确认）。
+- **cherry-pick 到 master 的拆分铁律**：本分支的改动一律按「通用 / 专属」拆成独立 commit，提交后把**通用 commit `git cherry-pick` 到 master**，专属 commit 只留 china-only。
+  - **通用（pick 到 master）**：与上游 master 同源、不依赖本分支已删功能的所有改动——例如新增通用功能（AI 请求日志、keep-screen-on 偏好）、版本号、`build.gradle.kts` 构建脚本、对应 `strings_settings` 文案、`CHANGELOG`、`proguard`。cherry-pick 后必须在 master 跑 `:app:compileDebugKotlin` 验证编译通过。
+  - **专属（绝不 pick 到 master）**：任何依赖本分支已删除代码的改动——典型是 `strings_cloud_services` / `strings_library` 里**删除 Telegram 字符串**、`AGENTS.md` 本分支说明、`docs/` 调研文档。盲目 pick 会让 master 仍引用 `R.string.telegram_*` 的代码编译失败。
+  - 实操：每次提交按上述两类分别 `git commit`；随后 `git checkout master && git cherry-pick <通用commit> && git push origin master`，再 `git checkout china-only && git push origin china-only`。
 - **验证基线**：`compileDebugKotlin` + `testDebugUnitTest`（444/444 全绿）+ `assembleDebug` 均通过。`ImportedHistoryVisibilityTest` 曾因 WEEK=week-to-date 与运行周几隐性相关而失败，已修复为锚定本周内。
