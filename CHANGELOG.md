@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **Settings:** Removed the leftover Telegram mention from the accounts category description.
+- **Library:** Favoriting a song no longer resets its star rating to 0. The favorite write path used a REPLACE upsert that rebuilt the row with the default `rating = 0`, wiping an existing rating (including rating-only rows); it now preserves `rating` symmetrically to how setting a rating preserves the favorite flag.
 
 ## [0.7.7-pisces] - 2026-09-06
 

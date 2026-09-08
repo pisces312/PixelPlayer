@@ -814,12 +814,8 @@ class MusicRepositoryImpl @Inject constructor(
     override suspend fun setFavoriteStatus(songId: String, isFavorite: Boolean) = withContext(Dispatchers.IO) {
         val id = songId.toLongOrNull() ?: return@withContext
         if (isFavorite) {
-            favoritesDao.setFavorite(
-                com.theveloper.pixelplay.data.database.FavoritesEntity(
-                    songId = id,
-                    isFavorite = true
-                )
-            )
+            // upsert：置收藏位但保留已有 rating（REPLACE 整行写入会把评分清 0）
+            favoritesDao.markFavorite(id, System.currentTimeMillis())
         } else {
             // 软删除：先清收藏标记（保住评分），再清掉「未收藏且未评分」的空行。
             favoritesDao.clearFavoriteFlag(id)
