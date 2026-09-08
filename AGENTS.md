@@ -75,6 +75,7 @@ PixelPlayer 是 Android 音乐播放器（100% Kotlin，Jetpack Compose + Materi
 - **Room schema**：KSP 参数 `room.schemaLocation=$projectDir/schemas`，androidTest 资源也引用该目录；改实体/迁移后 schema JSON 需一并提交。
 - **版本号**：`APP_VERSION_NAME / APP_VERSION_CODE` 在 `gradle.properties` 维护；`CHANGELOG.md` 遵循 Keep a Changelog + 语义化版本。
 - **许可**：2026-05-12 后专有，此前贡献保持 MIT；`copyThirdPartyNotices` 任务将 `THIRD_PARTY_NOTICES.md` 注入生成资源，增删依赖时保持其准确。
+- **许可合规（勿违反）**：上游专有许可仅允许个人非商业使用，**未经作者书面授权禁止源码/二进制再分发**。本 fork 是公开 fork，保持现状即可（不更名、保留 forked from 与 LICENSE）；**严禁在 GitHub Releases 或任何公开渠道上传/分发 APK**——上游作者曾以 DMCA 下架"整库复制改名 + Releases 发 APK"的 PixelMusic（判例：`github/dmca/2026/06/2026-06-15-pixelplayer.md`）。2026-09-08 已删除本仓库公开的 3 个 Release APK，此后构建产物仅自用，不得重新公开。调研详见 `docs/pixelplayer-ecosystem-research_2026-09-08.md`。
 - **debug 图标**：`app/src/debug/res/` 的 DBG 角标图标由仓库根目录 `gen_debug_icons.py` 生成，改动图标后重跑该脚本。
 
 ## 测试与验证
