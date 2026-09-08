@@ -1,76 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Telegram login -->
-    <string name="telegram_login_title">Telegram-innlogging</string>
-    <string name="telegram_edit_number_chip">Du redigerer nummeret ditt. Ved å sende koden på nytt erstattes den forrige.</string>
-    <string name="telegram_working">Arbeider…</string>
-    <string name="telegram_status_initializing">Initialiserer Telegram…</string>
-    <string name="telegram_status_logging_out">Logger ut…</string>
-    <string name="telegram_status_closing">Lukker sesjon…</string>
-    <string name="telegram_status_closed">Sesjon lukket. Gjenåpne innlogging for å fortsette.</string>
-    <string name="telegram_status_preparing">Forbereder sikker Telegram-sesjon…</string>
-    <string name="telegram_status_waiting">Venter på svar fra Telegram…</string>
-    <string name="telegram_connect">Koble til Telegram</string>
-    <string name="telegram_connect_subtitle">Koble til Telegram for å strømme musikk fra kanalene og chattene dine.</string>
-    <string name="telegram_phone_number_title">Telefonnummer</string>
-    <string name="telegram_phone_number_subtitle">Skriv inn ditt Telegram-nummer. Du kan endre det senere.</string>
-    <string name="telegram_phone_number_hint">Telefonnummer</string>
-    <string name="telegram_phone_country_placeholder">47</string>
-    <string name="telegram_phone_local_placeholder">90012345</string>
-    <string name="telegram_send_code">Send kode</string>
-    <string name="telegram_verification_code_title">Verifiseringskode</string>
-    <string name="telegram_verification_code_subtitle">Skriv inn koden fra Telegram. Hvis nummeret er feil, gå tilbake og endre det.</string>
-    <string name="telegram_code_field_label">Kode</string>
-    <string name="telegram_code_placeholder">12345</string>
-    <string name="telegram_edit_phone">Endre nummer</string>
-    <string name="telegram_resend_code">Send kode på nytt</string>
-    <string name="telegram_verify_code">Verifiser kode</string>
-    <string name="telegram_two_step_password_title">To-trinns passord</string>
-    <string name="telegram_two_step_password_subtitle">Skriv inn ditt Telegram-passord.</string>
-    <string name="telegram_password_label">Passord</string>
-    <string name="telegram_verify_password">Verifiser passord</string>
-    <string name="telegram_please_wait">Vennligst vent…</string>
-
-    <!-- Telegram dashboard -->
-    <string name="telegram_channels_title">Telegram-kanaler</string>
-    <string name="telegram_add_channel_fab">Legg til kanal</string>
-    <string name="telegram_public_channel_fallback">Offentlig Telegram-kanal</string>
-    <string name="telegram_syncing">Synkroniserer</string>
-    <string name="telegram_sync_now">Synkroniser nå</string>
-    <string name="telegram_cd_collapse_topics">Slå sammen emner</string>
-    <string name="telegram_cd_show_topics">Vis emner</string>
-    <string name="telegram_cd_channel_options">Kanalalternativer</string>
-    <string name="telegram_topics_heading">Emner</string>
-    <string name="telegram_syncing_channel">Synkroniserer kanal</string>
-    <string name="telegram_updating_songs_from_telegram">Oppdaterer sanger fra Telegram</string>
-    <string name="telegram_fetch_latest_songs">Hent siste sanger fra denne kanalen</string>
-    <string name="telegram_remove_channel">Fjern kanal</string>
-    <string name="telegram_remove_channel_subtitle">Stopp synkronisering og fjern cachede sanger</string>
-    <string name="telegram_remove_channel_confirm_title">Fjerne kanal?</string>
-    <string name="telegram_remove_channel_confirm_body">%1$s vil slutte å synkronisere, og alle cachede sanger fra denne kanalen vil bli fjernet.</string>
-    <string name="telegram_remove_channel_confirm_action">Fjern</string>
-    <string name="telegram_no_channels_synced">Ingen kanaler synkronisert</string>
-    <string name="telegram_no_channels_body">Legg til offentlige Telegram-kanaler for å\nsynkronisere musikkbiblioteket ditt</string>
-    <string name="telegram_add_channel_button">Legg til kanal</string>
-    <string name="telegram_never_synced">Aldri synkronisert</string>
-    <string name="telegram_synced_relative">Synkronisert %1$s</string>
-
-    <!-- Telegram channel search -->
-    <string name="telegram_add_channel_sheet_title">Legg til kanal</string>
-    <string name="telegram_add_channel_sheet_subtitle">Søk etter en offentlig Telegram-kanal</string>
-    <string name="telegram_channel_search_placeholder">\@kanalnavn eller lenke</string>
-    <string name="telegram_searching">Søker…</string>
-    <string name="telegram_search_channel_title">Søk etter en kanal</string>
-    <string name="telegram_search_channel_body">Skriv inn et brukernavn eller lenke\nfor å synkronisere filer</string>
-
-    <plurals name="telegram_n_songs">
-        <item quantity="one">%d sang</item>
-        <item quantity="other">%d sanger</item>
-    </plurals>
-    <plurals name="telegram_n_topics">
-        <item quantity="one">%d emne</item>
-        <item quantity="other">%d emner</item>
-    </plurals>
 
     <!-- Subsonic/Navidrome dashboard -->
     <string name="subsonic_dashboard_title">Subsonic</string>
@@ -138,7 +67,6 @@
     <string name="auth_prefill_http_action">Forhåndsutfyll http://</string>
     <string name="auth_server_url_label">Server-URL</string>
     <string name="auth_show_pwd_action">Vis passord</string>
-    <string name="auth_telegram_title">Telegram</string>
     <string name="auth_username_label">Brukernavn</string>
     <string name="auth_username_placeholder">admin</string>
     <string name="auth_welcome_toast">Velkommen, %1$s!</string>

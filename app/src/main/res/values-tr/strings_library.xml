@@ -43,11 +43,6 @@
     <string name="library_storage_sd_card">SD Kart</string>
     <string name="library_storage_sd_card_unavailable">SD kart şu anda kullanılamıyor.</string>
     <string name="library_sort_section_cloud">Bulut</string>
-    <string name="library_sort_toggle_telegram_channels">Telegram Bulut Kanalları</string>
-    <string name="library_telegram_topics_display_title">Konu Görünümü</string>
-    <string name="library_telegram_topic_mode_channels">Kanallar</string>
-    <string name="library_telegram_topic_mode_topics">Konular</string>
-    <string name="library_telegram_topic_mode_both">Her ikisi</string>
     <string name="library_cloud_sources_heading">Bulut</string>
     <string name="library_cloud_only_label">Sadece Bulut</string>
 

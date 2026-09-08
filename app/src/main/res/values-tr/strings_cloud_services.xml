@@ -1,76 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Telegram login -->
-    <string name="telegram_login_title">Telegram Girişi</string>
-    <string name="telegram_edit_number_chip">Numaranızı düzenliyorsunuz. Kodu tekrar göndermek öncekinin yerine geçecektir.</string>
-    <string name="telegram_working">Çalışılıyor…</string>
-    <string name="telegram_status_initializing">Telegram başlatılıyor…</string>
-    <string name="telegram_status_logging_out">Oturum kapatılıyor…</string>
-    <string name="telegram_status_closing">Oturum sonlandırılıyor…</string>
-    <string name="telegram_status_closed">Oturum kapatıldı. Devam etmek için girişi tekrar açın.</string>
-    <string name="telegram_status_preparing">Güvenli Telegram oturumu hazırlanıyor…</string>
-    <string name="telegram_status_waiting">Telegram yanıtı bekleniyor…</string>
-    <string name="telegram_connect">Telegram\'ı Bağla</string>
-    <string name="telegram_connect_subtitle">Kanallarınızdan ve sohbetlerinizden müzik akışı gerçekleştirmek için Telegram\'ı bağlayın.</string>
-    <string name="telegram_phone_number_title">Telefon Numarası</string>
-    <string name="telegram_phone_number_subtitle">Telegram numaranızı girin. Daha sonra geri dönüp düzenleyebilirsiniz.</string>
-    <string name="telegram_phone_number_hint">Telefon numarası</string>
-    <string name="telegram_phone_country_placeholder">1</string>
-    <string name="telegram_phone_local_placeholder">5551234567</string>
-    <string name="telegram_send_code">Kodu Gönder</string>
-    <string name="telegram_verification_code_title">Doğrulama Kodu</string>
-    <string name="telegram_verification_code_subtitle">Telegram\'dan gelen kodu girin. Numara yanlışsa geri dönüp düzenleyin.</string>
-    <string name="telegram_code_field_label">Kod</string>
-    <string name="telegram_code_placeholder">12345</string>
-    <string name="telegram_edit_phone">Telefonu düzenle</string>
-    <string name="telegram_resend_code">Kodu tekrar gönder</string>
-    <string name="telegram_verify_code">Kodu Doğrula</string>
-    <string name="telegram_two_step_password_title">İki Adımlı Şifre</string>
-    <string name="telegram_two_step_password_subtitle">Telegram şifrenizi girin. Numaranızı düzeltmek için hala geri dönebilirsiniz.</string>
-    <string name="telegram_password_label">Şifre</string>
-    <string name="telegram_verify_password">Şifreyi Doğrula</string>
-    <string name="telegram_please_wait">Lütfen bekleyin…</string>
-
-    <!-- Telegram dashboard -->
-    <string name="telegram_channels_title">Telegram Kanalları</string>
-    <string name="telegram_add_channel_fab">Kanal Ekle</string>
-    <string name="telegram_public_channel_fallback">Herkese açık Telegram kanalı</string>
-    <string name="telegram_syncing">Senkronize ediliyor</string>
-    <string name="telegram_sync_now">Şimdi senkronize et</string>
-    <string name="telegram_cd_collapse_topics">Konuları daralt</string>
-    <string name="telegram_cd_show_topics">Konuları göster</string>
-    <string name="telegram_cd_channel_options">Kanal seçenekleri</string>
-    <string name="telegram_topics_heading">Konular</string>
-    <string name="telegram_syncing_channel">Kanal senkronize ediliyor</string>
-    <string name="telegram_updating_songs_from_telegram">Şarkılar Telegram\'dan güncelleniyor</string>
-    <string name="telegram_fetch_latest_songs">Bu kanaldan en son şarkıları getir</string>
-    <string name="telegram_remove_channel">Kanalı kaldır</string>
-    <string name="telegram_remove_channel_subtitle">Senkronizasyonu durdur ve önbelleğe alınmış şarkıları kaldır</string>
-    <string name="telegram_remove_channel_confirm_title">Kanal kaldırılsın mı?</string>
-    <string name="telegram_remove_channel_confirm_body">%1$s senkronizasyonu durduracak ve bu kanaldaki tüm önbelleğe alınmış şarkılar kaldırılacak.</string>
-    <string name="telegram_remove_channel_confirm_action">Kaldır</string>
-    <string name="telegram_no_channels_synced">Senkronize Edilmiş Kanal Yok</string>
-    <string name="telegram_no_channels_body">Müzik kitaplığınızı senkronize etmek için\nherkese açık Telegram kanalları ekleyin</string>
-    <string name="telegram_add_channel_button">Kanal ekle</string>
-    <string name="telegram_never_synced">Hiç senkronize edilmedi</string>
-    <string name="telegram_synced_relative">%1$s senkronize edildi</string>
-
-    <!-- Telegram channel search -->
-    <string name="telegram_add_channel_sheet_title">Kanal Ekle</string>
-    <string name="telegram_add_channel_sheet_subtitle">Müziklerini senkronize etmek için herkese açık bir Telegram kanalı arayın</string>
-    <string name="telegram_channel_search_placeholder">\@kanaladi veya bağlantı</string>
-    <string name="telegram_searching">Aranıyor…</string>
-    <string name="telegram_search_channel_title">Kanal ara</string>
-    <string name="telegram_search_channel_body">Ses dosyalarını senkronize etmek için herkese açık\nbir kanal kullanıcı adı veya bağlantısı girin</string>
-
-    <plurals name="telegram_n_songs">
-        <item quantity="one">%d şarkı</item>
-        <item quantity="other">%d şarkı</item>
-    </plurals>
-    <plurals name="telegram_n_topics">
-        <item quantity="one">%d konu</item>
-        <item quantity="other">%d konu</item>
-    </plurals>
 
     <!-- Subsonic/Navidrome dashboard -->
     <string name="subsonic_dashboard_title">Subsonic</string>
@@ -138,7 +67,6 @@
     <string name="auth_prefill_http_action">http:// otomatik doldur</string>
     <string name="auth_server_url_label">Sunucu URL\'si</string>
     <string name="auth_show_pwd_action">Şifreyi göster</string>
-    <string name="auth_telegram_title">Telegram</string>
     <string name="auth_username_label">Kullanıcı adı</string>
     <string name="auth_username_placeholder">admin</string>
     <string name="auth_welcome_toast">Hoş geldin, %1$s!</string>

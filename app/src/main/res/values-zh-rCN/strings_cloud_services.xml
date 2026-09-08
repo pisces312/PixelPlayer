@@ -1,76 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Telegram login -->
-    <string name="telegram_login_title">登录 Telegram</string>
-    <string name="telegram_edit_number_chip">您正在修改号码。再次发送验证码将替换上一个。</string>
-    <string name="telegram_working">处理中…</string>
-    <string name="telegram_status_initializing">正在初始化 Telegram…</string>
-    <string name="telegram_status_logging_out">正在登出…</string>
-    <string name="telegram_status_closing">正在关闭会话…</string>
-    <string name="telegram_status_closed">会话已关闭。请重新打开登录界面以继续。</string>
-    <string name="telegram_status_preparing">正在准备安全的 Telegram 会话…</string>
-    <string name="telegram_status_waiting">正在等待 Telegram 响应…</string>
-    <string name="telegram_connect">连接 Telegram</string>
-    <string name="telegram_connect_subtitle">连接 Telegram 即可流式播放您频道和聊天中的音乐。</string>
-    <string name="telegram_phone_number_title">手机号码</string>
-    <string name="telegram_phone_number_subtitle">请输入您的 Telegram 手机号码。您稍后可以返回并进行修改。</string>
-    <string name="telegram_phone_number_hint">手机号码</string>
-    <string name="telegram_phone_country_placeholder">86</string>
-    <string name="telegram_phone_local_placeholder">13800138000</string>
-    <string name="telegram_send_code">发送验证码</string>
-    <string name="telegram_verification_code_title">验证码</string>
-    <string name="telegram_verification_code_subtitle">请输入来自 Telegram 的验证码。如果号码有误，请返回并修改。</string>
-    <string name="telegram_code_field_label">验证码</string>
-    <string name="telegram_code_placeholder">12345</string>
-    <string name="telegram_edit_phone">修改手机号</string>
-    <string name="telegram_resend_code">重新发送验证码</string>
-    <string name="telegram_verify_code">验证验证码</string>
-    <string name="telegram_two_step_password_title">两步验证密码</string>
-    <string name="telegram_two_step_password_subtitle">请输入您的 Telegram 密码。您仍然可以返回以修改手机号码。</string>
-    <string name="telegram_password_label">密码</string>
-    <string name="telegram_verify_password">验证密码</string>
-    <string name="telegram_please_wait">请稍候…</string>
-
-    <!-- Telegram dashboard -->
-    <string name="telegram_channels_title">Telegram 频道</string>
-    <string name="telegram_add_channel_fab">添加频道</string>
-    <string name="telegram_public_channel_fallback">公开的 Telegram 频道</string>
-    <string name="telegram_syncing">正在同步</string>
-    <string name="telegram_sync_now">立即同步</string>
-    <string name="telegram_cd_collapse_topics">收起话题</string>
-    <string name="telegram_cd_show_topics">显示话题</string>
-    <string name="telegram_cd_channel_options">频道选项</string>
-    <string name="telegram_topics_heading">话题</string>
-    <string name="telegram_syncing_channel">正在同步频道</string>
-    <string name="telegram_updating_songs_from_telegram">正在从 Telegram 更新歌曲</string>
-    <string name="telegram_fetch_latest_songs">从此频道获取最新歌曲</string>
-    <string name="telegram_remove_channel">移除频道</string>
-    <string name="telegram_remove_channel_subtitle">停止同步并移除已缓存的歌曲</string>
-    <string name="telegram_remove_channel_confirm_title">是否移除频道？</string>
-    <string name="telegram_remove_channel_confirm_body">%1$s 将停止同步，并且从此频道缓存的所有歌曲都将被移除。</string>
-    <string name="telegram_remove_channel_confirm_action">移除</string>
-    <string name="telegram_no_channels_synced">未同步任何频道</string>
-    <string name="telegram_no_channels_body">添加公开的 Telegram 频道\n以同步您的音乐库</string>
-    <string name="telegram_add_channel_button">添加频道</string>
-    <string name="telegram_never_synced">从未同步</string>
-    <string name="telegram_synced_relative">上次同步于 %1$s</string>
-
-    <!-- Telegram channel search -->
-    <string name="telegram_add_channel_sheet_title">添加频道</string>
-    <string name="telegram_add_channel_sheet_subtitle">搜索一个公开的 Telegram 频道以同步其音乐</string>
-    <string name="telegram_channel_search_placeholder">\@channelname 或链接</string>
-    <string name="telegram_searching">正在搜索…</string>
-    <string name="telegram_search_channel_title">搜索频道</string>
-    <string name="telegram_search_channel_body">输入公开频道的用户名或链接\n以同步其音频文件</string>
-
-    <plurals name="telegram_n_songs">
-        <item quantity="one">%d 首歌曲</item>
-        <item quantity="other">%d 首歌曲</item>
-    </plurals>
-    <plurals name="telegram_n_topics">
-        <item quantity="one">%d 个话题</item>
-        <item quantity="other">%d 个话题</item>
-    </plurals>
 
     <!-- Subsonic/Navidrome dashboard -->
     <string name="subsonic_dashboard_title">Subsonic</string>
@@ -138,7 +67,6 @@
     <string name="auth_prefill_http_action">预填 http://</string>
     <string name="auth_server_url_label">服务器 URL</string>
     <string name="auth_show_pwd_action">显示密码</string>
-    <string name="auth_telegram_title">Telegram</string>
     <string name="auth_username_label">用户名</string>
     <string name="auth_username_placeholder">admin</string>
     <string name="auth_welcome_toast">欢迎您，%1$s！</string>

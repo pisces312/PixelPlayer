@@ -44,11 +44,6 @@
     <string name="library_storage_sd_card">SD Card</string>
     <string name="library_storage_sd_card_unavailable">SD card is not available right now.</string>
     <string name="library_sort_section_cloud">Cloud</string>
-    <string name="library_sort_toggle_telegram_channels">Telegram Cloud Channels</string>
-    <string name="library_telegram_topics_display_title">Topics Display</string>
-    <string name="library_telegram_topic_mode_channels">Channels</string>
-    <string name="library_telegram_topic_mode_topics">Topics</string>
-    <string name="library_telegram_topic_mode_both">Both</string>
     <string name="library_cloud_sources_heading">Cloud</string>
     <string name="library_cloud_only_label">Cloud Only</string>
 

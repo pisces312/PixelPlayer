@@ -43,11 +43,6 @@
     <string name="library_storage_sd_card">Kartu SD</string>
     <string name="library_storage_sd_card_unavailable">Kartu SD tidak tersedia saat ini.</string>
     <string name="library_sort_section_cloud">Cloud</string>
-    <string name="library_sort_toggle_telegram_channels">Saluran Cloud Telegram</string>
-    <string name="library_telegram_topics_display_title">Tampilan Topik</string>
-    <string name="library_telegram_topic_mode_channels">Saluran</string>
-    <string name="library_telegram_topic_mode_topics">Topik</string>
-    <string name="library_telegram_topic_mode_both">Keduanya</string>
     <string name="library_cloud_sources_heading">Cloud</string>
     <string name="library_cloud_only_label">Hanya Cloud</string>
 

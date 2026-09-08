@@ -43,11 +43,6 @@
     <string name="library_storage_sd_card">SD-карта</string>
     <string name="library_storage_sd_card_unavailable">SD-карта сейчас недоступна.</string>
     <string name="library_sort_section_cloud">Облако</string>
-    <string name="library_sort_toggle_telegram_channels">Облачные каналы Telegram</string>
-    <string name="library_telegram_topics_display_title">Отображение тем</string>
-    <string name="library_telegram_topic_mode_channels">Каналы</string>
-    <string name="library_telegram_topic_mode_topics">Темы</string>
-    <string name="library_telegram_topic_mode_both">Оба варианта</string>
     <string name="library_cloud_sources_heading">Облако</string>
     <string name="library_cloud_only_label">Только облако</string>
 

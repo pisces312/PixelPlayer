@@ -44,11 +44,6 @@
     <string name="library_storage_sd_card">SD 卡</string>
     <string name="library_storage_sd_card_unavailable">SD 卡目前不可用。</string>
     <string name="library_sort_section_cloud">云端</string>
-    <string name="library_sort_toggle_telegram_channels">Telegram 云端频道</string>
-    <string name="library_telegram_topics_display_title">话题显示 (Topics)</string>
-    <string name="library_telegram_topic_mode_channels">频道</string>
-    <string name="library_telegram_topic_mode_topics">话题</string>
-    <string name="library_telegram_topic_mode_both">全部</string>
     <string name="library_cloud_sources_heading">云端</string>
     <string name="library_cloud_only_label">仅云端</string>
 

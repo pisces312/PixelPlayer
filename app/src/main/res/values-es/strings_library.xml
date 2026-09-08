@@ -43,11 +43,6 @@
     <string name="library_storage_sd_card">Tarjeta SD</string>
     <string name="library_storage_sd_card_unavailable">La tarjeta SD no está disponible ahora.</string>
     <string name="library_sort_section_cloud">Nube</string>
-    <string name="library_sort_toggle_telegram_channels">Canales en la nube de Telegram</string>
-    <string name="library_telegram_topics_display_title">Mostrar temas</string>
-    <string name="library_telegram_topic_mode_channels">Canales</string>
-    <string name="library_telegram_topic_mode_topics">Temas</string>
-    <string name="library_telegram_topic_mode_both">Ambos</string>
     <string name="library_cloud_sources_heading">Nube</string>
     <string name="library_cloud_only_label">Solo nube</string>
 

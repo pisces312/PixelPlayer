@@ -22,6 +22,14 @@ PixelPlayer 是 Android 音乐播放器（100% Kotlin，Jetpack Compose + Materi
 # Release（需先设置签名环境变量，见「关键约束」）
 .\gradlew.bat :app:assembleRelease "-Ppixelplay.enableAbiSplits=true"
 
+# 产出 APK 文件名格式（由 app/build.gradle.kts 的 androidComponents.onVariants 生成）：
+#   app-<abi>-lite-<APP_VERSION_NAME>-<buildtype>.apk
+# 例：app-arm64-v8a-lite-0.7.8-pisces-debug.apk / app-arm64-v8a-lite-0.7.8-pisces-release.apk
+#   <abi>            取自 splits.abi（本分支仅构建 arm64-v8a；关闭 ABI splits 时为 universal）
+#   <APP_VERSION_NAME>  取自 gradle.properties（如 0.7.8-pisces）
+#   lite            标识 china-only 精简版（已移除 Telegram / 日文罗马音 / Google Drive 入口）
+#   <buildtype>     debug 或 release
+
 # Wear OS Debug
 .\gradlew.bat :wear:assembleDebug
 

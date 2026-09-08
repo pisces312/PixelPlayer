@@ -1,76 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Telegram login -->
-    <string name="telegram_login_title">Login Telegram</string>
-    <string name="telegram_edit_number_chip">Stai modificando il tuo numero. L\'invio di un nuovo codice sostituirà quello precedente.</string>
-    <string name="telegram_working">Elaborazione…</string>
-    <string name="telegram_status_initializing">Inizializzazione Telegram…</string>
-    <string name="telegram_status_logging_out">Disconnessione…</string>
-    <string name="telegram_status_closing">Chiusura sessione…</string>
-    <string name="telegram_status_closed">Sessione chiusa. Riapri il login per continuare.</string>
-    <string name="telegram_status_preparing">Preparazione sessione Telegram sicura…</string>
-    <string name="telegram_status_waiting">Attesa risposta Telegram…</string>
-    <string name="telegram_connect">Connetti Telegram</string>
-    <string name="telegram_connect_subtitle">Connetti Telegram per riprodurre in streaming musica dai tuoi canali e chat.</string>
-    <string name="telegram_phone_number_title">Numero di telefono</string>
-    <string name="telegram_phone_number_subtitle">Inserisci il tuo numero Telegram. Potrai tornare indietro e modificarlo in seguito.</string>
-    <string name="telegram_phone_number_hint">Numero di telefono</string>
-    <string name="telegram_phone_country_placeholder">1</string>
-    <string name="telegram_phone_local_placeholder">5551234567</string>
-    <string name="telegram_send_code">Invia codice</string>
-    <string name="telegram_verification_code_title">Codice di verifica</string>
-    <string name="telegram_verification_code_subtitle">Inserisci il codice da Telegram. Se il numero è errato, torna indietro e modificalo.</string>
-    <string name="telegram_code_field_label">Codice</string>
-    <string name="telegram_code_placeholder">12345</string>
-    <string name="telegram_edit_phone">Modifica telefono</string>
-    <string name="telegram_resend_code">Reinvia codice</string>
-    <string name="telegram_verify_code">Verifica codice</string>
-    <string name="telegram_two_step_password_title">Password in due passaggi</string>
-    <string name="telegram_two_step_password_subtitle">Inserisci la tua password Telegram. Puoi comunque tornare indietro per correggere il numero.</string>
-    <string name="telegram_password_label">Password</string>
-    <string name="telegram_verify_password">Verifica password</string>
-    <string name="telegram_please_wait">Attendi…</string>
-
-    <!-- Telegram dashboard -->
-    <string name="telegram_channels_title">Canali Telegram</string>
-    <string name="telegram_add_channel_fab">Aggiungi canale</string>
-    <string name="telegram_public_channel_fallback">Canale Telegram pubblico</string>
-    <string name="telegram_syncing">Sincronizzazione</string>
-    <string name="telegram_sync_now">Sincronizza ora</string>
-    <string name="telegram_cd_collapse_topics">Comprimi argomenti</string>
-    <string name="telegram_cd_show_topics">Mostra argomenti</string>
-    <string name="telegram_cd_channel_options">Opzioni canale</string>
-    <string name="telegram_topics_heading">Argomenti</string>
-    <string name="telegram_syncing_channel">Sincronizzazione canale</string>
-    <string name="telegram_updating_songs_from_telegram">Aggiornamento brani da Telegram</string>
-    <string name="telegram_fetch_latest_songs">Recupera ultimi brani da questo canale</string>
-    <string name="telegram_remove_channel">Rimuovi canale</string>
-    <string name="telegram_remove_channel_subtitle">Interrompi sincronizzazione e rimuovi brani in cache</string>
-    <string name="telegram_remove_channel_confirm_title">Rimuovere canale?</string>
-    <string name="telegram_remove_channel_confirm_body">%1$s smetterà di sincronizzarsi e tutti i brani in cache di questo canale verranno rimossi.</string>
-    <string name="telegram_remove_channel_confirm_action">Rimuovi</string>
-    <string name="telegram_no_channels_synced">Nessun canale sincronizzato</string>
-    <string name="telegram_no_channels_body">Aggiungi canali Telegram pubblici per sincronizzare\nla tua libreria musicale</string>
-    <string name="telegram_add_channel_button">Aggiungi canale</string>
-    <string name="telegram_never_synced">Mai sincronizzato</string>
-    <string name="telegram_synced_relative">Sincronizzato %1$s</string>
-
-    <!-- Telegram channel search -->
-    <string name="telegram_add_channel_sheet_title">Aggiungi canale</string>
-    <string name="telegram_add_channel_sheet_subtitle">Cerca un canale Telegram pubblico per sincronizzarne la musica</string>
-    <string name="telegram_channel_search_placeholder">\@nomedelcanale o link</string>
-    <string name="telegram_searching">Ricerca…</string>
-    <string name="telegram_search_channel_title">Cerca un canale</string>
-    <string name="telegram_search_channel_body">Inserisci un nome utente o link di un canale pubblico\nper sincronizzarne i file audio</string>
-
-    <plurals name="telegram_n_songs">
-        <item quantity="one">%d brano</item>
-        <item quantity="other">%d brani</item>
-    </plurals>
-    <plurals name="telegram_n_topics">
-        <item quantity="one">%d argomento</item>
-        <item quantity="other">%d argomenti</item>
-    </plurals>
 
     <!-- Subsonic/Navidrome dashboard -->
     <string name="subsonic_dashboard_title">Subsonic</string>
@@ -138,7 +67,6 @@
     <string name="auth_prefill_http_action">Precompila http://</string>
     <string name="auth_server_url_label">URL server</string>
     <string name="auth_show_pwd_action">Mostra password</string>
-    <string name="auth_telegram_title">Telegram</string>
     <string name="auth_username_label">Nome utente</string>
     <string name="auth_username_placeholder">admin</string>
     <string name="auth_welcome_toast">Benvenuto, %1$s!</string>

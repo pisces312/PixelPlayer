@@ -43,11 +43,6 @@
     <string name="library_storage_sd_card">SD 카드</string>
     <string name="library_storage_sd_card_unavailable">현재 SD 카드를 사용할 수 없습니다.</string>
     <string name="library_sort_section_cloud">클라우드</string>
-    <string name="library_sort_toggle_telegram_channels">Telegram 클라우드 채널</string>
-    <string name="library_telegram_topics_display_title">토픽 표시</string>
-    <string name="library_telegram_topic_mode_channels">채널</string>
-    <string name="library_telegram_topic_mode_topics">토픽</string>
-    <string name="library_telegram_topic_mode_both">둘 다</string>
     <string name="library_cloud_sources_heading">클라우드</string>
     <string name="library_cloud_only_label">클라우드 전용</string>
 
